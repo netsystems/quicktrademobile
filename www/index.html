@@ -26,51 +26,18 @@
         <meta name="msapplication-tap-highlight" content="no" />
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-        <!--<link rel="stylesheet" type="text/css" href="css/index.css" />-->
-        <link rel="stylesheet" href="css/QuickTradeMobile.min.css" />
-	    <link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
-	    <link rel="stylesheet" href="css/jquery.mobile.structure-1.4.5.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
         <title>Hello World</title>
     </head>
     <body>
-        <!--<div class="app">
+        <div class="app">
             <h1>PhoneGap</h1>
             <div id="deviceready" class="blink">
                 <p class="event listening">Connecting to Device</p>
                 <p class="event received">Device is Ready</p>
             </div>
-        </div>-->
-
-    <div data-role="page" id="pageMain" data-theme="a">
-		<div data-role="header" data-position="fixed">
-			<h1 id="headerText">Quick Trade</h1>
-		</div>
-		<div data-role="content" data-theme="a">
-			<p>Your theme was successfully downloaded. You can use this page as a reference for how to link it up!</p>
-            <div id="BatteryLabel"></div>
-            <div id="DeviceInfo"></div>
-
-            <a href="#" id="msgBtn" class="ui-btn ui-icon-alert ui-btn-icon-left" onclick="doHello();">MsgBox</a>
-            
-
-            <br /><br /><br /><br /><br /><br /><br />
-			<p>This is content color swatch "A" and a preview of a <a href="#" class="ui-link">link</a>.</p>
-			<label for="slider1">Input slider:</label>
-			<input type="range" name="slider1" id="slider1" value="50" min="0" max="100" data-theme="a" />
-			<fieldset data-role="controlgroup"  data-type="horizontal" data-role="fieldcontain">
-			<legend>Cache settings:</legend>
-			<input type="radio" name="radio-choice-a1" id="radio-choice-a1" value="on" checked="checked" />
-			<label for="radio-choice-a1">On</label>
-			<input type="radio" name="radio-choice-a1" id="radio-choice-b1" value="off"  />
-			<label for="radio-choice-b1">Off</label>
-			</fieldset>
-		</div>
-	</div>
-
-
+        </div>
         <script type="text/javascript" src="cordova.js"></script>
-	    <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
-	    <script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript">
             app.initialize();
