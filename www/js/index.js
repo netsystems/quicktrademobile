@@ -34,16 +34,47 @@ var app = {
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
+
+        if (parseInt(window.device.version) === 7) {
+            document.getElementById("headerText").innerHTML = "<br/>" + document.getElementById("headerText").innerHTML;
+        }
+
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
+        /*var parentElement = document.getElementById(id);
         var listeningElement = parentElement.querySelector('.listening');
         var receivedElement = parentElement.querySelector('.received');
 
         listeningElement.setAttribute('style', 'display:none;');
         receivedElement.setAttribute('style', 'display:block;');
-
+        */
         console.log('Received Event: ' + id);
+
+        document.getElementById("BatteryLabel").innerHTML = "Wait...";
+        window.addEventListener('batterystatus', this.onBatteryStatusChange, false);
+
+        document.getElementById("DeviceInfo").innerHTML = "Modello: " + device.model.toString() + "<br/>" +
+                                                          "Piattaforma: " + device.platform.toString() + "<br/>" +
+                                                          "Versione: " + device.version.toString() + "<br/>";
+
+        
+
+    },
+    onBatteryStatusChange: function (info) {
+
+        document.getElementById("BatteryLabel").innerHTML = "Batteria: " + info.level + "<br/>Sotto carica: " + info.isPlugged;
+
     }
 };
+
+function doSomething() {
+    alert("alert javascript");
+}
+
+function doHello() {
+    navigator.notification.beep(1);
+    navigator.vibrate(3000);
+    navigator.notification.alert("Notifica nativa dello smartphone.", doSomething, "Titolo Notifica", "CHIUDI");
+}
+
