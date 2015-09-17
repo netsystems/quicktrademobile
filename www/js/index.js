@@ -65,31 +65,6 @@ var app = {
 
         document.getElementById("BatteryLabel").innerHTML = "Batteria: " + info.level + "<br/>Sotto carica: " + info.isPlugged;
 
-    },
-    doScan: function() {
-        try {
-
-            if (cordova.plugins) {
-                alert("si");
-            } else {
-                alert("no");
-            }
-
-            cordova.plugins.barcodeScanner.scan(
-              function (result) {
-                  alert("We got a barcode\n" +
-                        "Result: " + result.text + "\n" +
-                        "Format: " + result.format + "\n" +
-                        "Cancelled: " + result.cancelled);
-              },
-              function (error) {
-                  alert("Scanning failed: " + error);
-              }
-           );
-
-        } catch (e) {
-            alert("ERRORE: " + e.message.toString());
-        }
     }
 };
 
