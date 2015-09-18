@@ -25,7 +25,7 @@
         <meta name="format-detection" content="telephone=no" />
         <meta name="msapplication-tap-highlight" content="no" />
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 height=device-height, -->
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, target-densitydpi=device-dpi" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, target-densitydpi=medium-dpi" />
         <!--<link rel="stylesheet" type="text/css" href="css/index.css" />-->
         <link rel="stylesheet" href="css/QuickTradeMobile.min.css" />
 	    <link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
@@ -43,27 +43,20 @@
 
     <div data-role="page" id="pageMain" data-theme="a">
 		<div data-role="header" data-position="fixed">
-			<h1 id="headerText">Quick Trade</h1>
+			<h1 id="headerText"><img src="img/QTDestra32.ico" style="width: 20px; height: 20px;" /> Quick Trade</h1>
 		</div>
 		<div data-role="content" data-theme="a">
-			<p>Your theme was successfully downloaded. You can use this page as a reference for how to link it up!</p>
-            <div id="BatteryLabel"></div>
-            <div id="DeviceInfo"></div>
-
-            <a href="#" id="msgBtn" class="ui-btn ui-icon-alert ui-btn-icon-left" onclick="doHello();">MsgBox</a>
+            <div id="DeviceInfo" style="width: 100%; text-align: right;">&nbsp;</div>
+            <h2>File System</h2>
+            <div data-role="fieldcontain">
+                <label for="textRow">Testo:</label>
+                <input type="text" id="textRow" style="background-color: #fff;" />
+            </div>
+            <a href="#" class="ui-btn ui-icon-check ui-btn-icon-left" onclick="doWrite();">Scrivi</a>
+            <a href="#" class="ui-btn ui-icon-eye ui-btn-icon-left" onclick="doRead();">Leggi</a>
+            <a href="#" class="ui-btn ui-icon-delete ui-btn-icon-left" onclick="doRemove();">Rimuovi</a>
+            <a href="#" class="ui-btn ui-icon-search ui-btn-icon-left" onclick="doExist();">Esiste?</a>
             
-
-            <br /><br /><br /><br /><br /><br /><br />
-			<p>This is content color swatch "A" and a preview of a <a href="#" class="ui-link">link</a>.</p>
-			<label for="slider1">Input slider:</label>
-			<input type="range" name="slider1" id="slider1" value="50" min="0" max="100" data-theme="a" />
-			<fieldset data-role="controlgroup"  data-type="horizontal" data-role="fieldcontain">
-			<legend>Cache settings:</legend>
-			<input type="radio" name="radio-choice-a1" id="radio-choice-a1" value="on" checked="checked" />
-			<label for="radio-choice-a1">On</label>
-			<input type="radio" name="radio-choice-a1" id="radio-choice-b1" value="off"  />
-			<label for="radio-choice-b1">Off</label>
-			</fieldset>
 		</div>
 	</div>
 

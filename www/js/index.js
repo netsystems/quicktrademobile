@@ -16,6 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+ 
+var _fs = null;
+
 var app = {
     // Application Constructor
     initialize: function() {
@@ -35,7 +38,7 @@ var app = {
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
 
-        if (parseInt(window.device.version) === 7) {
+        if (parseInt(window.device.version) >= 7) {
             document.getElementById("headerText").innerHTML = "<br/>" + document.getElementById("headerText").innerHTML;
         }
 
@@ -51,30 +54,207 @@ var app = {
         */
         console.log('Received Event: ' + id);
 
-        document.getElementById("BatteryLabel").innerHTML = "Wait...";
+
+        try {
+            window.removeEventListener('batterystatus');
+        } catch (e) {
+        }
         window.addEventListener('batterystatus', this.onBatteryStatusChange, false);
 
-        document.getElementById("DeviceInfo").innerHTML = "Modello: " + device.model.toString() + "<br/>" +
-                                                          "Piattaforma: " + device.platform.toString() + "<br/>" +
-                                                          "Versione: " + device.version.toString() + "<br/>";
+        
+      
 
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
+            _fs = fs;
+        }, function (err) {
+            alert("Errore recupero filesystem: " + err.message);
+        });
+       
         
 
     },
     onBatteryStatusChange: function (info) {
 
-        document.getElementById("BatteryLabel").innerHTML = "Batteria: " + info.level + "<br/>Sotto carica: " + info.isPlugged;
+        document.getElementById("DeviceInfo").innerHTML = "Modello: " + device.model.toString() + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + info.level + "%";
+        if (info.isPlugged) {
+            document.getElementById("DeviceInfo").innerHTML += " (In Carica)";
+        }
 
     }
 };
 
-function doSomething() {
-    alert("alert javascript");
+function errorHandler(e) {
+    var msg = '';
+
+    switch (e.code) {
+        case FileError.QUOTA_EXCEEDED_ERR:
+            msg = 'QUOTA_EXCEEDED_ERR';
+            break;
+        case FileError.NOT_FOUND_ERR:
+            msg = 'NOT_FOUND_ERR';
+            break;
+        case FileError.SECURITY_ERR:
+            msg = 'SECURITY_ERR';
+            break;
+        case FileError.INVALID_MODIFICATION_ERR:
+            msg = 'INVALID_MODIFICATION_ERR';
+            break;
+        case FileError.INVALID_STATE_ERR:
+            msg = 'INVALID_STATE_ERR';
+            break;
+        default:
+            msg = 'Unknown Error';
+            break;
+    };
+
+    alert("Error - se " + se + ": " + msg);
 }
 
-function doHello() {
-    navigator.notification.beep(1);
-    navigator.vibrate(3000);
-    navigator.notification.alert("Notifica nativa dello smartphone.", doSomething, "Titolo Notifica", "CHIUDI");
+var se = "";
+
+function doWrite() {
+
+    try {
+
+if (!_fs) {
+            alert("FS non ancora caricata.");
+            return;
+        }
+
+        var myFile = "test.json";
+
+        se = "1";
+
+        _fs.root.getFile(myFile, { create: true, exclusive: false }, function (fileEntry) {
+
+
+            se = "2";
+            fileEntry.createWriter(function (fileWriter) {
+
+                fileWriter.onwriteend = function (e) {
+                    alert('Write completed.');
+                };
+
+                fileWriter.onerror = function (e) {
+                    alert('Write failed: ' + e.toString());
+                };
+
+                // Create a new Blob and write it to log.txt.
+                var blob = new Blob([$("#textRow").val().toString()], { type: "text/plain" });
+
+                fileWriter.write(blob);
+
+            }, errorHandler);
+
+
+        }, errorHandler);
+
+
+
+
+    } catch (e) {
+        alert("Errore dowrite: " + e.message);
+    }
+
+    
+
+}
+ 
+
+function doRead() {
+
+    try {
+
+        if (!_fs) {
+            alert("FS non ancora caricata.");
+            return;
+        }
+
+        var myFile = "test.json";
+
+        se = "1";
+
+        _fs.root.getFile(myFile, {}, function (fileEntry) {
+
+
+            se = "2";
+            // Get a File object representing the file,
+            // then use FileReader to read its contents.
+            fileEntry.file(function (file) {
+                var reader = new FileReader();
+
+                reader.onloadend = function (e) {
+                    //var txtArea = document.createElement('textarea');
+                    //txtArea.value = this.result;
+                    //document.body.appendChild(txtArea);
+
+                    alert("Testo:\n" + this.result.toString());
+
+                };
+
+                reader.readAsText(file);
+            }, errorHandler);
+
+
+        }, errorHandler);
+
+
+
+
+    } catch (e) {
+        alert("Errore doread: " + e.message);
+    }
+}
+ 
+
+function doRemove() {
+    try {
+
+        if (!_fs) {
+            alert("FS non ancora caricata.");
+            return;
+        }
+
+        var myFile = "test.json";
+
+        se = "1";
+
+        _fs.root.getFile(myFile, {}, function (fileEntry) {
+
+            se = "2";
+            fileEntry.remove(function () {
+                alert("File removed.");
+            }, errorHandler);
+
+        }, errorHandler);
+
+
+
+
+    } catch (e) {
+        alert("Errore doremove: " + e.message);
+    }
 }
 
+
+function doExist() {
+    try {
+
+        if (!_fs) {
+            alert("FS non ancora caricata.");
+            return;
+        }
+
+        var myFile = "test.json";
+
+        se = "1";
+        _fs.root.getFile(myFile, {}, function () {
+            alert("File exists.");
+        }, function () {
+            alert("File NOT exists.");
+        });
+
+    } catch (e) {
+        alert("Errore doexist: " + e.message);
+    }
+}
