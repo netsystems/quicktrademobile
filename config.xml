@@ -80,7 +80,7 @@
   <access origin="*" launch-external="yes" />
 
 
-  <plugin name="Storage" value="org.apache.cordova.Storage" />
+  <!--<plugin name="Storage" value="org.apache.cordova.Storage" />-->
   <!--<gap:plugin name="cordova-plugin-statusbar"/>-->
   <!--<gap:config-file platform="android" parent="/manifest">
     <supports-screens android:xlargeScreens="false" android:largeScreens="false" android:smallScreens="false" />
