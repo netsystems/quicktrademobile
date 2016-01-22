@@ -27,7 +27,7 @@ var app = {
     onDeviceReady: function () {
         //LoaderShow("Benvenuto!");
         //Sistemo la status bar
-        if (StatusBar) {
+        /*if (StatusBar) {
             try {
                 StatusBar.overlaysWebView(false);
                 StatusBar.styleBlackOpaque();
@@ -37,7 +37,7 @@ var app = {
             }
         } else {
             alert("StatusBar: non esiste l'oggetto.");
-        }
+        }*/
 
         
         //Inizializzo la configurazione
