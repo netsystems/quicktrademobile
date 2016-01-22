@@ -4,7 +4,7 @@
   <author href="http://www.netsystems.it" email="info@netsystems.it">Net Systems Team</author>
   <content src="index.html"/>
   <!-- MultiPlatform-->
-  <preference name="phonegap-version" value="5.2.0"/>
+  <preference name="phonegap-version" value="5.1.1"/>
   <preference name="orientation" value="default"/>
   <preference name="fullscreen" value="true"/>
   <!-- iOS -->
