@@ -25,45 +25,251 @@
         <meta name="format-detection" content="telephone=no" />
         <meta name="msapplication-tap-highlight" content="no" />
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 height=device-height, -->
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, target-densitydpi=medium-dpi" />
-        <!--<link rel="stylesheet" type="text/css" href="css/index.css" />-->
-        <link rel="stylesheet" href="css/QuickTradeMobile.min.css" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, target-densitydpi=medium-dpi" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <link rel="stylesheet" href="css/OeNeutral.min.css" />
 	    <link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
 	    <link rel="stylesheet" href="css/jquery.mobile.structure-1.4.5.min.css" />
+        <link href="css/keyboard.css" rel="stylesheet" />
         <title>Hello World</title>
     </head>
-    <body>
-        <!--<div class="app">
-            <h1>PhoneGap</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
+    <body style="margin-top: 20px;">
+        <!--MAIN PAGE-->
+	    <div data-role="page" id="pageMain" data-theme="a">
+             <div data-role="panel" id="pageMainPanel" data-position="right" data-display="overlay">
+                <ul data-role="listview">
+                    <p style="text-align:center; font-weight:bold;">Pannello di Controllo<br /></p>
+                    <li data-icon="refresh" class="iconLeft"><a href="#" onclick="PageChange('#pageSync');">Sincronizzazione</a></li>
+                    <li data-icon="user" class="iconLeft"><a href="#" onclick="PageChange('#pageProfile');">Profilo</a></li>
+                    <li data-icon="gear" class="iconLeft"><a href="#" onclick="PageChange('#pageOptions');">Configurazione</a></li>
+                </ul>
             </div>
-        </div>-->
+		    <div data-role="header" data-position="fixed">
+			    <div class="custom-border-radius">
+                    <a id="pageMainOrdToUpload" href="#" onclick="PageChange('#pageSync');" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-shop ui-screen-hidden"></a>
+                </div>
+                <h1 id="pageMainHeader">Quick Trade</h1>
+                <div class="custom-border-radius">
+                    <a href="#pageMainPanel" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-bars"></a>
+                </div>
+		    </div>
+            <div data-role="content" data-theme="a">
+                <div id="pageMainContent" style="display: none;">
+                        <p style="width: 100%; text-align: center; margin-top: -5px;"><img src="img/QTDestra32.ico" style="width: 20px; height: 20px; vertical-align: bottom;"/><span id="pageMainFairInfo"></span></p>
+                        <div id="pageMainOrdIncomplete" class="ui-screen-hidden">
+                            <ul id="pageMainOrdList" data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
+                            <hr />
+                        </div>
+                        <div id="pageMainProfileIncomplete" class="ui-screen-hidden">
+                            <div style="border: 1px solid #ff0000; background-color: #ff7171; text-align: center; color: #000; font-weight: bold;">
+                                <img src="img/Alert-icon.png" style="width:24px; height:24px;" /><br />
+                                Profilo non compilato.
+                            </div>
+                        </div>
+                        <br />
+                        <a href="#" class="ui-btn ui-icon-plus ui-btn-icon-top" onclick="OrderStartNew();">Nuova Campionatura</a>
+                        <br />
+                        <a href="#" class="ui-btn ui-icon-tag ui-btn-icon-top" onclick="ListiniShowPage();">Listino Prezzi</a>
+                        <br />
+                        <a href="#" class="ui-btn ui-icon-bullets ui-btn-icon-top" onclick="PageChange('#pageHitScelte',false);">Visualizzazione HIT Scelte</a>
+                </div>
+		    </div>
+	    </div>
+        <!--OPTIONS PAGE-->
+	    <div data-role="page" id="pageOptions" data-theme="a">
+		    <div data-role="header" data-position="fixed">
+                <div class="custom-border-radius">
+                    <a id="pageOptionsBack" href="#" onclick="PageChange('#pageMain', true);" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
+                </div>
+			    <h1>Configurazione</h1>
+                <a id="pageOptionsSave" href="#" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-check">Salva</a>
+		    </div>
+            <div data-role="content" data-theme="a">
+                <h2 style="text-align: right;">Comunicazione Server</h2>
+                <label for="pageOptionsTxtServerIp">Indirizzo IP Server:</label>
+                <input type="text" name="pageOptionsTxtServerIp" id="pageOptionsTxtServerIp" value="" />
+                <label for="pageOptionsTxtServerPort">Num. Porta Server:</label>
+                <input type="text" name="pageOptionsTxtServerPort" id="pageOptionsTxtServerPort" value="" />
+                <br />
+                <div id="pageOptionsDeleteAllDiv" style="display: none;">
+                    <a id="pageOptionsDeleteAll" href="#" class="ui-btn ui-icon-delete ui-btn-icon-top">Formatta Database App</a>
+                </div>
+		    </div>
+	    </div>
+        <!--PROFILE PAGE-->
+        <div data-role="page" id="pageProfile" data-theme="a">
+		    <div data-role="header" data-position="fixed">
+                <div class="custom-border-radius">
+                    <a id="pageProfileBack" href="#" onclick="PageChange('#pageMain', true);" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
+                </div>
+			    <h1>Profilo</h1>
+                <a id="pageProfileSave" href="#" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-check">Salva</a>
+		    </div>
+            <div data-role="content" data-theme="a">
+                <label for="pageProfileTxtQtUser">Nome Operatore in QuickTrade:</label>
+                <input type="text" name="pageProfileTxtQtUser" id="pageProfileTxtQtUser" value="" />
+                <a href="#" id="pageProfileVerify" class="ui-btn ui-corner-all ui-icon-check ui-btn-icon-left">Verifica Operatore</a>
+                <br />
+		    </div>
+	    </div>
+        <!--ORDER PAGE-->
+	    <div data-role="page" id="pageOrder" data-theme="a">
+		    <div data-role="header" data-position="fixed" data-tap-toggle="false">
+                <div class="custom-border-radius">
+                    <a id="pageOrderBack" href="#" onclick="pageOrderCancel();" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
+                </div>
+			    <h1 style="margin-bottom: 5px;">Ordine Cliente</h1>
+                <a id="pageOrderSave" href="#" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-check" onclick="OrderSave();">Salva</a>
+                <div data-role="navbar" data-iconpos="top" style=" border-bottom: 1px solid #996600;">
+                    <ul>
+                        <li><a id="pageOrderCliente" href="#" data-icon="user" data-theme="c" onclick="CustomerShowSelect();" style="white-space:normal;"></a></li>
+                    </ul>
+                </div>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 20px;">Codice:</td>
+                        <td><input type="text" name="pageOrderRowAdd" id="pageOrderRowAdd" value="" style="height: 35px;"/></td>
+                        <td style="width:30px;"><div id="custom-border-radius"><a href="#" id="pageOrderRowAddBtn" class="ui-btn ui-icon-plus ui-btn-icon-notext" onclick="OrderAddArticle();"></a></div></td>
+                    </tr>
+                </table>
+                <h2 id="pageOrderRowNum" style="float: left; margin-left: 5px;">0 Righe</h2>
+                <div style="float: right;" id="pageOrderTableInfo"></div>
+		    </div>
+            <div data-role="content" data-theme="a">
+                <table data-role="table" id="table-articles" data-mode="columntoggle" class="ui-responsive table-stripe" data-column-btn-text="Colonne Griglia">
+                    <thead>
+                       <tr>
+                         <th data-priority="2">Codice</th>
+                         <th>Descr. Base</th>
+                         <th>Descr. Etichetta</th>
+                         <th style="width: 30px;">Opzioni</th>
+                       </tr>
+                     </thead>
+                    <tbody></tbody>
+                </table>
+		    </div>
+	    </div>
+        <!--CUSTOMER PAGE-->
+	    <div data-role="page" id="pageCustomer" data-theme="a">
+		    <div data-role="header" data-position="fixed" data-tap-toggle="false">
+                <div class="custom-border-radius"><a id="pageCustomerBack" href="#" onclick="PageChange('#pageOrder',true);" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a></div>
+			    <h1>Cliente</h1>
+                <div data-role="navbar" id="pageCustomerNavbar">
+                    <ul>
+                        <li><a href="#" id="pageCustomerViewInfo" onclick="CustomerChangeView(this,0)" data-icon="info">Informazioni</a></li>
+                        <li><a href="#" id="pageCustomerViewRicerca" onclick="CustomerChangeView(this,1)" data-icon="search">Ricerca</a></li>
+                    </ul>
+                </div><!-- /navbar -->
+		    </div>
+            <div data-role="content" data-theme="a">
+                <div data-role="popup" id="pageCustomerPopupDest" data-theme="a" data-overlay-theme="a" data-history="false">
+                        <ul id="pageCustomerDestList" data-role="listview" data-inset="true" data-filter="false" data-divider-theme="b" style="min-width: 80%;"></ul>
+                </div>
+                <div id="pageCustomerInfo">
+                    <h2 style="text-align: right; margin-top:-5px;">Informazioni Cliente</h2>
+                    <ul data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b">
+                        <li data-role="list-divider">Generali</li>
+                        <li data-theme="b" data-icon="none"><a href="#" id="pageCustomerInfoCli"></a></li>
+                    </ul>
+                    <br />
+                    <ul data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b">
+                        <li data-role="list-divider">Destinazione Selezionata</li>
+                        <li data-theme="b" data-icon="forward"><a href="#" class="ui-alt-icon" id="pageCustomerInfoDest"></a></li>
+                    </ul>
+                </div>
+                <div id="pageCustomerRicerca">
+                    <h2 style="text-align: right; margin-top:-5px;">Ricerca Cliente</h2>
+                    <div id="pageCustomerRicercaContent">
+                        <input id="pageCustomerFilter" value="" placeholder="Ragione Sociale o Codice..." type="search" />
+                        <ul id="pageCustomerList" data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
+                    </div>
+                </div>
+		    </div>
+	    </div>
+        <!--SYNC PAGE-->
+	    <div data-role="page" id="pageSync" data-theme="a">
+		    <div data-role="header" data-position="fixed" data-tap-toggle="false">
+                <div class="custom-border-radius"><a id="A1" href="#" onclick="PageChange('#pageMain',true);" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a></div>
+			    <h1>Sincronizzazione</h1>
+		    </div>
+            <div data-role="content" data-theme="a">
+                <a href="#" class="ui-btn ui-icon-refresh ui-btn-icon-left" onclick="SynchronizeDataSource();">Avvia Sincronizzazione</a>
+                <div id="pageSyncOrdMissing" class="ui-screen-hidden">
+                    <hr />
+                    <p id="pageSymcInfo">Sono presenti ordini da scaricare sul server di Quick Trade.</p>
+                    <ul id="pageSyncOrdList" data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
+                </div>
+		    </div>
+	    </div>
+        <!-- HIT SCELTE PAGE -->
+        <div data-role="page" id="pageHitScelte" data-theme="a">
+		    <div data-role="header" data-position="fixed" data-tap-toggle="false">
+                <div class="custom-border-radius"><a href="#" onclick="PageChange('#pageMain',true);" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a></div>
+			    <h1>Visualizzazione HIT Scelte</h1>
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#" id="pageHitScelteLoadCT" data-icon="bullets">Cervotessile</a></li>
+                        <li><a href="#" id="pageHitScelteLoad2T" onclick="" data-icon="bullets">Secondo Tempo</a></li>
+                    </ul>
+                </div><!-- /navbar -->
+		    </div>
+            <div data-role="content" data-theme="a">
+                <h2 id="pageHitScelteTitle">LINEA CERVOTESSILE</h2>
+                <table data-role="table" id="pageHitScelteTable" data-mode="table" class="ui-responsive table-stripe">
+                    <thead>
+                       <tr>
+                         <th>Articolo</th>
+                         <th>Disegno</th>
+                         <th style="width: 30px;">Quantit&agrave;</th>
+                       </tr>
+                     </thead>
+                    <tbody></tbody>
+                </table>
+		    </div>
+	    </div>
+        <!--LISTINI PAGE-->
+        <div data-role="page" id="pageListini" data-theme="a">
+		    <div data-role="header" data-position="fixed" data-tap-toggle="false">
+                <div class="custom-border-radius"><a href="#" id="pageListiniBack" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a></div>
+			    <h1>Listino Prezzi</h1>
+		    </div>
+            <div data-role="content" data-theme="a">
+                <div id="pageListiniContainer">
+                    <div id="pageListiniListinoDiv"><select id="pageListiniListino" data-mini="true"></select></div>
 
-    <div data-role="page" id="pageMain" data-theme="a">
-		<div data-role="header" data-position="fixed">
-			<h1 id="headerText"><img src="img/QTDestra32.ico" style="width: 20px; height: 20px;" /> Quick Trade</h1>
-		</div>
-		<div data-role="content" data-theme="a">
-            <div id="DeviceInfo" style="width: 100%; text-align: right;">&nbsp;</div>
-            <h2>File System</h2>
-            <div data-role="fieldcontain">
-                <label for="textRow">Testo:</label>
-                <input type="text" id="textRow" style="background-color: #fff;" />
-            </div>
-            <a href="#" class="ui-btn ui-icon-check ui-btn-icon-left" onclick="doWrite();">Scrivi</a>
-            <a href="#" class="ui-btn ui-icon-eye ui-btn-icon-left" onclick="doRead();">Leggi</a>
-            <a href="#" class="ui-btn ui-icon-delete ui-btn-icon-left" onclick="doRemove();">Rimuovi</a>
-            <a href="#" class="ui-btn ui-icon-search ui-btn-icon-left" onclick="doExist();">Esiste?</a>
-            
-		</div>
-	</div>
+                    <div id="pageListiniBaseDiv"><a href="#" id="pageListiniBase" class="ui-btn ui-mini ui-icon-none"></a></div>
+                    <div id="pageListiniGruppoDiv"><a href="#" id="pageListiniGruppo" class="ui-btn ui-mini ui-icon-none"></a></div>
+                    
+                    <div id="pageListiniSearch">
+                        <div id="pageListiniSearchArea">
+                            <input data-icon="alt" id="pageListiniSearchField" value="" placeholder="Ricerca Base..." type="search" data-clear-btn="true" data-clear-btn-text="Svuota" />
+                        </div>
+                        <ul id="pageListiniListView" data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
+                    </div>
+                    <div id="pageListiniPrezzi">
+                        <center><h3 id="pageListiniPrezziTitle"></h3></center>
+                        <table data-role="table" id="pageListiniTablePrezzi" data-mode="table" class="ui-responsive table-stripe">
+                            <thead>
+                               <tr>
+                                 <th>Articolo</th>
+                                 <th id="pageListiniTablePrezzoPrezzo">Prezzo</th>
+                                 <th>Mt. min</th>
+                               </tr>
+                             </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+		    </div>
+	    </div>
 
 
         <script type="text/javascript" src="cordova.js"></script>
 	    <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
 	    <script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
+	    <script type="text/javascript" src="js/common.js"></script>
+	    <script type="text/javascript" src="js/searchjs.js"></script>
+	    <script type="text/javascript" src="js/easyfs.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript">
             app.initialize();

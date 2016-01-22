@@ -1,12 +1,12 @@
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="com.netsystems.qtmobiletest" version="0.0.1">
-  <name>Quick Trade Mobile - Test</name>
-  <description>Quick Trade Mobile is a test application for Quick Trade by Net Systems.</description>
+  <name>Quick Trade App</name>
+  <description>Quick Trade App is an application for Quick Trade by Net Systems.</description>
   <author href="http://www.netsystems.it" email="info@netsystems.it">Net Systems Team</author>
   <content src="index.html"/>
   <!-- MultiPlatform-->
-  <preference name="phonegap-version" value="3.7.0"/>
+  <preference name="phonegap-version" value="5.4.1"/>
   <preference name="orientation" value="default"/>
-  <preference name="fullscreen" value="false"/>
+  <preference name="fullscreen" value="true"/>
   <!-- iOS -->
   <preference name="target-device" value="universal"/>
   <preference name="prerendered-icon" value="true"/>
@@ -20,6 +20,7 @@
   <preference name="permissions" value="none"/>
   <preference name="webviewbounce" value="false"/>
   <preference name="stay-in-webview" value="false"/>
+  <preference name="KeyboardDisplayRequiresUserAction" value="false" />
 <!--  <preference name="ios-statusbarstyle" value="black-opaque"/>-->
 <!--  <preference name="show-splash-screen-spinner" value="true"/>-->
 <!--  <preference name="auto-hide-splash-screen" value="true"/>-->
@@ -74,20 +75,18 @@
   <gap:splash src="www/res/screen/windows-phone/screen-portrait.jpg" gap:platform="winphone"/>
  -->
   
-  <access origin="*"/>
+  <!--<access origin="*"/>-->
+  <!--<access uri="*" subdomains="true" />-->
+  <access origin="*" launch-external="yes" />
+
 
   <plugin name="Storage" value="org.apache.cordova.Storage" />
-
-  <gap:config-file platform="android" parent="/manifest">
-
-    <supports-screens
-           android:xlargeScreens="false"
-           android:largeScreens="false"
-           android:smallScreens="false" />
-    <application android:theme="@android:style/Theme.NoTitleBar" >
+  <gap:plugin name="cordova-plugin-statusbar"/>
+  <!--<gap:config-file platform="android" parent="/manifest">
+    <supports-screens android:xlargeScreens="false" android:largeScreens="false" android:smallScreens="false" />
+    <application android:theme="@android:style/Theme.NoTitleBar">
       <activity android:theme="@android:style/Theme.NoTitleBar.Fullscreen" ></activity>
     </application>
-  </gap:config-file>
-  
+  </gap:config-file>-->
   
 </widget>
