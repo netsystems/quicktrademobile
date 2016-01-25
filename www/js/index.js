@@ -789,6 +789,15 @@ function OrderStartNew() {
     _qtOrderWorking = order.orderCode;
     _qtOrders.orders.push(order);
     PageChange("#pageOrder");
+
+    ServerOnlineVerify(function () {
+        //ONLINE, niente da notificare
+    }, function (textStatus, textError) {
+        //OFFLINE-ERRORE
+        navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non sar\u00e0 possibile completare correttamente l'ordine.", function () {
+            return;
+        }, "Attenzione", "OK");
+    });
 }
 
 function pageOrderCancel() {
@@ -1607,6 +1616,15 @@ function OrderCustomerApplyStyle() {
 function StatLoadHitScelte(LineaToLoad) {
     try {
 
+        ServerOnlineVerify(function () {
+            //ONLINE, niente da notificare
+        }, function (textStatus, textError) {
+            //OFFLINE-ERRORE
+            navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non \u00e8 possibile consultare le statistiche.", function () {
+                return;
+            }, "Attenzione", "OK");
+        });
+
         $.ajax({
             url: GetServerURL("stats/hitscelte"),
             method: "GET",
@@ -2153,7 +2171,8 @@ function ListiniLoadArticoliGruppo() {
         var itemToUse = null;
         var bolRows = false;
         for (var index = 0; index < _ListinoViewed.objGruppi.length; index++) {
-            if (_ListinoViewed.objGruppi[index].BaseCodice == _ListinoViewed.baseCodice) {
+            if ((_ListinoViewed.objGruppi[index].BaseCodice == _ListinoViewed.baseCodice) && 
+                (_ListinoViewed.objGruppi[index].Gruppo == _ListinoViewed.gruppo)) {
                 itemToUse = _ListinoViewed.objGruppi[index];
             }
         }
@@ -2347,13 +2366,24 @@ function ListiniInitializeNewClass() {
 
 function ListiniShowPage() {
     //svuoto variabili
-    ListiniInitializeNewClass();
-    _ListinoBarcodeToShow = null;
-    _ListinoShowListinoCodice = null;
+    ServerOnlineVerify(function () {
+        //ONLINE, niente da notificare
+        ListiniInitializeNewClass();
+        _ListinoBarcodeToShow = null;
+        _ListinoShowListinoCodice = null;
 
-    $("#pageListiniListinoDiv").css("display", "");
-    $("#pageListiniSearchField").val("");
-    PageChange('#pageListini');
+        $("#pageListiniListinoDiv").css("display", "");
+        $("#pageListiniSearchField").val("");
+        PageChange('#pageListini');
+
+
+    }, function (textStatus, textError) {
+        //OFFLINE-ERRORE
+        navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non \u00e8 possibile consultare il listino prezzi.", function () {
+            return;
+        }, "Attenzione", "OK");
+    });
+
 }
 
 function ListiniShowBarcode(barcodeString) {

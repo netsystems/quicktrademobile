@@ -1,4 +1,4 @@
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="com.netsystems.qtcervotessile" version="0.0.1">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="com.netsystems.qtmobiletest" version="0.0.1">
   <name>Quick Trade App</name>
   <description>Quick Trade App is an application for Quick Trade by Net Systems.</description>
   <author href="http://www.netsystems.it" email="info@netsystems.it">Net Systems Team</author>
@@ -62,17 +62,17 @@
   <icon src="www/res/icon/windows-phone/icon-48.png" platform="winphone"/>
   <icon src="www/res/icon/windows-phone/icon-173-tile.png" platform="winphone" role="background"/>
   
-<!--  <gap:splash src="www/res/screen/android/screen-ldpi-portrait.png" gap:platform="android" gap:qualifier="port-ldpi"/>
-  <gap:splash src="www/res/screen/android/screen-mdpi-portrait.png" gap:platform="android" gap:qualifier="port-mdpi"/>
-  <gap:splash src="www/res/screen/android/screen-hdpi-portrait.png" gap:platform="android" gap:qualifier="port-hdpi"/>
-  <gap:splash src="www/res/screen/android/screen-xhdpi-portrait.png" gap:platform="android" gap:qualifier="port-xhdpi"/>
-  <gap:splash src="www/res/screen/blackberry/screen-225.png" gap:platform="blackberry"/>
-  <gap:splash src="www/res/screen/ios/screen-iphone-portrait.png" gap:platform="ios" width="320" height="480"/>
-  <gap:splash src="www/res/screen/ios/screen-iphone-portrait-2x.png" gap:platform="ios" width="640" height="960"/>
-  <gap:splash src="www/res/screen/ios/screen-iphone-portrait-568h-2x.png" gap:platform="ios" width="640" height="1136"/>
-  <gap:splash src="www/res/screen/ios/screen-ipad-portrait.png" gap:platform="ios" width="768" height="1024"/>
-  <gap:splash src="www/res/screen/ios/screen-ipad-landscape.png" gap:platform="ios" width="1024" height="768"/>
-  <gap:splash src="www/res/screen/windows-phone/screen-portrait.jpg" gap:platform="winphone"/>
+  <splash src="www/res/screen/android/screen-ldpi-portrait.png" platform="android" qualifier="port-ldpi"/>
+  <splash src="www/res/screen/android/screen-mdpi-portrait.png" platform="android" qualifier="port-mdpi"/>
+  <splash src="www/res/screen/android/screen-hdpi-portrait.png" platform="android" qualifier="port-hdpi"/>
+  <splash src="www/res/screen/android/screen-xhdpi-portrait.png" platform="android" qualifier="port-xhdpi"/>
+  <!--<gap:splash src="www/res/screen/blackberry/screen-225.png" gap:platform="blackberry"/>-->
+  <splash src="www/res/screen/ios/screen-iphone-portrait.png" platform="ios" width="320" height="480"/>
+  <splash src="www/res/screen/ios/screen-iphone-portrait-2x.png" platform="ios" width="640" height="960"/>
+  <splash src="www/res/screen/ios/screen-iphone-portrait-568h-2x.png" platform="ios" width="640" height="1136"/>
+  <splash src="www/res/screen/ios/screen-ipad-portrait.png" platform="ios" width="768" height="1024"/>
+  <splash src="www/res/screen/ios/screen-ipad-landscape.png" platform="ios" width="1024" height="768"/>
+  <splash src="www/res/screen/windows-phone/screen-portrait.jpg" platform="winphone"/>
  -->
   
   <!--<access origin="*"/>-->
