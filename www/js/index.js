@@ -27,7 +27,7 @@ var app = {
     onDeviceReady: function () {
         //LoaderShow("Benvenuto!");
         //Sistemo la status bar
-        /*try {
+        try {
             if (StatusBar) {
                 try {
                     StatusBar.overlaysWebView(false);
@@ -41,7 +41,7 @@ var app = {
             }
         } catch (e) {
             alert("ERRORE onDeviceReady StatusBar: " + e.message);
-        }*/
+        }
         /*
         try {
             if (navigator.userAgent.match(/iP[ha][od].*OS 7/)) {
