@@ -335,7 +335,7 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
         //Effettuo l'invio
         $.ajax({
             url: GetServerURL("orders"),
-            type: "POST",
+            type: "GET",
             dataType: "jsonp",
             data: JSON.stringify(_qtOrdersUpload),
             success: function (result) {
@@ -366,10 +366,11 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
                     
                 } else {
                     _qtOrdersUpload = null;
+                    FailCallback(result.errors.toString());
                     //navigator.notification.alert("Sincronizzazione ordini fallita.\nDettaglio: " + result.errors.toString(), function () {
                     //    return;
                     //}, "Sincronizzazione Fallita", "OK");
-                    FailCallback();
+
                 }
             },
             error: function (xhr, textStatus, textError) {
@@ -589,8 +590,22 @@ function SynchronizeDataSource() {
                                                             //upload ordini riuscito, ora download data source
                                                             SynchronizeDataSourceStart();
 
-                                                        }, function () {
+                                                        }, function (errorDetail) {
                                                             //fallito
+                                                            var str = "";
+                                                            if (errorDetail) {
+                                                                str = "Impossibile sincronizzare uno o pi\u00f9 ordini.\n\nDettaglio: " + errorDetail.toString();
+                                                            } else {
+                                                                str = "Impossibile sincronizzare uno o pi\u00f9 ordini.";
+                                                            }
+                                                            navigator.notification.alert(str, function () {
+                                                                PageChange("#pageMain", true);
+                                                                return;
+                                                            }, "Ordine non sincronizzato", "OK");
+                                                            return;
+
+
+
                                                             navigator.notification.alert("Impossibile sincronizzare gli ordini. Sincronizzazione interrotta.", function () {
                                                                 return;
                                                             }, "Sincronizzazione fallita", "OK");
@@ -884,26 +899,6 @@ function pageOrderCancel() {
                                     },
                                     "Attenzione",
                                     "Si,No");
-
-
-
-
-
-
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
     
 }
 
@@ -921,6 +916,9 @@ function pageOrderCancelExecute(removeOrder) {
                 _qtOrders.orders.splice(indexDelete, 1);
                 //_qtOrders.orders.pop();
             }
+        } else {
+            //non rimuovo l'ordine, va mantenuto. Però imposto come stato in lavorazione anche se si è tentato un invio. Così l'utente può non solo reinviarlo, ma anche modificarlo nuovamente.
+            _qtOrders.getOrder(_qtOrderWorking).orderStatus = ORDER_STATUS.NEW;
         }
 
         _qtOrderWorking = null;
@@ -1169,10 +1167,20 @@ function OrderSaveExecute() {
                         }, "Ordine Sincronizzato", "OK");
                         return;
 
-                    }, function () {
+                    }, function (errorDetail) {
                         //fail
-                        PageChange("#pageMain", true);
+                        var str = "";
+                        if (errorDetail) {
+                            str = "Errore durante il tentativo di salvare un ordine: " + errorDetail.toString();
+                        } else {
+                            str = "Errore durante il tentativo di salvare un ordine.";
+                        }
+                        navigator.notification.alert(str, function () {
+                            PageChange("#pageMain", true);
+                            return;
+                        }, "Ordine non sincronizzato", "OK");
                         return;
+
                     },true);
 
                 }, function () {
