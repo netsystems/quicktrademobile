@@ -27,7 +27,7 @@ var app = {
     onDeviceReady: function () {
         //LoaderShow("Benvenuto!");
         //Sistemo la status bar
-        try {
+        /*try {
             if (StatusBar) {
                 try {
                     StatusBar.overlaysWebView(false);
@@ -41,7 +41,17 @@ var app = {
             }
         } catch (e) {
             alert("ERRORE onDeviceReady StatusBar: " + e.message);
-        }
+        }*/
+        /*
+        try {
+            if (navigator.userAgent.match(/iP[ha][od].*OS 7/)) {
+                //document.write('<style type="text/css">body{-webkit-transform: translate3d(0,20px,0)}</style>');
+                document.body.style.marginTop = "20px";
+                $(".ui-header").css("margin-top", "20px");
+            }
+        } catch (e) {
+            alert("ERRORE Navbar: " + e.message);
+        }*/
         
         //Inizializzo la configurazione
         QTConfigInitAndVerify();

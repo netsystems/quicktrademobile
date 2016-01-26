@@ -93,8 +93,8 @@
 
 
   <!--<plugin name="Storage" value="org.apache.cordova.Storage" />-->
-  <gap:plugin name="cordova-plugin-whitelist" source="npm" />
-  <gap:plugin name="cordova-plugin-statusbar"/>
+  <!--<gap:plugin name="cordova-plugin-whitelist" source="npm" />
+  <gap:plugin name="cordova-plugin-statusbar"/>-->
   <!--<gap:config-file platform="android" parent="/manifest">
     <supports-screens android:xlargeScreens="false" android:largeScreens="false" android:smallScreens="false" />
     <application android:theme="@android:style/Theme.NoTitleBar">
