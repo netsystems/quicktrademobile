@@ -27,18 +27,21 @@ var app = {
     onDeviceReady: function () {
         //LoaderShow("Benvenuto!");
         //Sistemo la status bar
-        /*if (StatusBar) {
-            try {
-                StatusBar.overlaysWebView(false);
-                StatusBar.styleBlackOpaque();
-                StatusBar.backgroundColorByHexString("#fdbf44");
-            } catch (e) {
-                alert("StatusBar: " + e.message);
+        try {
+            if (StatusBar) {
+                try {
+                    StatusBar.overlaysWebView(false);
+                    StatusBar.styleBlackOpaque();
+                    StatusBar.backgroundColorByHexString("#fdbf44");
+                } catch (e) {
+                    alert("StatusBar: " + e.message);
+                }
+            } else {
+                alert("StatusBar: non esiste l'oggetto.");
             }
-        } else {
-            alert("StatusBar: non esiste l'oggetto.");
-        }*/
-
+        } catch (e) {
+            alert("ERRORE onDeviceReady StatusBar: " + e.message);
+        }
         
         //Inizializzo la configurazione
         QTConfigInitAndVerify();
