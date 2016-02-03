@@ -222,6 +222,8 @@ function QTOrder() {
     this.customerDestData = null;
     this.operatorCode = null; // operatorCode; //operatorCode
     this.rows = [];
+    this.orderContatto1 = null;
+    this.orderAnnotazioni = null;
 
     function GetOrderCode() {
         var dt = new Date();
@@ -251,7 +253,7 @@ function QTOrderRow(ArticleBarcode, BaseObj, ListinoCorpoObj) {
 }
 
 
-function QTOrderUpload(orderCode, orderDate, customerCode, customerDestCode, rows, operatorCode, orderIndex) {
+function QTOrderUpload(orderCode, orderDate, customerCode, customerDestCode, rows, operatorCode, orderIndex, orderContatto1, orderAnnotazioni) {
     this.orderCode = orderCode;
     this.orderDate = orderDate;
     this.customerCode = customerCode;
@@ -259,6 +261,8 @@ function QTOrderUpload(orderCode, orderDate, customerCode, customerDestCode, row
     this.operatorCode = operatorCode;
     this.rows = rows;
     this.orderIndex = orderIndex; //tengo traccia dell'index nell'array di partenza degli ordini (per successiva rimozione)
+    this.orderContatto1 = orderContatto1;
+    this.orderAnnotazioni = orderAnnotazioni;
 }
 
 function QTOrderRowUpload(articleBarcode) {

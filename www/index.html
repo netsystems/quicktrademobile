@@ -153,7 +153,7 @@
 	    <div data-role="page" id="pageCustomer" data-theme="a">
 		    <div data-role="header" data-position="fixed" data-tap-toggle="false">
                 <div class="custom-border-radius"><a id="pageCustomerBack" href="#" onclick="PageChange('#pageOrder',true);" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a></div>
-			    <h1>Cliente</h1>
+			    <h1>Testata Ordine</h1>
                 <div data-role="navbar" id="pageCustomerNavbar">
                     <ul>
                         <li><a href="#" id="pageCustomerViewInfo" onclick="CustomerChangeView(this,0)" data-icon="info">Informazioni</a></li>
@@ -166,16 +166,21 @@
                         <ul id="pageCustomerDestList" data-role="listview" data-inset="true" data-filter="false" data-divider-theme="b" style="min-width: 80%;"></ul>
                 </div>
                 <div id="pageCustomerInfo">
-                    <h2 style="text-align: right; margin-top:-5px;">Informazioni Cliente</h2>
+                    <h2 style="text-align: right; margin-top:-5px;">Cliente</h2>
                     <ul data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b">
-                        <li data-role="list-divider">Generali</li>
+                        <li data-role="list-divider">Cliente Scelto</li>
                         <li data-theme="b" data-icon="none"><a href="#" id="pageCustomerInfoCli"></a></li>
                     </ul>
-                    <br />
                     <ul data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b">
-                        <li data-role="list-divider">Destinazione Selezionata</li>
+                        <li data-role="list-divider">Destinazione Cliente Selezionata</li>
                         <li data-theme="b" data-icon="forward"><a href="#" class="ui-alt-icon" id="pageCustomerInfoDest"></a></li>
                     </ul>
+                    <br />
+                    <h2 style="text-align: right; margin-top:-5px;">Altri Dati</h2>
+                    <label for="pageCustomerContatto1">Contatto 1:</label>
+                    <input name="pageCustomerContatto1" id="pageCustomerContatto1" value="" type="text" maxlength="50">
+                    <label for="pageCustomerAnnotazioni">Annotazioni:</label>
+                    <input name="pageCustomerAnnotazioni" id="pageCustomerAnnotazioni" value="" type="text" maxlength="180">
                 </div>
                 <div id="pageCustomerRicerca">
                     <h2 style="text-align: right; margin-top:-5px;">Ricerca Cliente</h2>

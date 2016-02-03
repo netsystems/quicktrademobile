@@ -21,14 +21,14 @@
   <preference name="webviewbounce" value="false"/>
   <preference name="stay-in-webview" value="false"/>
   <preference name="KeyboardDisplayRequiresUserAction" value="false" />
-<!--  <preference name="ios-statusbarstyle" value="black-opaque"/>-->
-<!--  <preference name="show-splash-screen-spinner" value="true"/>-->
-<!--  <preference name="auto-hide-splash-screen" value="true"/>-->
-<!--  <preference name="SplashScreen" value="screen" />-->
+  <!--  <preference name="ios-statusbarstyle" value="black-opaque"/>-->
+  <!--  <preference name="show-splash-screen-spinner" value="true"/>-->
+  <!--  <preference name="auto-hide-splash-screen" value="true"/>-->
+  <!--  <preference name="SplashScreen" value="screen" />-->
   <preference name="SplashScreenDelay" value="3000" />
   <preference name="disable-cursor" value="true"/>
   <preference name="ShowSplashScreenSpinner" value="false"/>
-  
+
   <plugin name="org.apache.cordova.battery-status"/>
   <plugin name="org.apache.cordova.camera"/>
   <plugin name="org.apache.cordova.media-capture"/>
@@ -49,13 +49,13 @@
   <plugin name="org.apache.cordova.vibration"/>
   <plugin name="cordova-plugin-statusbar"/>
   <plugin name="cordova-plugin-whitelist" />
-  
+
   <icon src="icon.png" role="default"/>
   <icon src="res/icon/android/icon-36-ldpi.png"  platform="android" qualifier="ldpi"/>
   <icon src="res/icon/android/icon-48-mdpi.png"  platform="android" qualifier="mdpi"/>
   <icon src="res/icon/android/icon-72-hdpi.png"  platform="android" qualifier="hdpi"/>
   <icon src="res/icon/android/icon-96-xhdpi.png" platform="android" qualifier="xhdpi"/>
-<!--  <icon src="www/res/icon/blackberry/icon-80.png"    platform="blackberry"/>
+  <!--  <icon src="www/res/icon/blackberry/icon-80.png"    platform="blackberry"/>
   <icon src="www/res/icon/blackberry/icon-80.png"    platform="blackberry" gap:state="hover"/>-->
   <icon src="res/icon/ios/icon-29.png"           platform="ios" width="29" height="29"/>
   <icon src="res/icon/ios/icon-40.png"           platform="ios" width="40" height="40"/>
@@ -75,7 +75,7 @@
   <icon src="res/icon/webos/icon-64.png"         platform="webos"/>
   <icon src="res/icon/windows-phone/icon-48.png" platform="winphone"/>
   <icon src="res/icon/windows-phone/icon-173-tile.png" platform="winphone" role="background"/>
-  
+
   <splash src="res/screen/android/screen-ldpi-portrait.png" platform="android" qualifier="port-ldpi"/>
   <splash src="res/screen/android/screen-mdpi-portrait.png" platform="android" qualifier="port-mdpi"/>
   <splash src="res/screen/android/screen-hdpi-portrait.png" platform="android" qualifier="port-hdpi"/>
@@ -87,8 +87,8 @@
   <splash src="res/screen/ios/screen-ipad-portrait.png" platform="ios" width="768" height="1024"/>
   <splash src="res/screen/ios/screen-ipad-landscape.png" platform="ios" width="1024" height="768"/>
   <splash src="res/screen/windows-phone/screen-portrait.jpg" platform="winphone"/>
- -->
-  
+  -->
+
   <!--<access origin="*"/>-->
   <!--<access uri="*" subdomains="true" />-->
   <!--<access origin="*" launch-external="yes" />-->
@@ -112,5 +112,5 @@
       <activity android:theme="@android:style/Theme.NoTitleBar.Fullscreen" ></activity>
     </application>
   </gap:config-file>-->
-  
+
 </widget>

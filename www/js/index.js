@@ -14,6 +14,8 @@ var _ListinoBarcodeToShow = null;
 var _ListinoShowListinoCodice = null;
 
 
+var CONTATTO_NOTE_ALLOWED_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz.:,;!()עטיא@ש-_+$/";
+
 var app = {
     // Application Constructor
     initialize: function () {
@@ -316,20 +318,51 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
                     }
 
                     var destCodice = null;
+                    var contatto = null;
+                    var annotazioni = null;
                     if(_qtOrders.orders[index].customerDestData) {
                         destCodice = _qtOrders.orders[index].customerDestData.DestinazioneCodice;
                     }
+                    if (_qtOrders.orders[index].orderContatto1) {
+                        contatto = _qtOrders.orders[index].orderContatto1;
+                        contatto = contatto.replace(/&/g, "");
+                        contatto = contatto.replace(/=/g, "");
+                        contatto = contatto.replace(/\?/g, "");
+                        contatto = contatto.replace(/'/g, "");
+                        contatto = contatto.replace(/"/g, "");
+                    }
+                    if (_qtOrders.orders[index].orderAnnotazioni) {
+                        annotazioni = _qtOrders.orders[index].orderAnnotazioni;
+                        annotazioni = annotazioni.replace(/&/g, "");
+                        annotazioni = annotazioni.replace(/=/g, "");
+                        annotazioni = annotazioni.replace(/\?/g, "");
+                        annotazioni = annotazioni.replace(/'/g, "");
+                        annotazioni = annotazioni.replace(/"/g, "");
+                    }
 
-                    _qtOrdersUpload.orders.push(new QTOrderUpload(_qtOrders.orders[index].orderCode,
-                                                                  _qtOrders.orders[index].orderDate,
-                                                                  _qtOrders.orders[index].customerCode,
-                                                                  destCodice,
-                                                                  rows,
-                                                                  _qtOrders.orders[index].operatorCode,
-                                                                  index));
+                    //alert(contatto);
+                    //alert(annotazioni);
+
+                    try {
+
+                        _qtOrdersUpload.orders.push(new QTOrderUpload(_qtOrders.orders[index].orderCode,
+                                                                      _qtOrders.orders[index].orderDate,
+                                                                      _qtOrders.orders[index].customerCode,
+                                                                      destCodice,
+                                                                      rows,
+                                                                      _qtOrders.orders[index].operatorCode,
+                                                                      index,
+                                                                      contatto,
+                                                                      annotazioni));
+                    } catch (e) {
+                        alert("ERRORE Preparo Ordini: " + e.message);
+                    }
+
                 }
             }
         }
+
+        //alert(JSON.stringify(_qtOrdersUpload));
 
         //data: JSON.stringify({ "orders": JSON.stringify(_qtOrdersUpload) }),
         //Effettuo l'invio
@@ -1019,6 +1052,16 @@ function OrderAddArticle() {
             return;
         }
 
+        //se il valore letto ט di lunghezza inferiore al codice standard cervotessile (19 char) svuoto il campo 
+        if (code.length < 19) {
+            navigator.notification.alert("Il campo [Codice] non ha un formato valido.", function () {
+                $("#pageOrderRowAdd").val("");
+                return;
+            }, "Attenzione", "OK");
+            return;
+            
+        }
+
         //lo ricerco
         var matches = SEARCHJS.matchArray(_qtDS.dataSource.listiniCorpo, { "ArticoloCodice": code, "Ordine":999 });
 
@@ -1312,10 +1355,82 @@ $(document).on("pagebeforeshow", "#pageCustomer", function () {
 
     if (_qtOrders.getOrder(_qtOrderWorking).customerCode) {
         $("#pageCustomerNavbar").show();
+        $("#pageCustomerContatto1").val(_qtOrders.getOrder(_qtOrderWorking).orderContatto1);
+        $("#pageCustomerAnnotazioni").val(_qtOrders.getOrder(_qtOrderWorking).orderAnnotazioni);
     } else {
         $("#pageCustomerNavbar").hide();
     }
 
+});
+
+
+$("#pageCustomerContatto1").change(function () {
+    if (_qtOrderWorking) {
+        _qtOrders.getOrder(_qtOrderWorking).orderContatto1 = $(this).val();
+
+        try {
+            //Salvo su file l'ordine che sto compilando (non si sa mai!) Success, Fail
+            _qtOrders.saveToFile(function () {
+                //salvataggio temporaneo dell'ordine riuscito.
+            }, function (err) {
+                navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () {
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            });
+
+        } catch (e) {
+            alert("Errore JS pageCustomerContatto1 change save ordine: " + e.message);
+        }
+    }
+});
+
+$('#pageCustomerContatto1').keypress(function (e) {
+    var keyCode = event.keyCode || event.which
+    // Don't validate the input if below arrow, delete and backspace keys were pressed 
+    if (keyCode == 8) { // || (keyCode >= 35 && keyCode <= 40)) { // Left / Up / Right / Down Arrow, Backspace, Delete keys
+        return;
+    }
+    var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+    if (CONTATTO_NOTE_ALLOWED_CHARS.toUpperCase().indexOf(key.toUpperCase()) == -1) {
+        event.preventDefault();
+        return false;
+    }
+});
+
+
+$("#pageCustomerAnnotazioni").change(function () {
+    if (_qtOrderWorking) {
+        _qtOrders.getOrder(_qtOrderWorking).orderAnnotazioni = $(this).val();
+
+        try {
+            //Salvo su file l'ordine che sto compilando (non si sa mai!) Success, Fail
+            _qtOrders.saveToFile(function () {
+                //salvataggio temporaneo dell'ordine riuscito.
+            }, function (err) {
+                navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () {
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            });
+
+        } catch (e) {
+            alert("Errore JS pageCustomerAnnotazioni change save ordine: " + e.message);
+        }
+    }
+});
+
+$('#pageCustomerAnnotazioni').keypress(function (e) {
+    var keyCode = event.keyCode || event.which
+    // Don't validate the input if below arrow, delete and backspace keys were pressed 
+    if (keyCode == 8 || (keyCode >= 35 && keyCode <= 40)) { // Left / Up / Right / Down Arrow, Backspace, Delete keys
+        return;
+    }
+    var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+    if (CONTATTO_NOTE_ALLOWED_CHARS.toUpperCase().indexOf(key.toUpperCase()) == -1) {
+        event.preventDefault();
+        return false;
+    }
 });
 
 
