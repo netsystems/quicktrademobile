@@ -14,7 +14,10 @@ var _ListinoBarcodeToShow = null;
 var _ListinoShowListinoCodice = null;
 
 
-var CONTATTO_NOTE_ALLOWED_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz.:,;!()עטיא@ש-_+$/";
+var CONTATTO_NOTE_ALLOWED_CHARS = " 0123456789abcdefghijklmnopqrstuvwxyz.:,;!()עטיא@ש-_+$/";
+
+// 
+var APP_VERSION = "0.0.5" 
 
 var app = {
     // Application Constructor
@@ -44,16 +47,10 @@ var app = {
         } catch (e) {
             alert("ERRORE onDeviceReady StatusBar: " + e.message);
         }
-        /*
-        try {
-            if (navigator.userAgent.match(/iP[ha][od].*OS 7/)) {
-                //document.write('<style type="text/css">body{-webkit-transform: translate3d(0,20px,0)}</style>');
-                document.body.style.marginTop = "20px";
-                $(".ui-header").css("margin-top", "20px");
-            }
-        } catch (e) {
-            alert("ERRORE Navbar: " + e.message);
-        }*/
+
+        //Mostro versione APP
+        $("#pageMainPanelVersion").html("Versione <b>" + APP_VERSION + "</b><br/>&copy; Net Systems");
+
         
         //Inizializzo la configurazione
         QTConfigInitAndVerify();
