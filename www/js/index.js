@@ -282,9 +282,16 @@ function OrdersCheckSuspended() {
     }
 }
 
-function OrderIncompleteOpen(orderCode) {
+function OrderIncompleteOpen(orderCode, isEditFromSynchro) {
 
-    navigator.notification.confirm("Recuperare l'ordine incompleto?",
+    var strShow = "Recuperare l'ordine incompleto?";
+    var strTitle = "Recupero Ordine";
+    if (isEditFromSynchro) {
+        strShow = "Modificare l'ordine nonostante sia pronto per essere inviato al server di Quick Trade?";
+        strTitle = "Modifica Ordine";
+    }
+
+    navigator.notification.confirm(strShow,
                                     function (buttonIndex) {
                                         if (buttonIndex == 1) {
                                             for (var index = 0; index < _qtOrders.orders.length; index++) {
@@ -295,7 +302,7 @@ function OrderIncompleteOpen(orderCode) {
                                             }
                                         }
                                     },
-                                    "Recupero Ordine",
+                                    strTitle,
                                     "Si,No");
 
 }
@@ -768,11 +775,19 @@ function SynchronizeOrdersList() {
                     if (order.rows)
                         numRows = order.rows.length;
                     //<a href=\"#\" class=\"ui-alt-icon\"></a>
-                    var listItem = "<li data-theme=\"b\" data-icon=\"none\" style=\"background-color: white;\">" +
-                                        "<h2>" + order.customerDescr + "</h2>" +
+                    //var listItem = "<li data-theme=\"b\" data-icon=\"none\" style=\"background-color: white;\">" +
+                    //                    "<h2>" + order.customerDescr + "</h2>" +
+                    //                    "<span class=\"ui-li-count\">" + numRows + ((numRows == 1) ? " Riga" : " Righe") + "</span>" +
+                    //                    "<p>Del " + order.orderCode.substring(6, 8) + "/" + order.orderCode.substring(4, 6) + "/" + order.orderCode.substring(0, 4) + " alle " +
+                    //                    order.orderCode.substring(8, 10) + ":" + order.orderCode.substring(10, 12) + "</p></li>";
+
+                    var listItem = "<li data-theme=\"b\" data-icon=\"edit\">" +
+                                        "<a href=\"#\" onclick=\"OrderIncompleteOpen('" + order.orderCode + "', true);\" class=\"ui-alt-icon\"><h2>" + order.customerDescr + "</h2>" +
                                         "<span class=\"ui-li-count\">" + numRows + ((numRows == 1) ? " Riga" : " Righe") + "</span>" +
                                         "<p>Del " + order.orderCode.substring(6, 8) + "/" + order.orderCode.substring(4, 6) + "/" + order.orderCode.substring(0, 4) + " alle " +
-                                        order.orderCode.substring(8, 10) + ":" + order.orderCode.substring(10, 12) + "</p></li>";
+                                        order.orderCode.substring(8, 10) + ":" + order.orderCode.substring(10, 12) + "</p></a></li>";
+
+
                     $("#pageSyncOrdList").append(listItem);
                 }
             }
