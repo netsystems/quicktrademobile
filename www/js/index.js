@@ -996,16 +996,37 @@ function OrderTableRefresh() {
         var rows = _qtOrders.getOrder(_qtOrderWorking).rows;
         var html = "";
 
+        //A.Gioachini 05/02/2016 - vado a mostrare se è una campionatura 2T o Cervo
+        var tipoOrdine = "";
+        if (_qtOrders.getOrder(_qtOrderWorking).rows.length > 0) {
+            var firstRow = _qtOrders.getOrder(_qtOrderWorking).rows[0];
+            var firstRowFirstChar = firstRow.baseObj.BaseCodice.substring(0, 1);
+
+            if ((firstRowFirstChar == "2") || (firstRowFirstChar == "3")) {
+                tipoOrdine = " (2T)";
+            } else {
+                tipoOrdine = " (Cervotessile)";
+            }
+            firstRowFirstChar = null;
+            firstRow = null;
+        }
+
         if (rows.length == 1)
-            $("#pageOrderRowNum").html("1 Riga");
+            $("#pageOrderRowNum").html("1 Riga" + tipoOrdine);
         else 
-            $("#pageOrderRowNum").html(rows.length.toString() + " Righe");
+            $("#pageOrderRowNum").html(rows.length.toString() + " Righe" + tipoOrdine);
         
-        for (var i = 0; i < rows.length; i++) {
+        //for (var i = 0; i < rows.length; i++) {
+        for (var i = rows.length-1; i >= 0; i--) {
+            var descrEtichetta = "";
+            if (rows[i].listinoCorpoObj.Descrizione) {
+                descrEtichetta = rows[i].listinoCorpoObj.Descrizione;
+            }
+
             html = html + "<tr>" +
                             "<td style=\"vertical-align: middle;\"><a href=\"#\" onclick=\"ListiniShowBarcode('" + rows[i].listinoCorpoObj.ArticoloCodice + "');\">" + rows[i].listinoCorpoObj.ArticoloCodice + "</a></td>" +
                             "<td style=\"vertical-align: middle;\">" + rows[i].baseObj.Descrizione + "</td>" +
-                            "<td style=\"vertical-align: middle;\">" + rows[i].listinoCorpoObj.Descrizione + "</td>" +
+                            "<td style=\"vertical-align: middle;\">" + descrEtichetta + "</td>" +
                             "<td style=\"vertical-align: middle; align: center;\">" +
                                 "<a href=\"#\" class=\"ui-shadow ui-btn ui-corner-all ui-btn-icon-notext ui-icon-delete ui-btn-a\" onclick=\"OrderRemoveArticle(" + i.toString() + ");\">Rimuovi</a>" +
                             "</td>" + 
@@ -1016,7 +1037,7 @@ function OrderTableRefresh() {
         $("#table-articles").table("refresh");
 
         $(".pageOrderCtrlGrps").controlgroup("refresh");
-
+        
     } catch (e) {
         alert("Errore OrderTableRefresh: " + e.message);
     }
@@ -1058,6 +1079,8 @@ function OrderAddArticle() {
         
         //controllo che ci sia un barcode
         if (code.length == 0) {
+            navigator.notification.beep(1);
+            navigator.notification.vibrate(2000);
             navigator.notification.alert("Il campo [Codice] non \u00e8 stato compilato.", function () {
                 return;
             }, "Attenzione", "OK");
@@ -1066,6 +1089,8 @@ function OrderAddArticle() {
 
         //se il valore letto è di lunghezza inferiore al codice standard cervotessile (19 char) svuoto il campo 
         if (code.length < 19) {
+            navigator.notification.beep(1);
+            navigator.notification.vibrate(2000);
             navigator.notification.alert("Il campo [Codice] non ha un formato valido.", function () {
                 $("#pageOrderRowAdd").val("");
                 return;
@@ -1081,6 +1106,8 @@ function OrderAddArticle() {
         switch (matches.length) {
             case 0:
                 //match not found
+                navigator.notification.beep(1);
+                navigator.notification.vibrate(2000);
                 navigator.notification.alert("Codice non trovato.", function () {
                     $("#pageOrderRowAdd").val("");
                     return;
@@ -1093,6 +1120,8 @@ function OrderAddArticle() {
                 var alreadyExists = SEARCHJS.matchArray(_qtOrders.getOrder(_qtOrderWorking).rows, { "articleBarcode": code });
 
                 if (alreadyExists.length > 0) {
+                    navigator.notification.beep(1);
+                    navigator.notification.vibrate(2000);
                     navigator.notification.alert(ConvertToUTF8("Il codice \u00e8 gi\u00e0 stato letto, non verr\u00e0 inserito nuovamente."), function () {
                         alreadyExists = null;
                         $("#pageOrderRowAdd").val("");
@@ -1106,6 +1135,8 @@ function OrderAddArticle() {
                 var matchBase = SEARCHJS.matchArray(_qtDS.dataSource.basi, { "BaseCodice": matches[0].BaseCodice });
 
                 if (matchBase.length == 0) {
+                    navigator.notification.beep(1);
+                    navigator.notification.vibrate(2000);
                     navigator.notification.alert(ConvertToUTF8("Corrispondenza con la Base non trovata. Il codice letto non verr\u00e0 inserito."), function () {
                         alreadyExists = null;
                         $("#pageOrderRowAdd").val("");
@@ -1114,7 +1145,49 @@ function OrderAddArticle() {
                     return;
                 }
 
-                //QTOrderRow(ArticleBarcode, BaseObj, ListinoCorpoObj)
+                //A.Gioachini 05/02/2016 - controllo che non mischino le letture 2T e Cervo
+                if (_qtOrders.getOrder(_qtOrderWorking).rows.length > 0) {
+                    //ho già letto il primo articolo, verifico se la campionatura è di Cervotessile o 2T
+                    var firstRow = _qtOrders.getOrder(_qtOrderWorking).rows[0];
+                    var firstRowFirstChar = firstRow.baseObj.BaseCodice.substring(0, 1);
+                    var firstCharArtLetto = matches[0].BaseCodice.substring(0,1);
+
+                    var bolOrder2T = false;
+                    if ((firstRowFirstChar == "2") || (firstRowFirstChar == "3")) {
+                        bolOrder2T = true;
+                    }
+
+                    if (bolOrder2T && (firstCharArtLetto != "2") && (firstCharArtLetto != "3")) {
+                        //ordine 2T ma articolo letto Cervo
+                        navigator.notification.beep(1);
+                        navigator.notification.vibrate(2000);
+                        navigator.notification.alert(ConvertToUTF8("E' stato letto un articolo Cervotessile ma \u00e8 in corso una campionatura Secondo Tempo. Il codice letto non verr\u00e0 inserito."), function () {
+                            alreadyExists = null;
+                            match = null;
+                            matchBase = null;
+                            $("#pageOrderRowAdd").val("");
+                            return;
+                        }, "Attenzione", "OK");
+                        return;
+
+                    } else {
+                        if ((!bolOrder2T) && (firstCharArtLetto == "2" || firstCharArtLetto == "3")) {
+                            //ordine Cervo ma articolo letto 2T
+                            navigator.notification.beep(1);
+                            navigator.notification.vibrate(2000);
+                            navigator.notification.alert(ConvertToUTF8("E' stato letto un articolo Secondo Tempo ma \u00e8 in corso una campionatura Cervotessile. Il codice letto non verr\u00e0 inserito."), function () {
+                                alreadyExists = null;
+                                match = null;
+                                matchBase = null;
+                                $("#pageOrderRowAdd").val("");
+                                return;
+                            }, "Attenzione", "OK");
+                            return;
+
+                        }
+                    }
+                }
+
                 _qtOrders.getOrder(_qtOrderWorking).rows.push(new QTOrderRow(code, matchBase[0], matches[0]));
                 OrderTableRefresh();
 
@@ -1126,6 +1199,8 @@ function OrderAddArticle() {
                         matches = null;
 
                     }, function (err) {
+                        navigator.notification.beep(1);
+                        navigator.notification.vibrate(2000);
                         navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () {
                             $("#pageOrderRowAdd").val("");
                             matches = null;
@@ -1142,6 +1217,8 @@ function OrderAddArticle() {
 
             default:
                 //più risultati
+                navigator.notification.beep(1);
+                navigator.notification.vibrate(2000);
                 navigator.notification.alert("Il Codice \u00e8 stato trovato, ma risultano " + matches.length.toString() + " corrispondenze.", function () {
                     return;
                 }, "Attenzione", "OK");
@@ -1527,6 +1604,11 @@ function CustomersFilter(filterStringValue) {
         return;
     }
     
+    //A.Gioachini 05/02/2016 - Se leggo un cliente da suo barcode stampato in accettazione non faccio la richiesta web finchè non ho il barcode intero (7 caratteri, compreso il $)
+    if (($.trim(filterStringValue).substring(0, 1) == "$") && ($.trim(filterStringValue).length < 7)) {
+        return;
+    }
+
     $.ajax({
         url: GetServerURL("customers"),
         method: "GET",
@@ -2212,7 +2294,7 @@ function ListiniLoadListView() {
                             _CustomerList = objResp.result;
                             for (var index = 0; index < objResp.result.length; index++) {
                                 var item = objResp.result[index];
-                                var listItem = "<li data-theme=\"b\"><a href=\"#\" onclick=\"ListiniSelectBase('" + item.BaseCodice + "', '" + item.Descrizione.replace(/\'/g, '') + "');\" class=\"ui-alt-icon\"><h2>" + item.Descrizione + "</h2></a></li>";
+                                var listItem = "<li data-theme=\"b\"><a href=\"#\" onclick=\"ListiniSelectBase('" + item.BaseCodice + "', '" + item.Descrizione.replace(/\'/g, '') + "');\" class=\"ui-alt-icon\"><h2>" + item.Descrizione + " - " + item.BaseCodice + "</h2></a></li>";
                                 $("#pageListiniListView").append(listItem);
                             }
                         } else {
@@ -2329,7 +2411,7 @@ function ListiniLoadArticoliGruppo() {
 
         if (itemToUse) {
 
-            $("#pageListiniPrezziTitle").html(_ListinoViewed.baseDesc + " <img src=\"img/arr_right.png\"/> " + _ListinoViewed.gruppoDesc);
+            $("#pageListiniPrezziTitle").html(_ListinoViewed.baseDesc + " - " + _ListinoViewed.baseCodice + " <img src=\"img/arr_right.png\"/> " + _ListinoViewed.gruppoDesc);
                                                                           
             for (var index = 0; index < itemToUse.Articoli.length; index++) {
                 var item = itemToUse.Articoli[index];
@@ -2356,7 +2438,7 @@ function ListiniLoadArticoliGruppo() {
         $("#pageListiniTablePrezzi > tbody").html(html);
         $("#pageListiniTablePrezzi").table("refresh");
 
-        $.mobile.silentScroll(0);
+
 
         $("#pageListiniContainer").css("display", "");
 
