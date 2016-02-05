@@ -17,7 +17,7 @@ var _ListinoShowListinoCodice = null;
 var CONTATTO_NOTE_ALLOWED_CHARS = " 0123456789abcdefghijklmnopqrstuvwxyz.:,;!()עטיא@ש-_+$/";
 
 // 
-var APP_VERSION = "1.0" 
+var APP_VERSION = "1.1";
 
 var app = {
     // Application Constructor
