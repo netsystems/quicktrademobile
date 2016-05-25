@@ -1,11 +1,11 @@
-﻿var ORDER_STATUS = { "NEW": 1, "COMPLETED": 2};
+﻿var ORDER_STATUS = { "NEW": 1, "COMPLETED": 2, "TRASFERITO": 3 };
 
 function QTConfiguration() {
     var __fileName = "QTConfig.txt";
 
     //public properties
     this.initialize = function (vServerIP, vServerPortNumber) { //, vOperatoreCodiceQT
-        if(vServerIP)
+        if (vServerIP)
             this.ServerIP = vServerIP;
         else
             this.ServerIP = "";
@@ -79,7 +79,7 @@ function QTProfile() {
     var __fileName = "QTProfile.txt";
 
     //public properties
-    this.initialize = function (vOperatoreCodice, vOperatoreDescrizione) { 
+    this.initialize = function (vOperatoreCodice, vOperatoreDescrizione, vOperatorePassword) {
         if (vOperatoreCodice)
             this.OperatoreCodice = vOperatoreCodice;
         else
@@ -89,6 +89,14 @@ function QTProfile() {
             this.OperatoreDescrizione = vOperatoreDescrizione;
         else
             this.OperatoreDescrizione = "";
+
+        if (vOperatorePassword) {
+            this.OperatorePassword = vOperatorePassword;
+        }
+        else {
+            this.OperatorePassword = "";
+        }
+
     }
 
     this.deleteFile = function () {
@@ -137,6 +145,7 @@ function QTProfile() {
     }
 
     this.saveToFile = function (Success, Fail) {
+
         FileWrite(__fileName,
                   JSON.stringify(this),
                   Success,
@@ -205,6 +214,7 @@ function QTDataSource() {
                   Fail,
                   ShowProgress,
                   ProgressText);
+
     }
 }
 
@@ -213,17 +223,32 @@ function QTDataSource() {
 function QTOrder() {
     //public properties
     this.orderCode = GetOrderCode();
-    this.orderDate = GetOrderDate();
+
+    this.orderCode_PerCliente = null;           //codice ordine per cliente dopo il trasferimento sul server
+
+
+    this.orderDate = GetDataAttuale();
+
+
     this.orderStatus = ORDER_STATUS.NEW;
+
+    this.orderDateTransfer_PerUtente = null;
+    this.orderDateTransfer = null;
+
     this.customerCode = null;
     this.customerDescr = null;
     //this.customerInfo = null;
     this.customerData = null;
     this.customerDestData = null;
+
     this.operatorCode = null; // operatorCode; //operatorCode
+    this.operatorPassword = null; // operatorCode; //operatorCode
+
     this.rows = [];
     this.orderContatto1 = null;
     this.orderAnnotazioni = null;
+    this.orderEMail = null;
+
 
     function GetOrderCode() {
         var dt = new Date();
@@ -236,44 +261,67 @@ function QTOrder() {
         return yyyy + (mm[1] ? mm : "0" + mm[0]) + (dd[1] ? dd : "0" + dd[0]) + (hh[1] ? hh : "0" + hh[0]) + (nn[1] ? nn : "0" + nn[0]) + (ss[1] ? ss : "0" + ss[0]);
     }
 
-    function GetOrderDate() {
+    //ritorna data attuale in stringa con formato YYYYMMDD
+    function GetDataAttuale() {
         var dt = new Date();
         var yyyy = dt.getFullYear().toString();
         var mm = (dt.getMonth() + 1).toString();
         var dd = dt.getDate().toString();
         return yyyy + (mm[1] ? mm : "0" + mm[0]) + (dd[1] ? dd : "0" + dd[0]);
     }
+
+
 }
 
-function QTOrderRow(ArticleBarcode, BaseObj, ListinoCorpoObj) {
+function QTOrderRow(ArticleBarcode, BaseObj, ListinoCorpoObj, OggettoCodice, qta) {
     this.articleBarcode = ArticleBarcode;
     //this.articleObj = ArticleObj;
     this.baseObj = BaseObj;
     this.listinoCorpoObj = ListinoCorpoObj;
+    this.OggettoCodice = OggettoCodice;
+    this.Qta = qta;
+
+
 }
 
 
-function QTOrderUpload(orderCode, orderDate, customerCode, customerDestCode, rows, operatorCode, orderIndex, orderContatto1, orderAnnotazioni) {
+function QTOrderUpload(orderCode, orderDate, customerCode, customerDestCode, rows, operatorCode, operatorPsw, orderIndex, orderContatto1, orderAnnotazioni, orderEMail) {
     this.orderCode = orderCode;
     this.orderDate = orderDate;
     this.customerCode = customerCode;
     this.customerDestCode = customerDestCode;
+
     this.operatorCode = operatorCode;
+    this.operatorPsw = operatorPsw;
+
     this.rows = rows;
     this.orderIndex = orderIndex; //tengo traccia dell'index nell'array di partenza degli ordini (per successiva rimozione)
     this.orderContatto1 = orderContatto1;
     this.orderAnnotazioni = orderAnnotazioni;
+    this.orderEMail = orderEMail;
+    
+    this.device_uuid = device.uuid;
+
+    //alert("QTOrderUpload compilato");
+    //alert("QTOrderUpload operatorPsw: " + this.operatorPsw);
+    //alert("QTOrderUpload orderEMail: " + this.orderEMail);
+    //alert("device_uuid  " + this.device_uuid);
+
 }
 
-function QTOrderRowUpload(articleBarcode) {
+function QTOrderRowUpload(articleBarcode, OggettoCodice, qta) {
     this.articleBarcode = articleBarcode;
+    this.OggettoCodice = OggettoCodice;
+    this.Qta = qta;
+    //alert("QTOrderRowUpload Qta " + this.Qta)
+    //alert("QTOrderRowUpload OggettoCodice " + this.OggettoCodice)
 }
 
 function QTOrderList() {
     var __fileName = "QTOrders.txt";
 
     //dichiaro array vuoto
-    this.orders = []; 
+    this.orders = [];
 
 
     this.deleteFile = function () {
@@ -357,6 +405,15 @@ function QTListinoViewed(listinoCodice, baseCodice, baseDesc, gruppo, gruppoDesc
 //      isBack:         se TRUE vuol dire che l'animazione viena fatta al contrario per un "ritorno alla pagina..."
 function PageChange(pageTarget, isBack) {
     if (isBack) {
+        $.mobile.pageContainer.pagecontainer("change", pageTarget, { transition: "slide", reverse: true });
+    } else {
+        $.mobile.pageContainer.pagecontainer("change", pageTarget, { transition: "slide" });
+    }
+}
+
+
+function PageChange_OriginaleAlessandro(pageTarget, isBack) {
+    if (isBack) {
         try {
             history.back();
         } catch (e) {
@@ -366,6 +423,11 @@ function PageChange(pageTarget, isBack) {
         $.mobile.pageContainer.pagecontainer("change", pageTarget, { transition: "slide" });
     }
 }
+
+
+
+
+
 
 
 // La funzione rimuove una classe ad un oggetto se trovata.
@@ -438,3 +500,258 @@ function IIF(condition, trueVal, falseVal) {
         return falseVal;
     }
 }
+
+
+//----------------------------------------------------------------------------------------------------
+//------------------------------------------DANIELE BARLOCCO------------------------------------------
+//------------------------------------- calcolo del prezzo offline (in sviluppo)---------------------
+
+
+function ObjGruppi_OffLineStructure() {
+
+    this.Elenco = [];
+
+
+    ObjGruppi_OffLineStructure.prototype.Load = function (fullDS, baseCodice, listinoCodice) {
+
+        try {
+
+            //alert("baseCodice: " + baseCodice);
+            //alert("listinoCodice: " + listinoCodice);
+
+
+            //RESET
+            this.Elenco = [];
+
+            var myListiniTestata = SEARCHJS.matchArray(fullDS.dataSource.ListiniTestata_SoloBarCode, { "BaseCodice": baseCodice });
+
+            for (var i1 = 0; i1 < myListiniTestata.length; i1++) {
+                var listino = myListiniTestata[i1];
+
+                if (listino.CntPrezzi > 0) {
+
+                    var item = new ObjGruppi_OffLineStructure_Item();
+                    item.BaseCodice = listino.BaseCodice;
+                    item.Gruppo = listino.Gruppo;
+                    item.Descrizione = listino.Descrizione;
+
+                    var myListiniCorpo = SEARCHJS.matchArray(fullDS.dataSource.listiniCorpo, { "BaseCodice": baseCodice, "Gruppo": item.Gruppo }, { _not: true, "Ordine": 999 });
+
+                    for (var i2 = 0; i2 < myListiniCorpo.length; i2++) {
+                        var articolo = new ObjGruppi_OffLineStructure_Item_Articolo();
+                        articolo.Progressivo = myListiniCorpo[i2].Progressivo;
+                        articolo.Descrizione = myListiniCorpo[i2].Descrizione;
+                        articolo.TipoArticolo = myListiniCorpo[i2].TipoArticolo;
+                        articolo.ProdottoCampione = myListiniCorpo[i2].ProdottoCampione;
+                        articolo.Finissaggio = myListiniCorpo[i2].Finissaggio;
+                        articolo.Colore = myListiniCorpo[i2].ColoreCodice;
+                        articolo.Variante = myListiniCorpo[i2].Variante;
+                        articolo.Disegno = myListiniCorpo[i2].DisegnoCodice;
+
+                        ObjGruppi_OffLineStructure.prototype.GetPrice(fullDS, baseCodice, listinoCodice, articolo);
+
+                        item.Articoli.push(articolo);
+
+
+                    }
+
+                    this.Elenco.push(item);
+                }
+            }
+
+        } catch (e) {
+            alert("ERRORE ObjGruppi_OffLineStructure.prototype.Load: " + e.message);
+        }
+
+
+    }
+
+
+    ObjGruppi_OffLineStructure.prototype.GetPrice = function (fullDS, baseCodice, listinoCodice, articolo) {
+        try {
+            var FIND_PLUS = "++++";
+
+            var strnomecampo2 = "";
+            var strValoreCampo2 = "";
+            var strTono = "";
+            var strVarianteTono = "";
+
+            alert("baseCodice- " + baseCodice);
+            alert("listinoCodice- " + listinoCodice);
+            alert("TipoArticolo- " + articolo.TipoArticolo);
+            //alert("Colore- " + articolo.Colore);
+            alert("Variante- " + articolo.Variante);
+            alert("Disegno- " + articolo.Disegno);
+
+            if (articolo.TipoArticolo == "TP") {
+                strnomecampo2 = "ColoreCodice";
+                strValoreCampo2 = articolo.Colore;
+                strVarianteTono = "GG" + baseCodice + articolo.Colore;
+
+            } else if (articolo.TipoArticolo == "TF") {
+                strnomecampo2 = "Variante";
+                strValoreCampo2 = articolo.Variante;
+                strVarianteTono = "GG" + baseCodice + articolo.Variante;
+            }
+            else if (articolo.TipoArticolo == "TS") {
+                strnomecampo2 = "Variante";
+                strValoreCampo2 = articolo.Variante;
+                strVarianteTono = "MS" + baseCodice + articolo.Disegno + articolo.Variante;
+            }
+
+            //alert("strVarianteTono: " + strVarianteTono);
+
+            var SrcToni = SEARCHJS.matchArray(fullDS.dataSource.ArticoliVarianteTono, { "Variante": strVarianteTono });
+            if (SrcToni.length > 0) {
+                strTono = SrcToni(0).Tono;
+            }
+
+            //alert("strTono: " + strTono);
+            alert("ProdottoCampione- " + articolo.ProdottoCampione);
+            alert("Finissaggio- " + articolo.Finissaggio);
+
+
+
+            var myListiniAzienda_main = SEARCHJS.matchArray(fullDS.dataSource.ListiniAzienda,
+                {
+                    "ListinoCodice": listinoCodice, "TipoArticolo": articolo.TipoArticolo,
+                    "BaseCodice": baseCodice, "ProdottoCampione": articolo.ProdottoCampione, "Finissaggio": articolo.Finissaggio
+                });
+
+
+            alert("myListiniAzienda_main len: " + myListiniAzienda_main.length);
+
+            if (articolo.TipoArticolo == "TP" || articolo.TipoArticolo == "TF") {
+
+
+                /*
+                strSQL1 = strSQL & "DisegnoCodice ='" & Disegno & "'" & NS_AND_WITH_SPACE & strnomecampo2 & " ='" & strValoreCampo2 & "'"
+                strSQL2 = strSQL & "DisegnoCodice ='" & Disegno & "'" & NS_AND_WITH_SPACE & strnomecampo2 & " ='" & strValoreCampo2 & "'" & NS_AND_WITH_SPACE & strSQLTono & "='" & strTono & "'"
+                strSQL3 = strSQL & "DisegnoCodice ='" & Disegno & "'" & NS_AND_WITH_SPACE & strnomecampo2 & " ='" & FIND_PLUS & "'" & NS_AND_WITH_SPACE & strSQLTono & "='" & "+" & "'"
+                strSQL3b = strSQL & "DisegnoCodice ='" & FIND_PLUS & "'" & NS_AND_WITH_SPACE & strnomecampo2 & " ='" & strValoreCampo2 & "'" & NS_AND_WITH_SPACE & strSQLTono & "='" & strTono & "'"
+                strSQL4 = strSQL & "DisegnoCodice ='" & FIND_PLUS & "'" & NS_AND_WITH_SPACE & strnomecampo2 & " ='" & strValoreCampo2 & "'"
+                strSQL5 = strSQL & "DisegnoCodice ='" & FIND_PLUS & "'" & NS_AND_WITH_SPACE & strnomecampo2 & " ='" & FIND_PLUS & "'" & NS_AND_WITH_SPACE & strSQLTono & "='" & strTono & "'"
+                strSQL6 = strSQL & "DisegnoCodice ='" & FIND_PLUS & "'" & NS_AND_WITH_SPACE & strnomecampo2 & " ='" & FIND_PLUS & "'" & NS_AND_WITH_SPACE & strSQLTono & "='" & "+" & "'"
+                */
+
+                var myListiniAzienda_TP_TS_01 = SEARCHJS.matchArray(myListiniAzienda_main, { "DisegnoCodice": articolo.Disegno, strnomecampo2: strValoreCampo2 })
+                alert("myListiniAzienda_TP_TS_01 len: " + myListiniAzienda_TP_TS_01.length);
+
+                var myListiniAzienda_TP_TS_02 = SEARCHJS.matchArray(myListiniAzienda_main, { "DisegnoCodice": articolo.Disegno, strnomecampo2: strValoreCampo2, "Key8": strTono })
+                alert("myListiniAzienda_TP_TS_02 len: " + myListiniAzienda_TP_TS_02.length);
+
+                var myListiniAzienda_TP_TS_03 = SEARCHJS.matchArray(myListiniAzienda_main, { "DisegnoCodice": articolo.Disegno, strnomecampo2: FIND_PLUS, "Key8": '+' })
+                alert("myListiniAzienda_TP_TS_03 len: " + myListiniAzienda_TP_TS_03.length);
+
+                var myListiniAzienda_TP_TS_03B = SEARCHJS.matchArray(myListiniAzienda_main, { "DisegnoCodice": FIND_PLUS, strnomecampo2: strValoreCampo2, "Key8": strTono })
+                alert("myListiniAzienda_TP_TS_03B len: " + myListiniAzienda_TP_TS_03B.length);
+
+                var myListiniAzienda_TP_TS_04 = SEARCHJS.matchArray(myListiniAzienda_main, { "DisegnoCodice": FIND_PLUS, strnomecampo2: strValoreCampo2 })
+                alert("myListiniAzienda_TP_TS_04 len: " + myListiniAzienda_TP_TS_04.length);
+
+                var myListiniAzienda_TP_TS_05 = SEARCHJS.matchArray(myListiniAzienda_main, { "DisegnoCodice": FIND_PLUS, strnomecampo2: FIND_PLUS, "Key8": strTono })
+                alert("myListiniAzienda_TP_TS_05 len: " + myListiniAzienda_TP_TS_05.length);
+
+                var myListiniAzienda_TP_TS_06 = SEARCHJS.matchArray(myListiniAzienda_main, { "DisegnoCodice": FIND_PLUS, strnomecampo2: FIND_PLUS, "Key8": '+' })
+                alert("myListiniAzienda_TP_TS_06 len: " + myListiniAzienda_TP_TS_06.length);
+
+            }
+            else if (articolo.TipoArticolo == "TS") {
+
+            }
+
+
+
+
+
+
+        } catch (e) {
+            alert("ERRORE ObjGruppi_OffLineStructure.prototype.GetPrice: " + e.message);
+        }
+    }
+
+
+
+}
+
+function ObjGruppi_OffLineStructure_Item() {
+    this.BaseCodice = null;
+    this.Gruppo = null;
+    this.Descrizione = null;
+    this.Articoli = [];
+
+}
+
+function ObjGruppi_OffLineStructure_Item_Articolo() {
+    this.Progressivo = null;
+    this.Descrizione = null;
+    this.TipoArticolo = null;
+    this.ProdottoCampione = null;
+    this.Finissaggio = null;
+    this.Colore = null;
+    this.Variante = null;
+    this.Disegno = null;
+
+
+    this.Prezzi = [];
+
+}
+
+function ObjGruppi_OffLineStructure_Item_Articolo_Prezzo() {
+    this.Price = null;
+    this.FinoA = null;
+}
+
+
+
+//ritorna data attuale in stringa con formato YYYYMMDD
+function GetDataAttuale() {
+    var dt = new Date();
+    var yyyy = dt.getFullYear().toString();
+    var mm = (dt.getMonth() + 1).toString();
+    var dd = dt.getDate().toString();
+    return yyyy + (mm[1] ? mm : "0" + mm[0]) + (dd[1] ? dd : "0" + dd[0]);
+}
+
+
+//ritorna data attuale in stringa con formato DD/MM/YYYY
+function GetDataAttuale_PerUtente() {
+
+    var dt = new Date();
+    var yyyy = dt.getFullYear().toString();
+    var mm = (dt.getMonth() + 1).toString();
+    var dd = dt.getDate().toString();
+
+    var hh = dt.getHours().toString();
+    var nn = dt.getMinutes().toString();
+    var ss = dt.getSeconds().toString();
+    //return (dd[1] ? dd : "0" + dd[0]) + "/" + (mm[1] ? mm : "0" + mm[0]) + "/" + yyyy + ' ' + (hh[1] ? hh : "0" + hh[0]) + ":" + (nn[1] ? nn : "0" + nn[0]) + ":" + (ss[1] ? ss : "0" + ss[0]);
+    return (dd[1] ? dd : "0" + dd[0]) + "/" + (mm[1] ? mm : "0" + mm[0]) + "/" + yyyy + ' ' + (hh[1] ? hh : "0" + hh[0]) + ":" + (nn[1] ? nn : "0" + nn[0]);
+}
+
+
+
+
+
+/*
+Oggetto articolo per selezione guidata articolo
+*/
+function ArticoloSelezioneGuidata() {
+    this.BaseCodice = null;
+    this.Gruppo = null;
+    this.Progressivo = null;
+    this.ArticoloCodice = null;
+}
+
+
+
+/*
+Tronca numero a N decimali
+*/
+function TroncaDecimali(Numero,  digits) {
+    var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
+        m = Numero.toString().match(re);
+    return m ? parseFloat(m[1]) : Numero.valueOf();
+};
+
+
