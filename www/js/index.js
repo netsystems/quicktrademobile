@@ -1,4 +1,4 @@
-//25/5/2016 release
+//25/5/2016 releaseversione
 
 //DANIELE BARLOCCO 29/4/2016
 //Variabile per retrocompatibilità listini ONLINE/OFFLINE
@@ -15,6 +15,7 @@ var NR_MASSIMO_ORDINI_VISUALIZZABILI = 200;
 
 var _artSelezGuidata = null;
 var _pageOrder_TipoArticoloSelezionato = "TP";
+var _pageOrder_TipoArticoloSelezionato_resetRequired = false;
 
 
 var _qtConfig = null;
@@ -36,7 +37,7 @@ var _ListinoShowListinoCodice = null;
 var CONTATTO_NOTE_ALLOWED_CHARS = " 0123456789abcdefghijklmnopqrstuvwxyz.:,;!()òèéà@ù-_+$/";
 
 //VERSIONE VISUALIZZATA A SCHERMO
-var APP_VERSION = "1.1";
+var APP_VERSION = "1.3.0.0";
 
 var app = {
 
@@ -360,18 +361,18 @@ function OrdersCheckList_trasferiti(troppiOrdini) {
                     numRows = order_trasf.rows.length;
 
                 var customerStr_trasf = "NESSUN CLIENTE"
-                if (order_trasf.customerDescr) {customerStr_trasf = order_trasf.customerDescr;}
+                if (order_trasf.customerDescr) { customerStr_trasf = order_trasf.customerDescr; }
 
 
-                 var msgCodiceTrasferimento = "";
-                if (order_trasf.orderCode_PerCliente) { msgCodiceTrasferimento = " - Ordine di riferimento per il cliente: " + order_trasf.orderCode_PerCliente ;   }
+                var msgCodiceTrasferimento = "";
+                if (order_trasf.orderCode_PerCliente) { msgCodiceTrasferimento = " - Ordine di riferimento per il cliente: " + order_trasf.orderCode_PerCliente; }
 
 
                 var listItem = "<li data-theme=\"b\" data-icon=\"eye\">" +
                                 "<a href=\"#\" onclick=\"OrderOpen('" + order_trasf.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + customerStr_trasf + "</h2>" +
                                 "<span class=\"ui-li-count\">" + numRows + ((numRows == 1) ? " Riga" : " Righe") + "</span>" +
                                 "<p>Del " + order_trasf.orderCode.substring(6, 8) + "/" + order_trasf.orderCode.substring(4, 6) + "/" + order_trasf.orderCode.substring(0, 4) + " alle " + order_trasf.orderCode.substring(8, 10) + ":" + order_trasf.orderCode.substring(10, 12) + "</p>" +
-                                "<p><b>Data di trasferimento: " + order_trasf.orderDateTransfer_PerUtente + msgCodiceTrasferimento +  "</b></p>" +
+                                "<p><b>Data di trasferimento: " + order_trasf.orderDateTransfer_PerUtente + msgCodiceTrasferimento + "</b></p>" +
                                 "</a></li>";
 
                 lista.append(listItem);
@@ -621,7 +622,7 @@ function SelezArticolo_Step03_fillList() {
                 var articolo = objResp[index];
 
                 var listItem = "<li data-theme=\"b\">" +
-                                    "<a href=\"#\" onclick=\"SelezArticolo_Confirm(" + articolo.Progressivo + ",'" + articolo.ArticoloCodice + "');\" class=\"ui-alt-icon\"><h2>" + articolo.ArticoloCodice + " - " + articolo.Descrizione + "</h2></p></a></li>";
+                                    "<a href=\"#\" onclick=\"SelezArticolo_Confirm(" + articolo.Progressivo + ",'" + articolo.ArticoloCodice + "');\" class=\"ui-alt-icon\"><h2>" + articolo.Descrizione + "</h2></p></a></li>";
                 $("#pageOrder_SelezArticolo_Step03_Panel_list").append(listItem);
             }
         }
@@ -641,6 +642,10 @@ function SelezArticolo_Confirm(Progressivo, ArticoloCodice) {
     _artSelezGuidata.ArticoloCodice = ArticoloCodice;
     PageChange('#pageOrder', true);
     $("#pageOrderRowAdd").val(_artSelezGuidata.ArticoloCodice);
+    if (_pageOrder_TipoArticoloSelezionato == 'TP') {
+        OrderAddArticle();
+    }
+
 }
 
 
@@ -658,7 +663,9 @@ function OrderOpen(orderCode) {
 
         if (richiestaConferma == false) {
             _qtOrderWorking = OrdineInLavoro.orderCode;
+            _pageOrder_TipoArticoloSelezionato_resetRequired = true;
             PageChange("#pageOrder");
+
             return;
         }
 
@@ -688,6 +695,7 @@ function OrderOpen(orderCode) {
                                         if (buttonIndex == 1) {
 
                                             _qtOrderWorking = OrdineInLavoro.orderCode;
+                                            _pageOrder_TipoArticoloSelezionato_resetRequired = true;
                                             PageChange("#pageOrder");
 
                                         }
@@ -824,12 +832,12 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
 
 
                         //alert("orderCode_PerCliente " + orderCode_PerCliente);
-                        
+
                         _qtOrders.orders[idxOrdine].orderCode_PerCliente = orderCode_PerCliente;
                         _qtOrders.orders[idxOrdine].orderDateTransfer = GetDataAttuale();
                         _qtOrders.orders[idxOrdine].orderDateTransfer_PerUtente = GetDataAttuale_PerUtente();
                         _qtOrders.orders[idxOrdine].orderStatus = ORDER_STATUS.TRASFERITO;
-                        
+
 
 
                     }
@@ -1304,7 +1312,16 @@ $(document).on("pagebeforeshow", "#pageMain", function () {
 $(document).on("pagebeforeshow", "#pageOrder", function () {
 
     $("#pageOrderRowAdd").val("");
-    pageOrder_SelezionatoTipoArticolo("TP");
+
+    if (_pageOrder_TipoArticoloSelezionato_resetRequired == true) {
+        pageOrder_SelezionatoTipoArticolo("TP");
+    } else {
+        pageOrder_SelezionatoTipoArticolo(_pageOrder_TipoArticoloSelezionato);
+    }
+    _pageOrder_TipoArticoloSelezionato_resetRequired = false;
+
+
+
     OrderTableRefresh();
     OrderCustomerApplyStyle();
 
@@ -1447,11 +1464,8 @@ function OrderStartNew() {
 
     _qtOrderWorking = order.orderCode;
     _qtOrders.orders.push(order);
+    _pageOrder_TipoArticoloSelezionato_resetRequired = true;
     PageChange("#pageOrder");
-
-
-
-
 
 
     if (FUNZIONAMENTO_OFFLINE == false) {
@@ -2070,7 +2084,7 @@ function OrderAddArticle_ORIGINALE() {
 
 
                 $("#popup_pageOrderRowQta").popup("open");
-                               
+
 
                 var qta = $('#pageOrderRowQta').val()//.toFixedDown(2);
                 if (!qta) { qta = 1; }
@@ -3376,11 +3390,11 @@ function OrderCustomerApplyStyle() {
             var msgInfoTrasferimento = "Trasferimento non eseguito";
             if (_qtOrders.getOrder(_qtOrderWorking).orderDateTransfer_PerUtente) { msgInfoTrasferimento = "Data di trasferimento: " + _qtOrders.getOrder(_qtOrderWorking).orderDateTransfer_PerUtente }
 
-            if (_qtOrders.getOrder(_qtOrderWorking).orderCode_PerCliente) { msgInfoTrasferimento = msgInfoTrasferimento +  " - Ordine di riferimento per il cliente: " + _qtOrders.getOrder(_qtOrderWorking).orderCode_PerCliente ;   }
+            if (_qtOrders.getOrder(_qtOrderWorking).orderCode_PerCliente) { msgInfoTrasferimento = msgInfoTrasferimento + " - Ordine di riferimento per il cliente: " + _qtOrders.getOrder(_qtOrderWorking).orderCode_PerCliente; }
 
 
 
-            if ( (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO) || (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED) ) {
+            if ((_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO) || (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED)) {
                 $("#pageOrderCliente").text(_qtOrders.getOrder(_qtOrderWorking).customerDescr + "\n\nListino " + _qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice.toString() + "\n\n" + msgInfoTrasferimento);
                 AddClassIfMissing($("#pageOrderCliente_div_TableAddArticolo"), "ui-screen-hidden");
                 $("#pageOrderCliente").css("background-color", "grey");
