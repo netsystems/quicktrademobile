@@ -75,7 +75,6 @@
                 </p>
                 <div id="pageMainHeaderNavBar" data-role="navbar" data-iconpos="top" style="display: none;">
                     <ul>
-
                         <li><a href="#" data-icon="plus" id="pageMainHeaderNavBar_NuovoOrdine" onclick="OrderStartNew();">Nuovo ordine</a></li>
                         <li><a href="#" data-icon="tag" id="pageMainHeaderNavBar_ShowListini" onclick="ListiniShowPage();">Listino prezzi</a></li>
                         <li><a href="#" data-icon="action" id="pageMainHeaderNavBar_SaveAll" onclick="OrderSave_All()">Trasferisci tutti</a></li>
@@ -102,14 +101,6 @@
 
 
 
-
-
-
-
-
-
-
-
     <!--PAGINA ORDINI TRAFERITI-->
     <div data-role="page" id="pageOrdiniTrasferiti" data-theme="a">
 
@@ -126,69 +117,19 @@
 
         <div data-role="content" data-theme="a">
             <div id="pageOrdiniTrasferitiContent">
-                <div id="pageOrdiniTrasferitiHeaderNavBar" data-role="navbar" data-iconpos="top">
-                    <ul>
-                        <li><a href="#" data-icon="delete" onclick="OrderDeleteAll_PageTrasferiti();">Elimina tutti gli ordini trasferiti</a></li>
-                    </ul>
-                </div>
+                <a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" onclick="OrderDeleteAll_PageTrasferiti();">Elimina tutti gli ordini trasferiti</a>
                 <form class="ui-filterable">
                     <input id="pageMainOrdList_Trasferiti_Filter" data-type="search" placeholder="Ricerca ordine...">
                 </form>
-
                 <div id="pageMainOrd_Trasferiti" class="ui-screen-hidden">
                     <ul id="pageMainOrdList_Trasferiti" data-role="listview" data-filter="true" data-inset="true" data-divider-theme="b" data-count-theme="a" data-input="#pageMainOrdList_Trasferiti_Filter"></ul>
                 </div>
                 <div id="pageMainOrd_Trasferiti_dinamico" class="ui-screen-hidden">
                     <ul id="pageMainOrdList_Trasferiti_dinamico" data-role="listview" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
                 </div>
-
-
-
             </div>
         </div>
     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     <!--OPTIONS PAGE-->
@@ -198,19 +139,68 @@
                 <a id="pageOptionsBack" href="#" onclick="PageChange('#pageMain', true);" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
             </div>
             <h1>Configurazione</h1>
-            <a id="pageOptionsSave" href="#" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-check">Salva</a>
+            <!--<a id="pageOptionsSave" href="#" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-check">Salva</a>-->
         </div>
+
         <div data-role="content" data-theme="a">
             <h2 style="text-align: right;">Comunicazione Server</h2>
-            <label for="pageOptionsTxtServerIp">Indirizzo IP Server:</label>
-            <input type="text" name="pageOptionsTxtServerIp" id="pageOptionsTxtServerIp" value="" />
-            <label for="pageOptionsTxtServerPort">Num. Porta Server:</label>
-            <input type="text" name="pageOptionsTxtServerPort" id="pageOptionsTxtServerPort" value="" />
+            <div data-role="fieldcontain">
+                <h3 style="text-align: left;">Tipo di utilizzo</h3>
+
+                <div style="text-align: center;">
+                    <fieldset data-role="controlgroup" data-type="horizontal" name="chk_usa_ip_ctrlgrp" id="chk_usa_ip_ctrlgrp">
+                        <!--<legend></legend>-->
+                        <input type="radio" name="chk_usa_ip" id="chk_usa_ip_sede_centrale" value="usa_ip_sede_centrale" />
+                        <label for="chk_usa_ip_sede_centrale">Sede centrale</label>
+                        <input type="radio" name="chk_usa_ip" id="chk_usa_ip_fiera" value="usa_ip_fiera" />
+                        <label for="chk_usa_ip_fiera">Fiera</label>
+                    </fieldset>
+                </div>
+
+            </div>
+
+            <table style="width: 100%;">
+                <tr>
+                    <td style="width: 50%;">
+                        <h3 style="text-align: center;">Sede centrale</h3>
+                        <label for="pageOptionsTxtServerIp">Indirizzo IP server sede centrale:</label>
+                        <input type="text" name="pageOptionsTxtServerIp" id="pageOptionsTxtServerIp" value="" />
+                        <label for="pageOptionsTxtServerPort">Numero porta server sede centrale:</label>
+                        <input type="text" name="pageOptionsTxtServerPort" id="pageOptionsTxtServerPort" value="" placeholder="es. 49219" />
+                    </td>
+                    <td style="width: 50%;">
+                        <h3 style="text-align: center;">Fiera</h3>
+                        <label for="pageOptionsTxtServerIp_Fiera">Indirizzo IP server fiera:</label>
+                        <input type="text" name="pageOptionsTxtServerIp_Fiera" id="pageOptionsTxtServerIp_Fiera" value="" />
+                        <label for="pageOptionsTxtServerPort_Fiera">Numero porta server fiera:</label>
+                        <input type="text" name="pageOptionsTxtServerPort_Fiera" id="pageOptionsTxtServerPort_Fiera" value="" placeholder="es. 49219" />
+                    </td>
+                </tr>
+            </table>
+
+            <a id="pageOptionsSave" href="#" class="ui-btn ui-corner-all ui-icon-chec ui-btn-icon-left ui-icon-check">Salva configurazione</a>
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
             <br />
             <div id="pageOptionsDeleteAllDiv" style="display: none;">
-                <a id="pageOptionsDeleteAll" href="#" class="ui-btn ui-icon-delete ui-btn-icon-top">Formatta Database App</a>
+                <h2 style="text-align: right;">Reset applicazione</h2>
+                <a id="pageOptionsDeleteAll" href="#pop_up_richiesta_psw_reset" data-rel="popup" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-position-to="window">Esegui reset</a>
             </div>
         </div>
+
+        <div data-role="popup" id="pop_up_richiesta_psw_reset" data-theme="a" class="ui-corner-all ui-content" data-overlay-theme="b" style="width: 265px;" data-dismissible="false">
+            <div style="padding: 10px 20px;">
+                <label for="pageOptionsDeleteAll_psw">Password per formattazione:</label>
+                <input type="password" name="pageOptionsDeleteAll_psw" id="pageOptionsDeleteAll_psw" value="" />
+                <a id="pop_up_richiesta_psw_reset_OK" onclick="CancellaTutto();" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check">OK</a>
+                <a id="pop_up_richiesta_psw_reset_Annulla"  data-rel="back" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-delete">Annulla</a>
+            </div>
+        </div>
+
     </div>
     <!--PROFILE PAGE-->
     <div data-role="page" id="pageProfile" data-theme="a">
@@ -219,19 +209,21 @@
                 <a id="pageProfileBack" href="#" onclick="PageChange('#pageMain', true);" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
             </div>
             <h1>Profilo</h1>
-            <a id="pageProfileSave" href="#" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-check">Salva</a>
+            <!--<a id="pageProfileSave" href="#" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-check">Salva</a>-->
         </div>
         <div data-role="content" data-theme="a">
             <label for="pageProfileTxtQtUser">Codice dispositivo:</label>
-            <input type="text" name="pageProfileTxtQtUser" id="pageProfileTxtQtUser" value=""  maxlength="5"/>
+            <input type="text" name="pageProfileTxtQtUser" id="pageProfileTxtQtUser" value="" maxlength="5" />
 
             <label for="pageProfileTxtQtPassword">Password:</label>
             <input type="text" name="pageProfileTxtQtPassword" id="pageProfileTxtQtPassword" value="" />
 
             <label for="pageProfileTxtQtUUID">ID dispositivo (Universally Unique Identifier):</label>
-            <input type="text" name="pageProfileTxtQtUUID" id="pageProfileTxtQtUUID" value="" readonly/>
+            <input type="text" name="pageProfileTxtQtUUID" id="pageProfileTxtQtUUID" value="" readonly />
 
-            <a href="#" id="pageProfileVerify" class="ui-btn ui-corner-all ui-icon-check ui-btn-icon-left">Esegui Login</a>
+            <a href="#" id="pageProfileLogin" class="ui-btn ui-corner-all ui-icon-check ui-btn-icon-left">Esegui Login</a>
+            <br>
+            <a href="#" id="pageProfileLogout" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left">Esegui Logout</a>
             <br />
         </div>
     </div>
@@ -248,7 +240,9 @@
                 </p>
                 <li data-icon="user" class="iconLeft" id="pageOrder_Panel_listView_Testata"><a href="#" onclick="CustomerShowSelect();">Testata ordine</a></li>
                 <li data-icon="edit" class="iconLeft" id="pageOrder_Panel_listView_Riapri"><a href="#" onclick="OrderReopen();">Modifica</a></li>
+                <li data-icon="check" class="iconLeft" id="pageOrder_Panel_listView_Conferma"><a href="#" onclick="OrderConfirm();">Conferma</a></li>
                 <li data-icon="check" class="iconLeft" id="pageOrder_Panel_listView_Trasferisci"><a href="#" onclick="OrderSave();">Trasferisci</a></li>
+                <li data-icon="check" class="iconLeft" id="pageOrder_Panel_listView_InviaMail"><a href="#" onclick="OrderSendMail();">Re-invia mail</a></li>
                 <li data-icon="delete" class="iconLeft" id="pageOrder_Panel_listView_Elimina"><a href="#" onclick="pageOrderDelete()">Elimina</a></li>
             </ul>
         </div>
@@ -270,37 +264,34 @@
             </div>
 
 
+
             <div id="pageOrderCliente_div_TableAddArticolo">
+                <div id="pageOrder_CtlSelezTipoArticolo" data-role="navbar">
+
+                    <br />
+                    <ul>
+                        <li><a href="#" id="pageOrder_TipoArticolo_TP" onclick="pageOrder_SelezionatoTipoArticolo('TP',false);">Tipo<br />
+                            (TP)</a></li>
+                        <li><a href="#" id="pageOrder_TipoArticolo_TGG" onclick="pageOrder_SelezionatoTipoArticolo('TGG',true);">Taglio gratuito<br />
+                            (TGG)</a></li>
+                        <!--                      <li><a href="#" id="pageOrder_TipoArticolo_TG" onclick="pageOrder_SelezionatoTipoArticolo('TG');">Taglio<br />
+                                        (TG)</a></li>-->
+                    </ul>
+                    <br />
+                </div>
 
                 <table style="width: 100%;" id="pageOrderCliente_TableAddArticolo" border="0">
                     <tr>
                         <td>
-                            <input type="text" name="pageOrderRowAdd" id="pageOrderRowAdd" placeholder="Sparare il codice a barre o ricercarlo dall'elenco..." value="" style="height: 35px; width: 100%;" />
+                            <input type="text" name="pageOrderRowAdd" id="pageOrderRowAdd" placeholder="Sparare il codice a barre o ricercarlo dall'elenco..." value="" style="height: 35px; width: 100%;" data-clear-btn="true" data-clear-btn-text="Svuota" />
                         </td>
                         <td style="width: 100px;">
                             <div class="custom-border-radius"><a style="width: 100px;" href="#" id="pageOrderSelezionaArticolo" class="ui-btn ui-icon-search ui-btn-icon-left" onclick="PageChange('#pageOrder_SelezArticolo_Step01',false);">Ricerca</a></div>
                         </td>
-                    </tr>
-                    <tr>
-                        <td align="center">
-                            <div id="pageOrder_CtlSelezTipoArticolo" data-role="navbar">
-                                <ul>
-                                    <!-- class="ui-btn-active" -->
-                                    <li><a href="#" id="pageOrder_TipoArticolo_TP" onclick="pageOrder_SelezionatoTipoArticolo('TP');">Tipo<br />
-                                        (TP)</a></li>
-                                    <li><a href="#" id="pageOrder_TipoArticolo_TGG" onclick="pageOrder_SelezionatoTipoArticolo('TGG');">Taglio gratuito<br />
-                                        (TGG)</a></li>
-                                    <li><a href="#" id="pageOrder_TipoArticolo_TG" onclick="pageOrder_SelezionatoTipoArticolo('TG');">Taglio<br />
-                                        (TG)</a></li>
-                                </ul>
-                            </div>
-                        </td>
-
                         <td style="width: 100px;">
                             <div class="custom-border-radius"><a style="width: 100px;" href="#" id="pageOrderRowAddBtn" class="ui-btn ui-icon-plus ui-btn-icon-left" onclick="OrderAddArticle();">Aggiungi</a></div>
                         </td>
                     </tr>
-
                 </table>
             </div>
             <h2 id="pageOrderRowNum" style="float: left; margin-left: 5px;">0 Righe</h2>
@@ -308,11 +299,24 @@
         </div>
 
         <!-- richiesta qta -->
-        <div data-role="popup" id="popup_pageOrderRowQta" data-theme="a" class="ui-corner-all" data-overlay-theme="b" style="width: 265px;" data-dismissible="false">
+        <div data-role="popup" id="popup_pageOrderRowQta" data-theme="a" class="ui-corner-all ui-content" data-overlay-theme="b" style="width: 265px;" data-dismissible="false">
             <div style="padding: 10px 20px;">
                 <label for="pageOrderRowQta"><b>Quantit&agrave: </b></label>
                 <input type="text" name="pageOrderRowQta" id="pageOrderRowQta" value="1" data-theme="a">
+                <table>
+                    <tr>
+                        <td><a id="pageOrderRowQta_1" onclick="pageOrderRowQta(1);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">1</a></td>
+                        <td><a id="pageOrderRowQta_2" onclick="pageOrderRowQta(2);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">2</a></td>
+                        <td><a id="pageOrderRowQta_3" onclick="pageOrderRowQta(3);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">3</a></td>
+                    </tr>
+                    <tr>
+                        <td><a id="pageOrderRowQta_4" onclick="pageOrderRowQta(4);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">4</a></td>
+                        <td><a id="pageOrderRowQta_5" onclick="pageOrderRowQta(5);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">5</a></td>
+                        <td><a id="pageOrderRowQta_10" onclick="pageOrderRowQta(10);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">10</a></td>
+                    </tr>
+                </table>
                 <a id="popup_pageOrderRowQta_OK" data-rel="back" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check">OK</a>
+                <a id="popup_pageOrderRowQta_Annulla" onclick="pageOrderRowQta(0);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-delete">Annulla</a>
             </div>
         </div>
 
@@ -348,9 +352,9 @@
         </div>
         <div data-role="content" data-theme="a">
             <div id="pageOrder_SelezArticolo_Step01_Panel">
-                <form class="ui-filterable">
-                    <input id="pageOrder_SelezArticolo_Step01_Panel_filter" data-type="search" placeholder="Ricerca base...">
-                </form>
+                <!--<form class="ui-filterable">-->
+                <input value="" data-icon="alt" id="pageOrder_SelezArticolo_Step01_Panel_filter" data-type="search" placeholder="Ricerca base... " data-clear-btn="true" data-clear-btn-text="Svuota">
+                <!--</form>-->
                 <ul id="pageOrder_SelezArticolo_Step01_Panel_list" data-role="listview" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
             </div>
         </div>
@@ -367,9 +371,13 @@
         </div>
         <div data-role="content" data-theme="a">
             <div id="pageOrder_SelezArticolo_Step02_Panel">
-                <form class="ui-filterable">
-                    <input id="pageOrder_SelezArticolo_Step02_Panel_filter" data-type="search" placeholder="Ricerca listino...">
-                </form>
+
+                <div id="pageOrder_SelezArticolo_Step02_Panel_div_filter" style="display: none;">
+                    <form class="ui-filterable">
+                        <input id="pageOrder_SelezArticolo_Step02_Panel_filter" data-type="search" placeholder="Ricerca listino..." data-clear-btn="true" data-clear-btn-text="Svuota">
+                    </form>
+                </div>
+
                 <ul id="pageOrder_SelezArticolo_Step02_Panel_list" data-role="listview" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
             </div>
         </div>
@@ -379,32 +387,38 @@
     <div data-role="page" id="pageOrder_SelezArticolo_Step03" data-theme="a">
         <div data-role="header" data-position="fixed">
             <div class="custom-border-radius">
-                <a id="pageOrder_SelezArticolo_Step03_back" href="#" onclick="PageChange('#pageOrder_SelezArticolo_Step02',true);" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
+                <a id="pageOrder_SelezArticolo_Step03_back" href="#" onclick="SelezArticolo_Step03_back();" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
             </div>
             <h1>Selezione Articolo</h1>
         </div>
         <div data-role="content" data-theme="a">
             <div id="pageOrder_SelezArticolo_Step03_Panel">
-                <form class="ui-filterable">
-                    <input id="pageOrder_SelezArticolo_Step03_Panel_filter" data-type="search" placeholder="Ricerca articolo...">
-                </form>
+                <div id="pageOrder_SelezArticolo_Step03_div_filter" style="display: none;">
+                    <form class="ui-filterable">
+                        <input id="pageOrder_SelezArticolo_Step03_Panel_filter" data-type="search" placeholder="Ricerca articolo..." data-clear-btn="true" data-clear-btn-text="Svuota">
+                    </form>
+                </div>
                 <ul id="pageOrder_SelezArticolo_Step03_Panel_list" data-role="listview" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
             </div>
         </div>
     </div>
 
 
-
-
-
-
-
-
-
-
-
-
-
+    <!-- SELEZIONE BARCODE PAGINA 2 TGG- SELEZIONE ARTICOLO -->
+    <div data-role="page" id="pageOrder_SelezArticolo_Step02_TGG" data-theme="a">
+        <div data-role="header" data-position="fixed">
+            <div class="custom-border-radius">
+                <a id="pageOrder_SelezArticolo_Step02_TGG_back" href="#" onclick="PageChange('#pageOrder_SelezArticolo_Step01',true);" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
+            </div>
+            <h1>Selezione Articolo</h1>
+        </div>
+        <div data-role="content" data-theme="a">
+            <div id="pageOrder_SelezArticolo_Step02_TGG_Panel">
+                <input id="pageOrder_SelezArticolo_Step02_TGG_Panel_filter" data-type="search" placeholder="Ricerca articolo..." data-clear-btn="true" data-clear-btn-text="Svuota">
+                <ul id="pageOrder_SelezArticolo_Step02_TGG_Panel_list" data-role="listview" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -456,9 +470,18 @@
                 <label for="pageCustomerContatto1">Contatto 1:</label>
                 <input name="pageCustomerContatto1" id="pageCustomerContatto1" value="" type="text" maxlength="50">
                 <label for="pageCustomerAnnotazioni">Annotazioni:</label>
-                <input name="pageCustomerAnnotazioni" id="pageCustomerAnnotazioni" value="" type="text" maxlength="180">
+                <!--<input name="pageCustomerAnnotazioni" id="pageCustomerAnnotazioni" value="" type="text" maxlength="180">-->
+                <textarea name="pageCustomerAnnotazioni" id="pageCustomerAnnotazioni" rows="5" maxlength="180"></textarea>
+
                 <label for="pageCustomerEMail">E-Mail:</label>
-                <input name="pageCustomerEMail" id="pageCustomerEMail" value="" type="text" maxlength="100">
+                <input name="pageCustomerEMail" id="pageCustomerEMail" value="" type="text" maxlength="255">
+                <a id="pageCustomer_goto_elencoContattiCliente" href="#" class="ui-btn ui-icon-search ui-btn-icon-left ui-corner-all" onclick="PageChange('#pageElencoContatti');">Mail cliente...</a>
+
+                <label for="pageCustomerEMail_interna">E-Mail interna:</label>
+                <input name="pageCustomerEMail_interna" id="pageCustomerEMail_interna" value="" type="text" maxlength="255">
+                <a id="pageCustomer_goto_elencoContattiInterni" href="#" class="ui-btn ui-icon-search ui-btn-icon-left ui-corner-all" onclick="PageChange('#pageElencoContattiInterni');">Mail interne...</a>
+
+                <p id="pageCustomer_errorimailinviate"></p>
             </div>
             <div id="pageCustomerRicerca">
                 <h2 style="text-align: right; margin-top: -5px;">Ricerca Cliente</h2>
@@ -469,6 +492,43 @@
             </div>
         </div>
     </div>
+
+
+
+    <!--  PAGINA SELEZIONE MAIL - SELEZIONE ELENCO CONTATTI CLIENTE-->
+    <div data-role="page" id="pageElencoContatti" data-theme="a">
+        <div data-role="header" data-position="fixed">
+            <div class="custom-border-radius">
+                <a id="pageElencoContatti_back" href="#" onclick="pageCustomerEMail_ShowElencoContatti_back();" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
+            </div>
+            <h1>Selezione contatti cliente</h1>
+        </div>
+        <div data-role="content" data-theme="a">
+            <div id="pageElencoContattiClienti_menu" data-role="navbar" data-iconpos="top">
+                <a href="#" data-icon="delete" onclick="pageElencoContattiClienti_EliminaVociSelezionate();">Elimina le voci selezionate</a>
+            </div>
+            <div id="pageElencoContatti_mainDiv">
+            </div>
+        </div>
+    </div>
+
+
+
+    <!--  PAGINA SELEZIONE MAIL - SELEZIONE ELENCO CONTATTI INTERNI-->
+    <div data-role="page" id="pageElencoContattiInterni" data-theme="a">
+        <div data-role="header" data-position="fixed">
+            <div class="custom-border-radius">
+                <a id="pageElencoContattiInterni_back" href="#" onclick="pageCustomerEMail_ShowElencoContattiInterni_back();" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
+            </div>
+            <h1>Selezione contatti interni</h1>
+        </div>
+        <div data-role="content" data-theme="a">
+            <div id="pageElencoContattiInterni_mainDiv">
+            </div>
+        </div>
+    </div>
+
+
     <!--SYNC PAGE-->
     <div data-role="page" id="pageSync" data-theme="a">
         <div data-role="header" data-position="fixed" data-tap-toggle="false">
@@ -476,7 +536,7 @@
             <h1>Sincronizzazione</h1>
         </div>
         <div data-role="content" data-theme="a">
-            <a href="#" class="ui-btn ui-icon-refresh ui-btn-icon-left" onclick="SynchronizeDataSource();">Avvia Sincronizzazione</a>
+            <a href="#" class="ui-btn ui-corner-all ui-icon-refresh ui-btn-icon-left" onclick="SynchronizeDataSource();">Avvia Sincronizzazione</a>
             <div id="pageSyncOrdMissing" class="ui-screen-hidden">
                 <hr />
                 <p id="pageSymcInfo">Sono presenti ordini da scaricare sul server di Quick Trade.</p>
