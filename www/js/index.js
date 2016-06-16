@@ -5,8 +5,11 @@
 
 var FUNZIONAMENTO_OFFLINE = true;
 
+var PSW_RESET_APPLICAZIONE = "QT16RESET!"
+
 /*
 escluse dalla logica online le seguenti 2 funzioni:
+ListiniShowPage
 ListiniLoadBarcodeInfo
 ListiniLoadListView
 */
@@ -33,19 +36,25 @@ var _ListinoViewed = null;
 var _ListinoBarcodeToShow = null;
 var _ListinoShowListinoCodice = null;
 
-
 var CONTATTO_NOTE_ALLOWED_CHARS = " 0123456789abcdefghijklmnopqrstuvwxyz.:,;!()òèéà@ù-_+$/";
 
+var _MailClienteMgr = null;
+
 //VERSIONE VISUALIZZATA A SCHERMO
-var APP_VERSION = "1.3.0.0";
+var APP_VERSION = "1.4.0.0";
+
+var _initialized = false;
 
 var app = {
 
-
-
     // Application Constructor
     initialize: function () {
-        this.bindEvents();
+
+        if (_initialized == false) {
+            this.bindEvents();
+        }
+        _initialized = true;
+
     },
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
@@ -55,6 +64,7 @@ var app = {
 
     onDeviceReady: function () {
 
+        //alert("onDeviceReady");
         //LoaderShow("Benvenuto!");
         //Sistemo la status bar
         try {
@@ -80,8 +90,6 @@ var app = {
         //Inizializzo la configurazione
         QTConfigInitAndVerify();
 
-        // alert("_qtProfile.OperatorePassword: " + _qtProfile.OperatorePassword);
-
         //Leggo anche profilo
         QTProfileInitAndVerify();
 
@@ -91,8 +99,13 @@ var app = {
         //Leggo anche ordini memorizzati
         QTOrderListInitAndVerify();
 
-        //La riga qui sotto viene spostata nella funzione che carica il file più pesante: QTDataSourceInitAndVerify
-        //$("#pageMainContent").css("display", "");
+        //leggo struttura mail associate a cliente 
+        ClienteMgrInitAndVerify();
+
+
+
+        OrdersCheckToUpload();
+        OrdersCheckList();
 
     }
 };
@@ -112,7 +125,9 @@ function QTConfigInitAndVerify() {
             //Configurazione letta
             _qtConfig.ServerIP = _readConfig.ServerIP;
             _qtConfig.ServerPortNumber = _readConfig.ServerPortNumber;
-            //_qtConfig.OperatoreCodiceQT = _readConfig.OperatoreCodiceQT;
+            _qtConfig.ServerIP_Fiera = _readConfig.ServerIP_Fiera;
+            _qtConfig.ServerPortNumber_Fiera = _readConfig.ServerPortNumber_Fiera;
+            _qtConfig.ind_tipo_utilizzo = _readConfig.ind_tipo_utilizzo;
 
         }, function () {
             //File inesistente, propongo quindi la configurazione
@@ -144,12 +159,14 @@ function QTProfileInitAndVerify() {
             _qtProfile.OperatoreCodice = _readConfig.OperatoreCodice;
             _qtProfile.OperatoreDescrizione = _readConfig.OperatoreDescrizione;
             _qtProfile.OperatorePassword = _readConfig.OperatorePassword;
+            //_qtProfile.SerialNumber = device.uuid();
 
         }, function () {
             //File inesistente, propongo quindi la configurazione
             _qtProfile.OperatoreCodice = "";
             _qtProfile.OperatoreDescrizione = "";
             _qtProfile.OperatorePassword = "";
+            //_qtProfile.SerialNumber = device.uuid();
 
         }, function (err) {
             //Errore lettura file.
@@ -163,6 +180,7 @@ function QTProfileInitAndVerify() {
 
 function QTDataSourceInitAndVerify(Success) {
     //Inizializzo e verifico il datasource
+
     try {
         _qtDS = new QTDataSource();
 
@@ -174,7 +192,11 @@ function QTDataSourceInitAndVerify(Success) {
             //$("#pageMainHeader").val("Quick Trade | " + _qtDS.dataSource.generalInfo.fairSeason + " - " + _qtDS.dataSource.generalInfo.fairDescr);
             $("#pageMainFairInfo").html(" Fiera " + _qtDS.dataSource.generalInfo.fairSeason + " - " + _qtDS.dataSource.generalInfo.fairDescr);
 
+
+
             LoaderHide();
+
+
             $("#pageMainContent").css("display", "");
             $("#pageMainHeaderNavBar").css("display", "");
 
@@ -185,6 +207,13 @@ function QTDataSourceInitAndVerify(Success) {
             _qtDS.dataSource = null;
             //alert("Datasource non trovato.");
             LoaderHide();
+            $("#pageMainContent").css("display", "");
+            $("#pageMainHeaderNavBar").css("display", "");
+
+            navigator.notification.alert("Per poter utilizzare l'applicazione \u00e8 necessario effettuare la sincronizzazione dati.", function () {
+                return;
+            }, "Attenzione", "OK");
+
 
         }, function (err) {
             //Errore lettura file.
@@ -215,6 +244,7 @@ function QTOrderListInitAndVerify() {
                     var o = _qtOrders.orders[i];
 
                     if (!o.orderEMail) { o.orderEMail = ""; richiestoSalvataggio = true; }
+                    if (!o.orderEMail_interna) { o.orderEMail_interna = ""; richiestoSalvataggio = true; }
 
                     if (!o.operatorCode) { o.operatorCode = _qtProfile.OperatoreCodice; richiestoSalvataggio = true; }
                     if (!o.operatorPassword) { o.operatorPassword = _qtProfile.OperatorePassword; richiestoSalvataggio = true; }
@@ -258,6 +288,34 @@ function QTOrderListInitAndVerify() {
     }
 }
 
+function ClienteMgrInitAndVerify() {
+
+    //Inizializzo e verifico se ho ordini memorizzati in locale
+    try {
+        _MailClienteMgr = new MailClienteManager();
+
+        _MailClienteMgr.loadFromFile(function (_read) {
+            // letto
+            _MailClienteMgr.Elenco = _read;
+
+        }, function () {
+            //File inesistente, propongo quindi la configurazione
+            _MailClienteMgr.Elenco = [];
+            //alert("Nessun ordine memorizzato.");
+        }, function (err) {
+            //Errore lettura file.
+            alert("Errore 1 ClienteMgrInitAndVerify: " + err.message);
+
+        });
+    } catch (e) {
+        alert("Errore 2 ClienteMgrInitAndVerify: " + e.message);
+    }
+}
+
+
+
+
+
 function OrdersCheckToUploadCount() {
     var uploadOrders = 0;
     if (_qtOrders) {
@@ -284,16 +342,11 @@ function OrdersCheckToUpload() {
 
 }
 
-
-
-
-
-
-
-
 /*VISUALIZZA ELENCO DEGLI ORDINI TRASFERITI*/
 function OrdersCheckList_trasferiti(troppiOrdini) {
     try {
+
+
 
         //alert("troppiOrdini " + troppiOrdini);
 
@@ -395,17 +448,16 @@ function OrdersCheckList() {
     try {
 
 
+
         if (!_qtOrders) {
             AddClassIfMissing($("#pageMainOrdIncomplete"), "ui-screen-hidden");
             return;
         }
 
-
         if (!_qtOrders.orders) {
             AddClassIfMissing($("#pageMainOrdIncomplete"), "ui-screen-hidden");
             return;
         }
-
 
 
         RemoveClassIfExists($("#pageMainOrdIncomplete"), "ui-screen-hidden");
@@ -431,7 +483,7 @@ function OrdersCheckList() {
                 if (order.customerDescr)
                     customerStr = order.customerDescr;
 
-                var listItem = "<li data-theme=\"b\">" +
+                var listItem = "<li data-theme=\"b\" data-icon=\"edit\">" +
                                     "<a href=\"#\" onclick=\"OrderOpen('" + order.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + customerStr + "</h2>" +
                                     "<span class=\"ui-li-count\">" + numRows + ((numRows == 1) ? " Riga" : " Righe") + "</span>" +
                                     "<p>Del " + order.orderCode.substring(6, 8) + "/" + order.orderCode.substring(4, 6) + "/" + order.orderCode.substring(0, 4) + " alle " +
@@ -463,7 +515,7 @@ function OrdersCheckList() {
                 if (order.customerDescr)
                     customerStr = order.customerDescr;
 
-                var listItem = "<li data-theme=\"b\" data-icon=\"edit\">" +
+                var listItem = "<li data-theme=\"b\">" +
                                     "<a href=\"#\" onclick=\"OrderOpen('" + order.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + customerStr + "</h2>" +
                                     "<span class=\"ui-li-count\">" + numRows + ((numRows == 1) ? " Riga" : " Righe") + "</span>" +
                                     "<p>Del " + order.orderCode.substring(6, 8) + "/" + order.orderCode.substring(4, 6) + "/" + order.orderCode.substring(0, 4) + " alle " +
@@ -536,7 +588,23 @@ function SelezArticolo_GoTo_Step02(base) {
     _artSelezGuidata = new ArticoloSelezioneGuidata();
     _artSelezGuidata.BaseCodice = base;
 
-    PageChange('#pageOrder_SelezArticolo_Step02', false);
+
+    if (_pageOrder_TipoArticoloSelezionato == "TP") {
+
+        var objResp = SEARCHJS.matchArray(_qtDS.dataSource.ListiniTestata_SoloBarCode, { "BaseCodice": _artSelezGuidata.BaseCodice, _text: true });
+        if (objResp.length == 1) {
+            var Gruppo = objResp[0].Gruppo;
+            SelezArticolo_GoTo_Step03(Gruppo)
+        } else {
+            PageChange('#pageOrder_SelezArticolo_Step02', false);
+        }
+
+
+    } else {
+
+        PageChange('#pageOrder_SelezArticolo_Step02_TGG', false);
+
+    }
 
 }
 
@@ -558,6 +626,7 @@ function SelezArticolo_Step02_fillList() {
             var listItem = "<li disabled=\"disabled\" data-theme=\"c\">Nessun listino trovato.</li>";
             $("#pageOrder_SelezArticolo_Step02_Panel_list").append(listItem);
         }
+
         else if (objResp.length > 200) {
             var listItem = "<li disabled=\"disabled\" data-theme=\"c\">La ricerca ha restituito troppi risultati.</li>";
             $("#pageOrder_SelezArticolo_Step02_Panel_list").append(listItem);
@@ -582,10 +651,93 @@ function SelezArticolo_Step02_fillList() {
 }
 
 
+function SelezArticolo_Step02_TGG_fillList() {
+    try {
+
+        var filter = $("#pageOrder_SelezArticolo_Step02_TGG_Panel_filter").val().toString().trim();
+
+        var objResp = SEARCHJS.matchArray(_qtDS.dataSource.articles, { "BaseCodice": _artSelezGuidata.BaseCodice, "Descrizione": filter, _text: true });
+        $("#pageOrder_SelezArticolo_Step02_TGG_Panel_list").listview()[0].innerHTML = "";
+
+        listItemDiv = "<li data-role=\"list-divider\">Articoli<span class=\"ui-li-count\">" + objResp.length.toString() + "</span></li>";
+        $("#pageOrder_SelezArticolo_Step02_TGG_Panel_list").append(listItemDiv);
+
+
+        if (objResp.length == 0) {
+            var listItem = "<li disabled=\"disabled\" data-theme=\"c\">Nessun articolo trovato.</li>";
+            $("#pageOrder_SelezArticolo_Step02_TGG_Panel_list").append(listItem);
+        }
+
+        else if (objResp.length > 100) {
+            var listItem = "<li disabled=\"disabled\" data-theme=\"c\">La ricerca ha restituito troppi risultati.</li>";
+            $("#pageOrder_SelezArticolo_Step02_TGG_Panel_list").append(listItem);
+        } else {
+            //elenco risultati
+            for (var index = 0; index < objResp.length; index++) {
+                var articolo = objResp[index];
+
+                var Finissaggio = "--"
+                if (articolo.Finissaggio) { Finissaggio = articolo.Finissaggio; }
+
+                var DisegnoCodice = "--"
+                if (articolo.DisegnoCodice) { DisegnoCodice = articolo.DisegnoCodice; }
+
+                var Variante = "--"
+                if (articolo.Variante) { Variante = articolo.Variante; }
+
+                var ColoreCodice = "--"
+                if (articolo.ColoreCodice) { ColoreCodice = articolo.ColoreCodice; }
+
+                var Descrizione = "-- "
+                if (articolo.Descrizione) { Descrizione = articolo.Descrizione; }
+
+                var listItem = "<li data-theme=\"b\">" +
+                                    "<a href=\"#\" onclick=\"SelezArticolo_Confirm(0,'" + articolo.ArticoloCodice + "');\" class=\"ui-alt-icon\"><h2>" + Descrizione + "</h2>" +
+                                    "<p>Codice: " + articolo.ArticoloCodice + "    Finissaggio: " + Finissaggio + "    Disegno: " + DisegnoCodice +
+                                    "    Variante: " + Variante + "    Codice colore:" + ColoreCodice + "</p>" +
+                                    "</a></li>";
+
+                $("#pageOrder_SelezArticolo_Step02_TGG_Panel_list").append(listItem);
+            }
+        }
+
+        $("#pageOrder_SelezArticolo_Step02_TGG_Panel_list").listview("refresh");
+
+
+    } catch (e) {
+        alert("Errore SelezArticolo_Step02_TGG_fillList: " + e.message);
+    }
+}
+
 function SelezArticolo_GoTo_Step03(Gruppo) {
     _artSelezGuidata.Gruppo = Gruppo;
-    PageChange('#pageOrder_SelezArticolo_Step03', false);
 
+
+    var objResp = SEARCHJS.matchArray(_qtDS.dataSource.listiniCorpo, { "Ordine": 999, "BaseCodice": _artSelezGuidata.BaseCodice, "Gruppo": _artSelezGuidata.Gruppo });
+
+    if (objResp.length == 1) {
+        var Progressivo = objResp[0].Progressivo;
+        var ArticoloCodice = objResp[0].ArticoloCodice;
+        SelezArticolo_Confirm(Progressivo, ArticoloCodice);
+    } else {
+        PageChange('#pageOrder_SelezArticolo_Step03', false);
+    }
+
+
+
+}
+
+
+function SelezArticolo_Step03_back() {
+
+    var objResp = SEARCHJS.matchArray(_qtDS.dataSource.ListiniTestata_SoloBarCode, { "BaseCodice": _artSelezGuidata.BaseCodice, _text: true });
+
+
+    if (objResp.length == 1) {
+        PageChange('#pageOrder_SelezArticolo_Step01', true);
+    } else {
+        PageChange('#pageOrder_SelezArticolo_Step02', true);
+    }
 }
 
 
@@ -621,8 +773,13 @@ function SelezArticolo_Step03_fillList() {
 
                 var articolo = objResp[index];
 
+                var Descrizione = "--";
+                if (articolo.Descrizione) { Descrizione = articolo.Descrizione; }
+
                 var listItem = "<li data-theme=\"b\">" +
-                                    "<a href=\"#\" onclick=\"SelezArticolo_Confirm(" + articolo.Progressivo + ",'" + articolo.ArticoloCodice + "');\" class=\"ui-alt-icon\"><h2>" + articolo.Descrizione + "</h2></p></a></li>";
+                                    "<a href=\"#\" onclick=\"SelezArticolo_Confirm(" + articolo.Progressivo + ",'" + articolo.ArticoloCodice + "');\" class=\"ui-alt-icon\"><h2>" + Descrizione + "</h2></p></a></li>";
+
+
                 $("#pageOrder_SelezArticolo_Step03_Panel_list").append(listItem);
             }
         }
@@ -637,14 +794,13 @@ function SelezArticolo_Step03_fillList() {
 
 
 function SelezArticolo_Confirm(Progressivo, ArticoloCodice) {
-    //alert("SelezArticolo_Confirm + " + Progressivo + "-" + ArticoloCodice);
+
+    //alert("SelezArticolo_Confirm " + Progressivo + "  -  " + ArticoloCodice);
     _artSelezGuidata.Progressivo = Progressivo;
     _artSelezGuidata.ArticoloCodice = ArticoloCodice;
+
     PageChange('#pageOrder', true);
-    $("#pageOrderRowAdd").val(_artSelezGuidata.ArticoloCodice);
-    if (_pageOrder_TipoArticoloSelezionato == 'TP') {
-        OrderAddArticle();
-    }
+
 
 }
 
@@ -733,6 +889,8 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
     try {
         _qtOrdersUpload = new QTOrderList();
 
+
+
         //Preparo ordini
         for (var index = 0; index < _qtOrders.orders.length; index++) {
             if ((uploadOnlyWorkingOrder && _qtOrders.orders[index].orderCode == _qtOrderWorking) ||
@@ -747,6 +905,7 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
                     var contatto = null;
                     var annotazioni = null;
                     var email = null;
+                    var email_interna = null;
                     if (_qtOrders.orders[index].customerDestData) {
                         destCodice = _qtOrders.orders[index].customerDestData.DestinazioneCodice;
                     }
@@ -774,6 +933,14 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
                         email = email.replace(/'/g, "");
                         email = email.replace(/"/g, "");
                     }
+                    if (_qtOrders.orders[index].orderEMail_interna) {
+                        email_interna = _qtOrders.orders[index].orderEMail_interna;
+                        email_interna = email_interna.replace(/&/g, "");
+                        email_interna = email_interna.replace(/=/g, "");
+                        email_interna = email_interna.replace(/\?/g, "");
+                        email_interna = email_interna.replace(/'/g, "");
+                        email_interna = email_interna.replace(/"/g, "");
+                    }
 
 
                     //alert(contatto);
@@ -791,7 +958,8 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
                                                                       index,
                                                                       contatto,
                                                                       annotazioni,
-                                                                      email));
+                                                                      email,
+                                                                      email_interna));
                     } catch (e) {
                         alert("ERRORE Preparo Ordini: " + e.message);
                     }
@@ -804,12 +972,21 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
 
         //data: JSON.stringify({ "orders": JSON.stringify(_qtOrdersUpload) }),
         //Effettuo l'invio
+
+        LoaderShow("Trasferimento in corso...");
+
+        var datijson = JSON.stringify({ ordini: _qtOrdersUpload, profiloutente: _qtProfile })
+
         $.ajax({
             url: GetServerURL("orders/SaveOrder.ashx"), // orders
             type: "GET",
             dataType: "jsonp",
-            data: JSON.stringify(_qtOrdersUpload),
+            //data: JSON.stringify(_qtOrdersUpload),
+            //data: JSON.stringify(_qtProfile),
+            data: datijson,
             success: function (result) {
+                LoaderHide();
+
                 if (result.success) {
 
                     //Rimuovo gli ordini che ho già caricato su server (in ordine inverso per evitare che si modifichino gli index).
@@ -826,19 +1003,19 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
                         var idxOrdine = _qtOrdersUpload.orders[index].orderIndex;
 
                         var orderCode_PerCliente = null;
+                        var MailErrorDescription = null;
 
                         var ordiniEsito = SEARCHJS.matchArray(result.ordiniCodice_list, { "orderCode": _qtOrders.orders[idxOrdine].orderCode });
-                        if (ordiniEsito.length > 0) { orderCode_PerCliente = ordiniEsito[0].orderCode_PerCliente; };
-
-
-                        //alert("orderCode_PerCliente " + orderCode_PerCliente);
+                        if (ordiniEsito.length > 0) {
+                            orderCode_PerCliente = ordiniEsito[0].orderCode_PerCliente;
+                            MailErrorDescription = ordiniEsito[0].MailErrorDescription;
+                        }
 
                         _qtOrders.orders[idxOrdine].orderCode_PerCliente = orderCode_PerCliente;
                         _qtOrders.orders[idxOrdine].orderDateTransfer = GetDataAttuale();
                         _qtOrders.orders[idxOrdine].orderDateTransfer_PerUtente = GetDataAttuale_PerUtente();
                         _qtOrders.orders[idxOrdine].orderStatus = ORDER_STATUS.TRASFERITO;
-
-
+                        _qtOrders.orders[idxOrdine].MailErrorDescription = MailErrorDescription;
 
                     }
 
@@ -864,6 +1041,7 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
 
                 } else {
                     _qtOrdersUpload = null;
+
                     FailCallback(result.errors.toString());
                     //navigator.notification.alert("Sincronizzazione ordini fallita.\nDettaglio: " + result.errors.toString(), function () {
                     //    return;
@@ -872,6 +1050,7 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
                 }
             },
             error: function (xhr, textStatus, textError) {
+                LoaderHide();
                 alert("Errore upload ordini AJAX: " + textstatus.toString() + " " + textError.toString());
                 FailCallback();
             }
@@ -880,6 +1059,7 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
 
 
     } catch (e) {
+        LoaderHide();
         alert("Errore OrderUpload: " + e.message);
         FailCallback();
     }
@@ -936,9 +1116,6 @@ function GetDataAttuale_PerUtente() {
 //                alert("Error: " + textError + " (" + textStatus + ")");
 //            }
 //        });
-
-
-
 //    } catch (e) {
 //        alert("ERR ImgDownload(): " + e.message.toString());
 //    }
@@ -948,60 +1125,132 @@ function GetDataAttuale_PerUtente() {
 
 function pageConfigSaveExecute() {
     try {
-        //controlli
-        if ($.trim($("#pageOptionsTxtServerIp").val()).length == 0) {
-            navigator.notification.alert("Il campo \"Indirizzo IP Server\" non \u00e8 compilato.", function () {
-                $("#pageOptionsTxtServerIp").focus();
-                return;
-            }, "Attenzione", "OK");
-            return;
-        }
+        //OTtengo il tipo di utilizzo selezionato
+        var tipo_utilizzo = TIPO_UTILIZZO.SEDE_CENTRALE;
+        tipo_utilizzo = $("#chk_usa_ip_ctrlgrp :radio:checked").val();
 
-        if ($.trim($("#pageOptionsTxtServerPort").val()).length == 0) {
-            navigator.notification.alert("Il campo \"Num. Porta Server\" non \u00e8 compilato.", function () {
-                $("#pageOptionsTxtServerPort").focus();
-                return;
-            }, "Attenzione", "OK");
-            return;
-        }
+        if (tipo_utilizzo == "usa_ip_sede_centrale")
+        { tipo_utilizzo = TIPO_UTILIZZO.SEDE_CENTRALE; }
 
-        /*if ($.trim($("#pageOptionsTxtQtUser").val()).length == 0) {
-            navigator.notification.alert("Il campo \"Nome Operatore in QuickTrade\" non \u00e8 compilato.", function () {
-                $("#pageOptionsTxtQtUser").focus();
-                return;
-            }, "Attenzione", "OK");
-            return;
-        }*/
+        if (tipo_utilizzo == "usa_ip_fiera")
+        { tipo_utilizzo = TIPO_UTILIZZO.FIERA; }
 
-        if (!IpAddressIsValid($.trim($("#pageOptionsTxtServerIp").val()))) {
-            navigator.notification.alert("Il campo \"Indirizzo IP Server\" non \u00e8 valido.", function () {
-                $("#pageOptionsTxtServerIp").focus();
-                return;
-            }, "Attenzione", "OK");
-            return;
-        }
-
-        if (isNaN($.trim($("#pageOptionsTxtServerPort").val()))) {
-            navigator.notification.alert("Il campo \"Num. Porta Server\" non \u00e8 valido.", function () {
-                $("#pageOptionsTxtServerPort").focus();
-                return;
-            }, "Attenzione", "OK");
-            return;
-        }
 
         var portNum = parseInt($.trim($("#pageOptionsTxtServerPort").val()));
-        if (portNum <= 0 || portNum > 65535) {
-            navigator.notification.alert("Il campo \"Num. Porta Server\" non \u00e8 valido.", function () {
-                $("#pageOptionsTxtServerPort").focus();
+        if (isNaN(portNum)) { portNum = 0; }
+
+        var portNum_fiera = parseInt($.trim($("#pageOptionsTxtServerPort_Fiera").val()));
+        if (isNaN(portNum_fiera)) { portNum_fiera = 0; }
+
+        if (tipo_utilizzo == TIPO_UTILIZZO.SEDE_CENTRALE) {
+
+            //controlli Sede Centrale
+            if ($.trim($("#pageOptionsTxtServerIp").val()).length == 0) {
+                navigator.notification.alert("Il campo \"Indirizzo IP server sede centrale\" non \u00e8 compilato.", function () {
+                    $("#pageOptionsTxtServerIp").focus();
+                    return;
+                }, "Attenzione", "OK");
                 return;
-            }, "Attenzione", "OK");
-            return;
+            }
+            if ($.trim($("#pageOptionsTxtServerPort").val()).length == 0) {
+                navigator.notification.alert("Il campo \"Numero porta server sede centrale\" non \u00e8 compilato.", function () {
+                    $("#pageOptionsTxtServerPort").focus();
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            }
+            if (!IpAddressIsValid($.trim($("#pageOptionsTxtServerIp").val()))) {
+                navigator.notification.alert("Il campo \"Indirizzo IP server sede centrale\" non \u00e8 valido.", function () {
+                    $("#pageOptionsTxtServerIp").focus();
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            }
+
+            if (isNaN($.trim($("#pageOptionsTxtServerPort").val()))) {
+                navigator.notification.alert("Il campo \"Num. porta server sede centrale\" non \u00e8 valido.", function () {
+                    $("#pageOptionsTxtServerPort").focus();
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            }
+
+            if (portNum <= 0 || portNum > 65535) {
+                navigator.notification.alert("Il campo \"Numero porta server sede centrale\" non \u00e8 valido.", function () {
+                    $("#pageOptionsTxtServerPort").focus();
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            }
+
+
         }
+
+
+        if (tipo_utilizzo == TIPO_UTILIZZO.FIERA) {
+
+
+            //Controlli campi fiera
+            if ($.trim($("#pageOptionsTxtServerIp_Fiera").val()).length == 0) {
+                navigator.notification.alert("Il campo \"Indirizzo IP server fiera\" non \u00e8 compilato.", function () {
+                    $("#pageOptionsTxtServerIp_Fiera").focus();
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            }
+            if ($.trim($("#pageOptionsTxtServerPort_Fiera").val()).length == 0) {
+                navigator.notification.alert("Il campo \"Numero porta server fiera\" non \u00e8 compilato.", function () {
+                    $("#pageOptionsTxtServerPort_Fiera").focus();
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            }
+            if (!IpAddressIsValid($.trim($("#pageOptionsTxtServerIp_Fiera").val()))) {
+                navigator.notification.alert("Il campo \"Indirizzo IP server fiera\" non \u00e8 valido.", function () {
+                    $("#pageOptionsTxtServerIp_Fiera").focus();
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            }
+            if (isNaN($.trim($("#pageOptionsTxtServerPort_Fiera").val()))) {
+                navigator.notification.alert("Il campo \"Num. porta server fiera\" non \u00e8 valido.", function () {
+                    $("#pageOptionsTxtServerPort_Fiera").focus();
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            }
+
+            if (portNum_fiera <= 0 || portNum_fiera > 65535) {
+                navigator.notification.alert("Il campo \"Numero porta server fiera\" non \u00e8 valido.", function () {
+                    $("#pageOptionsTxtServerPort_Fiera").focus();
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            }
+
+        }
+
+
+        var tipo_utilizzo = TIPO_UTILIZZO.SEDE_CENTRALE;
+        tipo_utilizzo = $("#chk_usa_ip_ctrlgrp :radio:checked").val();
+
+        if (tipo_utilizzo == "usa_ip_sede_centrale")
+        { tipo_utilizzo = TIPO_UTILIZZO.SEDE_CENTRALE; }
+
+        if (tipo_utilizzo == "usa_ip_fiera")
+        { tipo_utilizzo = TIPO_UTILIZZO.FIERA; }
 
         //Salvo
         _qtConfig.ServerIP = $.trim($("#pageOptionsTxtServerIp").val());
         _qtConfig.ServerPortNumber = portNum;
-        //_qtConfig.OperatoreCodiceQT = $.trim($("#pageOptionsTxtQtUser").val());
+        _qtConfig.ServerIP_Fiera = $.trim($("#pageOptionsTxtServerIp_Fiera").val());
+        _qtConfig.ServerPortNumber_Fiera = portNum_fiera;
+        _qtConfig.ind_tipo_utilizzo = tipo_utilizzo;
+
+
+        //alert("_qtConfig.ServerPortNumber " + _qtConfig.ServerPortNumber);
+        //alert("_qtConfig.ServerPortNumber_Fiera " + _qtConfig.ServerPortNumber_Fiera);
+
 
         _qtConfig.saveToFile(function () {
             if (_firstStart) {
@@ -1050,9 +1299,26 @@ $(document).on("pagebeforeshow", "#pageOptions", function () {
     //imposto valori
     if (_qtConfig) {
         $("#pageOptionsTxtServerIp").val(_qtConfig.ServerIP);
-        $("#pageOptionsTxtServerPort").val(_qtConfig.ServerPortNumber);
+        $("#pageOptionsTxtServerPort").val("");
+        if (_qtConfig.ServerPortNumber != 0) { $("#pageOptionsTxtServerPort").val(_qtConfig.ServerPortNumber); }
+
+        $("#pageOptionsTxtServerIp_Fiera").val(_qtConfig.ServerIP_Fiera);
+        $("#pageOptionsTxtServerPort_Fiera").val("");
+        if (_qtConfig.ServerPortNumber_Fiera != 0) { $("#pageOptionsTxtServerPort_Fiera").val(_qtConfig.ServerPortNumber_Fiera); }
+
+
+        //$("#chk_usa_ip_fiera").attr("checked", false).checkboxradio("refresh");
+        //$("#chk_usa_ip_sede_centrale").attr("checked", false).checkboxradio("refresh");
+
+        if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.SEDE_CENTRALE) {
+            $("#chk_usa_ip_sede_centrale").attr("checked", true).checkboxradio("refresh");
+        }
+        if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.FIERA) {
+            $("#chk_usa_ip_fiera").attr("checked", true).checkboxradio("refresh");
+        }
         $("#pageOptionsTxtQtUser").val(_qtConfig.OperatoreCodiceQT);
     }
+    $("#pageOptionsDeleteAll_psw").val("");
 });
 
 $("#pageOptionsSave").click(function () {
@@ -1174,6 +1440,7 @@ function SynchronizeDataSourceStart() {
             url: GetServerURL("datasource"),
             method: "GET",
             dataType: "text",
+            data: JSON.stringify(_qtProfile),
             success: function (result) {
 
 
@@ -1220,6 +1487,9 @@ function SynchronizeDataSourceStart() {
 
             },
             error: function (xhr, textStatus, textError) {
+
+                alert("SynchronizeDataSourceStart - error")
+
                 LoaderHide();
                 navigator.notification.alert("Impossibile completare la memorizzazione del datasource. Sincronizzazione fallita. (" + textStatus.toString() + "," + textError.toString() + ")", function () {
                     return;
@@ -1270,7 +1540,7 @@ function SynchronizeOrdersList() {
                     if (order.rows)
                         numRows = order.rows.length;
 
-                    var listItem = "<li data-theme=\"b\" data-icon=\"edit\">" +
+                    var listItem = "<li data-theme=\"b\">" +
                                         "<a href=\"#\" onclick=\"OrderOpen('" + order.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + order.customerDescr + "</h2>" +
                                         "<span class=\"ui-li-count\">" + numRows + ((numRows == 1) ? " Riga" : " Righe") + "</span>" +
                                         "<p>Del " + order.orderCode.substring(6, 8) + "/" + order.orderCode.substring(4, 6) + "/" + order.orderCode.substring(0, 4) + " alle " +
@@ -1312,24 +1582,34 @@ $(document).on("pagebeforeshow", "#pageMain", function () {
 $(document).on("pagebeforeshow", "#pageOrder", function () {
 
     $("#pageOrderRowAdd").val("");
+    $("#pageOrder_SelezArticolo_Step01_Panel_filter").val("");
 
     if (_pageOrder_TipoArticoloSelezionato_resetRequired == true) {
-        pageOrder_SelezionatoTipoArticolo("TP");
+        pageOrder_SelezionatoTipoArticolo("TP", false);
     } else {
-        pageOrder_SelezionatoTipoArticolo(_pageOrder_TipoArticoloSelezionato);
+        pageOrder_SelezionatoTipoArticolo(_pageOrder_TipoArticoloSelezionato, false);
     }
     _pageOrder_TipoArticoloSelezionato_resetRequired = false;
-
-
-
     OrderTableRefresh();
     OrderCustomerApplyStyle();
 
-
 });
 
+$(document).on("pageshow", "#pageOrder", function () {
+
+    if (!_artSelezGuidata) { return; }
+    if (!_artSelezGuidata.ArticoloCodice) { return; }
+    if (_artSelezGuidata.ArticoloCodice == "") { return; }
+    $("#pageOrderRowAdd").val(_artSelezGuidata.ArticoloCodice);
+    //if (_pageOrder_TipoArticoloSelezionato == 'TP') {
+    OrderAddArticle();
+    //}
+
+    _artSelezGuidata = new ArticoloSelezioneGuidata();
+});
+
+
 $(document).on("pagebeforeshow", "#pageOrder_SelezArticolo_Step01", function () {
-    $("#pageOrder_SelezArticolo_Step01_Panel_filter").val("");
     SelezArticolo_Step01_fillList();
 });
 
@@ -1366,6 +1646,20 @@ $(document).on("pageinit", "#pageOrder_SelezArticolo_Step03", function () {
 
 
 
+$(document).on("pagebeforeshow", "#pageOrder_SelezArticolo_Step02_TGG", function () {
+    $("#pageOrder_SelezArticolo_Step02_TGG_Panel_filter").val("");
+    SelezArticolo_Step02_TGG_fillList();
+});
+
+$(document).on("pageinit", "#pageOrder_SelezArticolo_Step02_TGG", function () {
+    $("#pageOrder_SelezArticolo_Step02_TGG_Panel_filter").keyup(function (event) {
+        SelezArticolo_Step02_TGG_fillList();
+    });
+});
+
+
+
+
 
 var goodPrefix = /^(\+|-)?((\d*(\.?\d*)?)|(\.\d*))$/
 
@@ -1382,35 +1676,57 @@ $('#pageOrderRowQta')
 
 
 
-function pageOrder_SelezionatoTipoArticolo(tipo) {
+function pageOrder_SelezionatoTipoArticolo(tipo, ricerca_automatica) {
 
-    /*
-        $(this).closest('ul').find('a').removeClass('ui-btn-active');
-    $(this).addClass('ui-btn-active');
-    */
+
     $("#pageOrder_TipoArticolo_TP").removeClass('ui-btn-active');
     $("#pageOrder_TipoArticolo_TG").removeClass('ui-btn-active');
     $("#pageOrder_TipoArticolo_TGG").removeClass('ui-btn-active');
 
     if (tipo == 'TP') {
-        $("#pageOrderRowQta").val(1);
-        $("#pageOrderRowQta").attr("disabled", "disabled");
         $("#pageOrder_TipoArticolo_TP").addClass('ui-btn-active');
+
+        $("#pageOrderRowQta").val(1);
+        $("#pageOrderRowQta").attr("readonly", "readonly");
+
+        $("#pageOrderRowAdd").removeAttr('readonly');
+
+
     }
     if (tipo == 'TG') {
         $("#pageOrder_TipoArticolo_TG").addClass('ui-btn-active');
-        $("#pageOrderRowQta").removeAttr('disabled');
+
+        $("#pageOrderRowQta").removeAttr('readonly');
+
+        $("#pageOrderRowAdd").attr("readonly", "readonly");
+
     }
     if (tipo == 'TGG') {
         $("#pageOrder_TipoArticolo_TGG").addClass('ui-btn-active');
-        $("#pageOrderRowQta").removeAttr('disabled');
+
+        $("#pageOrderRowQta").removeAttr('readonly');
+
+        $("#pageOrderRowAdd").attr("readonly", "readonly");
+
     }
 
     _pageOrder_TipoArticoloSelezionato = tipo;
 
-    //alert(_pageOrder_TipoArticoloSelezionato);
+    if (ricerca_automatica == true) {
+        if (_pageOrder_TipoArticoloSelezionato == "TGG") {
+            PageChange('#pageOrder_SelezArticolo_Step01', false);
+        }
+    }
+
 }
 
+
+
+function pageOrderRowQta(qtaRichiesta) {
+    $("#pageOrderRowQta").val(qtaRichiesta);
+    var elem = document.getElementById("popup_pageOrderRowQta_OK");
+    $("#popup_pageOrderRowQta").popup("close");
+}
 
 
 $(document).on("pagebeforeshow", "#pageSync", function () {
@@ -1756,6 +2072,11 @@ function OrderDeleteByStatus(status, callback, args) {
     try {
         var ordiniDaEliminare = SEARCHJS.matchArray(_qtOrders.orders, { "orderStatus": status });
         if (ordiniDaEliminare.length == 0) {
+
+            navigator.notification.alert("Nessun ordine da eliminare.", function () {
+                return;
+            }, "Attenzione", "OK");
+
             return;
         }
         var confermato = false;
@@ -1850,6 +2171,17 @@ function OrderDeleteByStatus_core(status) {
 function OrderTableRefresh() {
 
 
+    /*
+    Daniele BArlocco 30/5/2016 a volte entra qua dentro automaticamente (come se ci fosse un timer, ma non c'è!) ed esce il seguente errore
+    null is not an object (evaluating '_qtOrders.getOrder')
+    */
+
+    if (!_qtOrderWorking) { return; }
+    if (!_qtOrders) { return; }
+    if (!_qtOrders.getOrder(_qtOrderWorking)) { return; }
+
+
+
     //table-articles
     try {
         var rows = _qtOrders.getOrder(_qtOrderWorking).rows;
@@ -1878,9 +2210,7 @@ function OrderTableRefresh() {
         //for (var i = 0; i < rows.length; i++) {
         for (var i = rows.length - 1; i >= 0; i--) {
             var descrEtichetta = "";
-            if (rows[i].listinoCorpoObj.Descrizione) {
-                descrEtichetta = rows[i].listinoCorpoObj.Descrizione;
-            }
+            if (rows[i].Descrizione) { descrEtichetta = rows[i].Descrizione; }
 
 
             if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED || _qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO) {
@@ -1889,7 +2219,7 @@ function OrderTableRefresh() {
 
                 //SOLA LETTURA
                 html = html + "<tr>" +
-                    "<td style=\"vertical-align: middle;\">" + rows[i].listinoCorpoObj.ArticoloCodice + "</td>" +
+                    "<td style=\"vertical-align: middle;\">" + rows[i].articleBarcode + "</td>" +
                     "<td style=\"vertical-align: middle;\">" + rows[i].baseObj.Descrizione + "</td>" +
                     "<td style=\"vertical-align: middle;\">" + descrEtichetta + "</td>" +
                     "<td style=\"vertical-align: middle;\">" + rows[i].OggettoCodice + "</td>" +
@@ -1900,7 +2230,7 @@ function OrderTableRefresh() {
 
                 //RIGA EDITABILE
                 html = html + "<tr>" +
-                                "<td style=\"vertical-align: middle;\"><a href=\"#\" onclick=\"ListiniShowBarcode('" + rows[i].listinoCorpoObj.ArticoloCodice + "');\">" + rows[i].listinoCorpoObj.ArticoloCodice + "</a></td>" +
+                                "<td style=\"vertical-align: middle;\"><a href=\"#\" onclick=\"ListiniShowBarcode('" + rows[i].articleBarcode + "');\">" + rows[i].articleBarcode + "</a></td>" +
                                 "<td style=\"vertical-align: middle;\">" + rows[i].baseObj.Descrizione + "</td>" +
                                 "<td style=\"vertical-align: middle;\">" + descrEtichetta + "</td>" +
                                 "<td style=\"vertical-align: middle;\">" + rows[i].OggettoCodice + "</td>" +
@@ -1951,212 +2281,6 @@ function OrderRemoveArticle(RowIndex) {
                                     "Si,No");
 }
 
-function OrderAddArticle_ORIGINALE() {
-    try {
-
-        var code = $.trim($("#pageOrderRowAdd").val());
-
-
-        //controllo che ci sia un barcode
-        if (code.length == 0) {
-            navigator.notification.beep(1);
-            navigator.notification.vibrate(2000);
-            //navigator.notification.alert("Il campo [Codice] non \u00e8 stato compilato.", function () {
-            //    return;
-            //}, "Attenzione", "OK");
-
-            navigator.notification.alert("Il campo [Codice] non \u00e8 stato compilato.", function () {
-                $("#pageOrderRowAdd").focus();
-            }, "Attenzione", "OK");
-
-            return;
-        }
-
-        //se il valore letto è di lunghezza inferiore al codice standard cervotessile (19 char) svuoto il campo 
-        if (code.length < 19) {
-            navigator.notification.beep(1);
-            navigator.notification.vibrate(2000);
-            navigator.notification.alert("Il campo [Codice] non ha un formato valido.", function () {
-                $("#pageOrderRowAdd").val("");
-                return;
-            }, "Attenzione", "OK");
-            return;
-
-        }
-
-
-        //alert("_qtOrderWorking: " + _qtOrderWorking);
-
-        //lo ricerco
-        var matches = SEARCHJS.matchArray(_qtDS.dataSource.listiniCorpo, { "ArticoloCodice": code, "Ordine": 999 });
-
-        //verifico esito ricerca
-        switch (matches.length) {
-            case 0:
-                //match not found
-                navigator.notification.beep(1);
-                navigator.notification.vibrate(2000);
-                navigator.notification.alert("Codice non trovato.", function () {
-                    $("#pageOrderRowAdd").val("");
-                    return;
-                }, "Attenzione", "OK");
-                break;
-
-            case 1:
-                //match found
-
-                var alreadyExists = null;
-
-                //Verifico che non sia già stato letto il codice (solo se sto inserendo un "TP"
-                if (_pageOrder_TipoArticoloSelezionato == 'TP') {
-                    var alreadyExists = SEARCHJS.matchArray(_qtOrders.getOrder(_qtOrderWorking).rows, { "articleBarcode": code, "OggettoCodice": "TP" });
-
-                    if (alreadyExists.length > 0) {
-                        navigator.notification.beep(1);
-                        navigator.notification.vibrate(2000);
-                        navigator.notification.alert(ConvertToUTF8("Il codice \u00e8 gi\u00e0 stato letto, non verr\u00e0 inserito nuovamente."), function () {
-                            alreadyExists = null;
-                            $("#pageOrderRowAdd").val("");
-                            return;
-                        }, "Attenzione", "OK");
-                        return;
-                    }
-                }
-
-
-                alreadyExists = null;
-
-                //Cerco la base
-                var matchBase = SEARCHJS.matchArray(_qtDS.dataSource.basi, { "BaseCodice": matches[0].BaseCodice });
-                if (matchBase.length == 0) {
-                    navigator.notification.beep(1);
-                    navigator.notification.vibrate(2000);
-                    navigator.notification.alert(ConvertToUTF8("Corrispondenza con la Base non trovata. Il codice letto non verr\u00e0 inserito."), function () {
-                        alreadyExists = null;
-                        $("#pageOrderRowAdd").val("");
-                        return;
-                    }, "Attenzione", "OK");
-                    return;
-                }
-
-                //A.Gioachini 05/02/2016 - controllo che non mischino le letture 2T e Cervo
-                if (_qtOrders.getOrder(_qtOrderWorking).rows.length > 0) {
-                    //ho già letto il primo articolo, verifico se la campionatura è di Cervotessile o 2T
-                    var firstRow = _qtOrders.getOrder(_qtOrderWorking).rows[0];
-                    var firstRowFirstChar = firstRow.baseObj.BaseCodice.substring(0, 1);
-                    var firstCharArtLetto = matches[0].BaseCodice.substring(0, 1);
-
-                    var bolOrder2T = false;
-                    if ((firstRowFirstChar == "2") || (firstRowFirstChar == "3")) {
-                        bolOrder2T = true;
-                    }
-
-                    if (bolOrder2T && (firstCharArtLetto != "2") && (firstCharArtLetto != "3")) {
-                        //ordine 2T ma articolo letto Cervo
-                        navigator.notification.beep(1);
-                        navigator.notification.vibrate(2000);
-                        navigator.notification.alert(ConvertToUTF8("E' stato letto un articolo Cervotessile ma \u00e8 in corso una campionatura Secondo Tempo. Il codice letto non verr\u00e0 inserito."), function () {
-                            alreadyExists = null;
-                            match = null;
-                            matchBase = null;
-                            $("#pageOrderRowAdd").val("");
-                            return;
-                        }, "Attenzione", "OK");
-                        return;
-
-                    } else {
-                        if ((!bolOrder2T) && (firstCharArtLetto == "2" || firstCharArtLetto == "3")) {
-                            //ordine Cervo ma articolo letto 2T
-                            navigator.notification.beep(1);
-                            navigator.notification.vibrate(2000);
-                            navigator.notification.alert(ConvertToUTF8("E' stato letto un articolo Secondo Tempo ma \u00e8 in corso una campionatura Cervotessile. Il codice letto non verr\u00e0 inserito."), function () {
-                                alreadyExists = null;
-                                match = null;
-                                matchBase = null;
-                                $("#pageOrderRowAdd").val("");
-                                return;
-                            }, "Attenzione", "OK");
-                            return;
-
-                        }
-                    }
-                }
-
-
-                $("#popup_pageOrderRowQta").popup("open");
-
-
-                var qta = $('#pageOrderRowQta').val()//.toFixedDown(2);
-                if (!qta) { qta = 1; }
-                qta = TroncaDecimali(qta, 2);
-
-
-
-                _qtOrders.getOrder(_qtOrderWorking).rows.push(new QTOrderRow(code, matchBase[0], matches[0], _pageOrder_TipoArticoloSelezionato, qta));
-                OrderTableRefresh();
-
-                try {
-                    //Salvo su file l'ordine che sto compilando (non si sa mai!) Success, Fail
-                    _qtOrders.saveToFile(function () {
-                        //salvataggio temporaneo dell'ordine riuscito.
-                        $("#pageOrderRowAdd").val("");
-                        matches = null;
-
-                    }, function (err) {
-                        navigator.notification.beep(1);
-                        navigator.notification.vibrate(2000);
-                        navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () {
-                            $("#pageOrderRowAdd").val("");
-                            matches = null;
-                            return;
-
-                        }, "Attenzione", "OK");
-                        return;
-                    });
-
-                } catch (e) {
-                    alert("Errore JS save ordine: " + e.message);
-                }
-
-                break;
-
-            default:
-                //più risultati
-                navigator.notification.beep(1);
-                navigator.notification.vibrate(2000);
-                navigator.notification.alert("Il Codice \u00e8 stato trovato, ma risultano " + matches.length.toString() + " corrispondenze.", function () {
-                    return;
-                }, "Attenzione", "OK");
-                break;
-        }
-
-
-
-
-
-
-
-    } catch (e) {
-        alert("Errore OrderAddArticle: " + e.message);
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function OrderAddArticle_Check() {
 
@@ -2186,11 +2310,15 @@ function OrderAddArticle_Check() {
                 return;
             }, "Attenzione", "OK");
             return false;
-
         }
 
+        var matches = null;
+        if (_pageOrder_TipoArticoloSelezionato == 'TP') {
+            matches = SEARCHJS.matchArray(_qtDS.dataSource.listiniCorpo, { "ArticoloCodice": code, "Ordine": 999 });
+        } else {
+            matches = SEARCHJS.matchArray(_qtDS.dataSource.articles, { "ArticoloCodice": code });
+        }
 
-        var matches = SEARCHJS.matchArray(_qtDS.dataSource.listiniCorpo, { "ArticoloCodice": code, "Ordine": 999 });
 
         //verifico esito ricerca
         if (matches.length == 0) {
@@ -2336,17 +2464,27 @@ $("#popup_pageOrderRowQta").bind({
 function OrderAddArticle_core(qta) {
 
     try {
+        if (!qta) { qta = 0; }
+        if (qta == 0) {
+            $("#pageOrderRowAdd").val("");
+            return;
+        }
 
         var code = $.trim($("#pageOrderRowAdd").val());
-
-
-        if (!qta) { qta = 1; }
+        if (!qta) { qta = 0; }
         qta = TroncaDecimali(qta, 2);
 
-        var matches = SEARCHJS.matchArray(_qtDS.dataSource.listiniCorpo, { "ArticoloCodice": code, "Ordine": 999 });
+        // var matches = SEARCHJS.matchArray(_qtDS.dataSource.listiniCorpo, { "ArticoloCodice": code, "Ordine": 999 });
+        var matches = null;
+        if (_pageOrder_TipoArticoloSelezionato == 'TP') {
+            matches = SEARCHJS.matchArray(_qtDS.dataSource.listiniCorpo, { "ArticoloCodice": code, "Ordine": 999 });
+        } else {
+            matches = SEARCHJS.matchArray(_qtDS.dataSource.articles, { "ArticoloCodice": code });
+        }
+
         var matchBase = SEARCHJS.matchArray(_qtDS.dataSource.basi, { "BaseCodice": matches[0].BaseCodice });
 
-        _qtOrders.getOrder(_qtOrderWorking).rows.push(new QTOrderRow(code, matchBase[0], matches[0], _pageOrder_TipoArticoloSelezionato, qta));
+        _qtOrders.getOrder(_qtOrderWorking).rows.push(new QTOrderRow(code, matchBase[0], matches[0].Descrizione, _pageOrder_TipoArticoloSelezionato, qta));
         OrderTableRefresh();
 
         //Salvo su file l'ordine che sto compilando (non si sa mai!) Success, Fail
@@ -2375,6 +2513,56 @@ function OrderAddArticle_core(qta) {
 
 
 
+function OrderConfirm() {
+
+    if (!_qtOrderWorking) { return; }
+    if (!_qtOrders.getOrder(_qtOrderWorking)) { return; }
+
+    if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED) {
+        navigator.notification.alert("L'ordine corrente \u00e8 gi\u00e0 stato confermato.", function () { return; }, "Attenzione", "OK");
+    }
+
+
+    if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO) {
+        navigator.notification.alert("L'ordine corrente \u00e8 gi\u00e0 stato trasferito.", function () { return; }, "Attenzione", "OK");
+    }
+
+
+    var mailMancante_cliente = false;
+    if (!_qtOrders.getOrder(_qtOrderWorking).orderEMail) { mailMancante_cliente = true; }
+    if (_qtOrders.getOrder(_qtOrderWorking).orderEMail == "") { mailMancante_cliente = true; }
+
+
+    var mailMancante_interna = false;
+    if (!_qtOrders.getOrder(_qtOrderWorking).orderEMail_interna) { mailMancante_interna = true; }
+    if (_qtOrders.getOrder(_qtOrderWorking).orderEMail_interna == "") { mailMancante_interna = true; }
+
+    var msgConferma = "Confermare l'ordine?"
+    if (mailMancante_interna == true && mailMancante_cliente == true) {
+        msgConferma = "ATTENZIONE: non \u00e8 stata specificata alcuna mail di destinazione per l'ordine in esame.\nConfermare l'ordine?";
+    }
+
+
+
+
+    navigator.notification.confirm(msgConferma,
+                                    function (buttonIndex) {
+                                        if (buttonIndex == 1) {
+                                            //salvo
+                                            OrderSaveExecute(false);
+
+                                            $("#pageOrderRowAdd").val("");
+                                            pageOrder_SelezionatoTipoArticolo("TP", false);
+                                            OrderCustomerApplyStyle();
+                                            OrderTableRefresh();
+
+
+                                        }
+                                    },
+                                    "Richiesta di conferma",
+                                    "Si,No");
+}
+
 
 
 
@@ -2389,15 +2577,31 @@ function OrderSave() {
     }
 
 
+    var mailMancante_cliente = false;
+    if (!_qtOrders.getOrder(_qtOrderWorking).orderEMail) { mailMancante_cliente = true; }
+    if (_qtOrders.getOrder(_qtOrderWorking).orderEMail == "") { mailMancante_cliente = true; }
 
-    navigator.notification.confirm("Confermare l'ordine?",
+
+    var mailMancante_interna = false;
+    if (!_qtOrders.getOrder(_qtOrderWorking).orderEMail_interna) { mailMancante_interna = true; }
+    if (_qtOrders.getOrder(_qtOrderWorking).orderEMail_interna == "") { mailMancante_interna = true; }
+
+    var msgConferma = "Trasferire l'ordine?"
+    if (mailMancante_interna == true && mailMancante_cliente == true) {
+        msgConferma = "ATTENZIONE: non \u00e8 stata specificata alcuna mail di destinazione per l'ordine in esame.\Trasferire l'ordine?";
+    }
+
+
+
+
+    navigator.notification.confirm(msgConferma,
                                     function (buttonIndex) {
                                         if (buttonIndex == 1) {
                                             //salvo
-                                            OrderSaveExecute();
+                                            OrderSaveExecute(true);
                                         }
                                     },
-                                    "Salvataggio Ordine",
+                                    "Richiesta di conferma",
                                     "Si,No");
 }
 
@@ -2434,7 +2638,7 @@ function OrderReopen() {
                                                             });
 
                                         $("#pageOrderRowAdd").val("");
-                                        pageOrder_SelezionatoTipoArticolo("TP");
+                                        pageOrder_SelezionatoTipoArticolo("TP", false);
                                         OrderCustomerApplyStyle();
                                         OrderTableRefresh();
 
@@ -2457,6 +2661,39 @@ function OrderReopen() {
 function OrderSave_All() {
     $("#pageMainHeaderNavBar_SaveAll").removeClass('ui-btn-active');
 
+
+    //Daniele BArlocco 9/6/2016 verifico ci siano ordini da trasferire
+    var cntordinidatrasferire = 0;
+    for (var i = 0; i < _qtOrders.orders.length; i++) {
+        if (_qtOrders.orders[i].orderStatus == ORDER_STATUS.NEW) {
+            var o = _qtOrders.orders[i];
+            if (o.customerCode && o.rows) {
+                if (o.rows.length > 0) {
+                    cntordinidatrasferire = cntordinidatrasferire + 1;
+                }
+            }
+        }
+    }
+    if (cntordinidatrasferire == 0) {
+        navigator.notification.alert("Non ci sono ordini da trasferire.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return;
+    }
+
+
+    ServerOnlineVerify(function () {
+        //ONLINE, niente da notificare
+    }, function (textStatus, textError) {
+        //OFFLINE-ERRORE
+        navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non \u00e8 possibile eseguire l'operazione.", function () {
+            return;
+        }, "Attenzione", "OK");
+    });
+
+
+
+
     navigator.notification.confirm("Confermare l'invio di tutti gli ordini in lavoro validi?\nVerranno inviati solamente gli ordini completi.",
                                     function (buttonIndex) {
                                         if (buttonIndex == 1) {
@@ -2476,9 +2713,9 @@ function OrderSave_All() {
 
 function OrderSave_All_core() {
 
-
-
     _qtOrderWorking = null;
+
+
     if (!_qtOrders) { return; }
     if (!_qtOrders.orders) { return; }
     if (_qtOrders.orders.length == 0) { return; }
@@ -2505,15 +2742,7 @@ function OrderSave_All_core() {
 
 }
 
-
-
-
-
-
-
-
-
-function OrderSaveExecute() {
+function OrderSaveExecute(eseguitrasferimento) {
     try {
         //controlli
         if (!_qtOrderWorking) {
@@ -2560,7 +2789,11 @@ function OrderSaveExecute() {
         try {
             //Salvo su file l'ordine che sto compilando (non si sa mai!) Success, Fail
             _qtOrders.saveToFile(function () {
-                OrderSaveExecute_core(true);
+
+                if (eseguitrasferimento == true) {
+                    OrderSaveExecute_core(true);
+                }
+
             }, function (err) {
                 navigator.notification.alert("Errore durante il salvataggio dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () {
                     return;
@@ -2577,7 +2810,6 @@ function OrderSaveExecute() {
         alert("Errore pageConfigSaveExecute: " + e.message);
     }
 }
-
 
 function OrderSaveExecute_core(uploadOnlyWorkingOrder) {
     ServerOnlineVerify(function () {
@@ -2617,14 +2849,238 @@ function OrderSaveExecute_core(uploadOnlyWorkingOrder) {
 
 }
 
+function OrderSendMail() {
+
+    if (!_qtOrderWorking) { return; }
+    if (!_qtOrders.getOrder(_qtOrderWorking)) { return; }
+
+
+    if (_qtOrders.getOrder(_qtOrderWorking).orderStatus != ORDER_STATUS.TRASFERITO) {
+        navigator.notification.alert("L'ordine corrente non \u00e8 ancora stato trasferito.", function () { return; }, "Attenzione", "OK");
+    }
 
 
 
+    var orderEMail = _qtOrders.getOrder(_qtOrderWorking).orderEMail;
+
+    if (!orderEMail) {
+        navigator.notification.alert("Nessuna E-Mail cliente impostata per l'ordine corrente.", function () {}, "Attenzione", "OK");
+        return;
+    }
+    orderEMail = orderEMail.trim();
+
+    if (orderEMail == "") {
+        navigator.notification.alert("Nessuna E-Mail cliente impostata per l'ordine corrente.", function () { }, "Attenzione", "OK");
+        return;
+    }
+
+    ServerOnlineVerify(function () {
+        //ONLINE, niente da notificare
+    }, function (textStatus, textError) {
+        //OFFLINE-ERRORE
+        navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non \u00e8 possibile eseguire l'operazione.", function () {
+            return;
+        }, "Attenzione", "OK");
+    });
 
 
+    navigator.notification.confirm("Inviare nuovamente la mail?",
+                                    function (buttonIndex) {
+                                        if (buttonIndex == 1) {
+                                            OrderSendMail_core();
+                                        }
+                                    }, "Richiesta di conferma", "Si,No");
+
+}
+
+function OrderSendMail_core() {
+    try {
+
+
+        _qtOrdersUpload = new QTOrderList();
+
+        ordineinlavoro = null;
+
+        //Preparo ordini
+        for (var index = 0; index < _qtOrders.orders.length; index++) {
+            if (_qtOrders.orders[index].orderCode == _qtOrderWorking) {
+                if (_qtOrders.orders[index].orderStatus == ORDER_STATUS.TRASFERITO) {
+                    var rows = [];
+                    for (var indexR = 0; indexR < _qtOrders.orders[index].rows.length; indexR++) {
+                        rows.push(new QTOrderRowUpload(_qtOrders.orders[index].rows[indexR].articleBarcode, _qtOrders.orders[index].rows[indexR].OggettoCodice, _qtOrders.orders[index].rows[indexR].Qta));
+                    }
+
+
+                    ordineinlavoro = _qtOrders.orders[index];
+
+                    var destCodice = null;
+                    var contatto = null;
+                    var annotazioni = null;
+                    var email = null;
+                    var email_interna = null;
+                    if (_qtOrders.orders[index].customerDestData) {
+                        destCodice = _qtOrders.orders[index].customerDestData.DestinazioneCodice;
+                    }
+                    if (_qtOrders.orders[index].orderContatto1) {
+                        contatto = _qtOrders.orders[index].orderContatto1;
+                        contatto = contatto.replace(/&/g, "");
+                        contatto = contatto.replace(/=/g, "");
+                        contatto = contatto.replace(/\?/g, "");
+                        contatto = contatto.replace(/'/g, "");
+                        contatto = contatto.replace(/"/g, "");
+                    }
+                    if (_qtOrders.orders[index].orderAnnotazioni) {
+                        annotazioni = _qtOrders.orders[index].orderAnnotazioni;
+                        annotazioni = annotazioni.replace(/&/g, "");
+                        annotazioni = annotazioni.replace(/=/g, "");
+                        annotazioni = annotazioni.replace(/\?/g, "");
+                        annotazioni = annotazioni.replace(/'/g, "");
+                        annotazioni = annotazioni.replace(/"/g, "");
+                    }
+                    if (_qtOrders.orders[index].orderEMail) {
+                        email = _qtOrders.orders[index].orderEMail;
+                        email = email.replace(/&/g, "");
+                        email = email.replace(/=/g, "");
+                        email = email.replace(/\?/g, "");
+                        email = email.replace(/'/g, "");
+                        email = email.replace(/"/g, "");
+                    }
+                    if (_qtOrders.orders[index].orderEMail_interna) {
+                        email_interna = _qtOrders.orders[index].orderEMail_interna;
+                        email_interna = email_interna.replace(/&/g, "");
+                        email_interna = email_interna.replace(/=/g, "");
+                        email_interna = email_interna.replace(/\?/g, "");
+                        email_interna = email_interna.replace(/'/g, "");
+                        email_interna = email_interna.replace(/"/g, "");
+                    }
+
+
+                    //alert(contatto);
+                    //alert(annotazioni);
+
+                    try {
+
+                        _qtOrdersUpload.orders.push(new QTOrderUpload(_qtOrders.orders[index].orderCode,
+                                                                      _qtOrders.orders[index].orderDate,
+                                                                      _qtOrders.orders[index].customerCode,
+                                                                      destCodice,
+                                                                      rows,
+                                                                      _qtOrders.orders[index].operatorCode,
+                                                                      _qtOrders.orders[index].operatorPassword,
+                                                                      index,
+                                                                      contatto,
+                                                                      annotazioni,
+                                                                      email,
+                                                                      email_interna));
+                    } catch (e) {
+                        alert("ERRORE Preparo Ordini: " + e.message);
+                    }
+
+                }
+            }
+        }
+
+        //alert(JSON.stringify(_qtOrdersUpload));
+
+        //data: JSON.stringify({ "orders": JSON.stringify(_qtOrdersUpload) }),
+        //Effettuo l'invio
+
+        if (_qtOrdersUpload.orders.length == 0) { return; }
+
+
+
+        var datijson = JSON.stringify({ ordini: _qtOrdersUpload, profiloutente: _qtProfile })
+
+        $.ajax({
+            url: GetServerURL("orders/SendMail.ashx"), // orders
+            type: "GET",
+            dataType: "jsonp",
+            //data: JSON.stringify(_qtOrdersUpload),
+            data: datijson,
+            success: function (result) {
+                if (result.success) {
+
+                    LoaderHide();
+                    try {
+                        _qtOrdersUpload = null;
+                        if (result.MailErrorDescription != "") {
+                            navigator.notification.alert("Uno o pi\u00f9 destinatari potrebbero non essere stati raggiunti:\n" + result.MailErrorDescription, function () { return; }, "Attenzione!", "OK");
+                            ordineinlavoro.MailErrorDescription = result.MailErrorDescription;                            
+                        } else {
+                            ordineinlavoro.MailErrorDescription = "";
+                            navigator.notification.alert("Invio mail eseguito correttamente.", function () { return; }, "Operazione eseguita", "OK");
+                        }
+                    }
+                    catch (e) {
+                        alert("Errore JS re invio mail ordine: " + e.message);
+                    }
+
+
+                    //salvo ordine, in quanto è cambiata la property MailErrorDescription
+                    try {
+                        _qtOrders.saveToFile(function () {
+                            //salvataggio temporaneo dell'ordine riuscito.
+                            SuccessCallback();
+                        }, function (err) {
+                            navigator.notification.alert("Errore durante il salvataggio della sincronizzazione degli ordini.\nDettaglio: " + FileGetErrorMessage(err), function () {
+                                FailCallback();
+                                return;
+                            }, "Attenzione", "OK");
+                            return;
+                        });
+                    } catch (e) {
+                        alert("Errore JS save ordine: " + e.message);
+                        FailCallback();
+                    }
+
+
+
+                } else {
+                    _qtOrdersUpload = null;
+                    LoaderHide();
+                    navigator.notification.alert("Invio mail fallito.\nDettaglio: " + result.errors.toString(), function () {
+                        return;
+                    }, "Invio mail fallito", "OK");
+
+                }
+            },
+            error: function (xhr, textStatus, textError) {
+                LoaderHide();
+                alert("Errore OrderSendMail_core ordini AJAX: " + textstatus.toString() + " " + textError.toString());
+                FailCallback();
+            }
+        });
+
+        LoaderHide();
+
+    } catch (e) {
+        LoaderHide();
+        alert("Errore OrderSendMail_core: " + e.message);
+        FailCallback();
+    }
+}
 
 function CancellaTutto() {
     try {
+
+
+
+        var psw = $("#pageOptionsDeleteAll_psw").val();
+        $("#pageOptionsDeleteAll_psw").val("");
+
+        if (!psw) {
+            navigator.notification.alert("Password non valida.", function () { return; }, "Attenzione", "OK");
+            return;
+        }
+
+        if (psw.toUpperCase() != PSW_RESET_APPLICAZIONE) {
+            navigator.notification.alert("Password non valida.", function () { return; }, "Attenzione", "OK");
+            return;
+        }
+
+
+
+
         navigator.notification.confirm("Verranno svuotati tutti i dati relativi a configurazione, articoli, listini, ordini incompleti e profilo.\n\nConfermi di voler cancellare tutto?",
                                         function (buttonIndex) {
                                             if (buttonIndex == 1) {
@@ -2641,8 +3097,27 @@ function CancellaTutto() {
                                                                                                                                 _qtDS.deleteFile();
                                                                                                                                 _qtOrders.deleteFile();
                                                                                                                                 _qtProfile.deleteFile();
+                                                                                                                                _MailClienteMgr.deleteFile();
 
-                                                                                                                                navigator.notification.alert("Cancellazione completata.\nE' necessario riavviare manualmente l'app.", function () {
+                                                                                                                                _qtConfig = new QTConfiguration();
+                                                                                                                                _qtConfig.initialize();
+
+                                                                                                                                _qtProfile = new QTProfile();
+                                                                                                                                _qtProfile.initialize();
+                                                                                                                                _qtProfile.OperatoreCodice = "";
+                                                                                                                                _qtProfile.OperatoreDescrizione = "";
+                                                                                                                                _qtProfile.OperatorePassword = "";
+
+                                                                                                                                _qtDS = new QTDataSource();
+                                                                                                                                _qtDS.dataSource = null;
+
+                                                                                                                                _qtOrders = new QTOrderList();
+                                                                                                                                _qtOrders.orders = [];
+
+                                                                                                                                _MailClienteMgr = new MailClienteManager();
+                                                                                                                                _MailClienteMgr.Elenco = [];
+
+                                                                                                                                navigator.notification.alert("Cancellazione completata.\nL'app deve essere riavviata manualmente.", function () {
                                                                                                                                     PageChange('#pageMain', true);
                                                                                                                                     return;
                                                                                                                                 }, "Attenzione", "OK");
@@ -2667,14 +3142,19 @@ function CancellaTutto() {
 
 
 
-
     } catch (e) {
         alert("ERRORE CancellaTutto: " + e.message);
     }
 }
 
+
+$("#pop_up_richiesta_psw_reset_Annulla").click(function () {
+    //CancellaTutto();
+    $("#pageOptionsDeleteAll_psw").val("");
+});
+
 $("#pageOptionsDeleteAll").click(function () {
-    CancellaTutto();
+    //CancellaTutto();
 });
 
 $("#pageOrderRowAdd").keypress(function (event) {
@@ -2723,16 +3203,23 @@ $(document).on("pagebeforeshow", "#pageCustomer", function () {
     if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED || _qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO) {
         //schermata in sola lettura
         CustomerChangeView(null, 0);
-        $("#pageCustomerContatto1").attr("disabled", "disabled");
-        $("#pageCustomerAnnotazioni").attr('disabled', 'disabled');
-        $("#pageCustomerEMail").attr('disabled', 'disabled');
+        $("#pageCustomerContatto1").attr("readonly", "readonly");
+        $("#pageCustomerAnnotazioni").attr('readonly', 'readonly');
+        $("#pageCustomerEMail").attr('readonly', 'readonly');
+        $("#pageCustomerEMail_interna").attr('readonly', 'readonly');
+        $("#pageCustomer_goto_elencoContattiCliente").hide();
+        $("#pageCustomer_goto_elencoContattiInterni").hide();
 
     }
     else {
 
-        $("#pageCustomerContatto1").removeAttr('disabled');
-        $("#pageCustomerAnnotazioni").removeAttr('disabled');
-        $("#pageCustomerEMail").removeAttr('disabled');
+        $("#pageCustomerContatto1").removeAttr('readonly');
+        $("#pageCustomerAnnotazioni").removeAttr('readonly');
+        $("#pageCustomerEMail").removeAttr('readonly');
+        $("#pageCustomerEMail_interna").removeAttr('readonly');
+        $("#pageCustomer_goto_elencoContattiCliente").show();
+        $("#pageCustomer_goto_elencoContattiInterni").show();
+
 
         if (_qtOrders.getOrder(_qtOrderWorking).customerCode) {
             CustomerChangeView(null, 0);
@@ -2756,6 +3243,20 @@ $(document).on("pagebeforeshow", "#pageCustomer", function () {
         $("#pageCustomerContatto1").val(_qtOrders.getOrder(_qtOrderWorking).orderContatto1);
         $("#pageCustomerAnnotazioni").val(_qtOrders.getOrder(_qtOrderWorking).orderAnnotazioni);
         $("#pageCustomerEMail").val(_qtOrders.getOrder(_qtOrderWorking).orderEMail);
+        $("#pageCustomerEMail_interna").val(_qtOrders.getOrder(_qtOrderWorking).orderEMail_interna);
+
+        var erroremail = _qtOrders.getOrder(_qtOrderWorking).MailErrorDescription;
+        if (!erroremail) { erroremail = ""; }
+        if (erroremail != "") {
+            erroremail = erroremail.replace(/</g, "(")
+            erroremail = erroremail.replace(/>/g, ")")
+            erroremail = "Si sono verificati i seguenti problemi durante l'invio delle mail di offerta:<br>" + erroremail;
+        }
+
+        $('#pageCustomer_errorimailinviate').html(erroremail);
+
+
+
     } else {
         $("#pageCustomerNavbar").hide();
     }
@@ -2825,10 +3326,16 @@ $('#pageCustomerAnnotazioni').keypress(function (e) {
     if (keyCode == 8 || (keyCode >= 35 && keyCode <= 40)) { // Left / Up / Right / Down Arrow, Backspace, Delete keys
         return;
     }
-    var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
-    if (CONTATTO_NOTE_ALLOWED_CHARS.toUpperCase().indexOf(key.toUpperCase()) == -1) {
-        event.preventDefault();
-        return false;
+
+    if (keyCode === 13)
+    { }
+    else
+    {
+        var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+        if (CONTATTO_NOTE_ALLOWED_CHARS.toUpperCase().indexOf(key.toUpperCase()) == -1) {
+            event.preventDefault();
+            return false;
+        }
     }
 });
 
@@ -2838,6 +3345,14 @@ $('#pageCustomerAnnotazioni').keypress(function (e) {
 $("#pageCustomerEMail").change(function () {
     if (_qtOrderWorking) {
         _qtOrders.getOrder(_qtOrderWorking).orderEMail = $(this).val();
+
+        if ((_qtOrders.getOrder(_qtOrderWorking).customerCode) && (_qtOrders.getOrder(_qtOrderWorking).orderEMail)) {
+            if (_qtOrders.getOrder(_qtOrderWorking).orderEMail.trim() != "") {
+                _MailClienteMgr.Add(_qtOrders.getOrder(_qtOrderWorking).customerCode, _qtOrders.getOrder(_qtOrderWorking).orderEMail);
+            }
+        }
+
+
 
         try {
             //Salvo su file l'ordine che sto compilando (non si sa mai!) Success, Fail
@@ -2871,7 +3386,39 @@ $('#pageCustomerEMail').keypress(function (e) {
 
 
 
+$("#pageCustomerEMail_interna").change(function () {
+    if (_qtOrderWorking) {
+        _qtOrders.getOrder(_qtOrderWorking).orderEMail_interna = $(this).val();
 
+        try {
+            //Salvo su file l'ordine che sto compilando (non si sa mai!) Success, Fail
+            _qtOrders.saveToFile(function () {
+                //salvataggio temporaneo dell'ordine riuscito.
+            }, function (err) {
+                navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () {
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            });
+
+        } catch (e) {
+            alert("Errore JS pageCustomerEMail change save ordine: " + e.message);
+        }
+    }
+});
+
+$('#pageCustomerEMail_interna').keypress(function (e) {
+    var keyCode = event.keyCode || event.which
+    // Don't validate the input if below arrow, delete and backspace keys were pressed 
+    if (keyCode == 8 || (keyCode >= 35 && keyCode <= 40)) { // Left / Up / Right / Down Arrow, Backspace, Delete keys
+        return;
+    }
+    var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+    if (CONTATTO_NOTE_ALLOWED_CHARS.toUpperCase().indexOf(key.toUpperCase()) == -1) {
+        event.preventDefault();
+        return false;
+    }
+});
 
 
 
@@ -3332,6 +3879,7 @@ function CustomerSelectWithDestination(customerCode, destinationCode) {
             var customers = SEARCHJS.matchArray(_CustomerList, { "AnagraficaCodice": customerCode });
             _qtOrders.getOrder(_qtOrderWorking).customerCode = customerCode;
             _qtOrders.getOrder(_qtOrderWorking).customerDescr = customers[0].RagioneSociale;
+            _qtOrders.getOrder(_qtOrderWorking).orderEMail = "";        //resetto email cliente
             _qtOrders.getOrder(_qtOrderWorking).customerData = customers[0];
             customers = null;
         }
@@ -3404,15 +3952,22 @@ function OrderCustomerApplyStyle() {
 
             //GESTIONE VISUALIZZAZIONE PULSANTI PANNELLO DI CONTROLLO DELL'ORDINE
             $('#pageOrder_Panel_listView_Riapri').show();
+            $('#pageOrder_Panel_listView_Conferma').show();
             $('#pageOrder_Panel_listView_Trasferisci').show();
+            $('#pageOrder_Panel_listView_InviaMail').show();
+
+
             if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.NEW) {
                 $('#pageOrder_Panel_listView_Riapri').hide();
+                $('#pageOrder_Panel_listView_InviaMail').hide();
             }
             if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED) {
-
+                $('#pageOrder_Panel_listView_InviaMail').hide();
+                $('#pageOrder_Panel_listView_Conferma').hide();
             }
             if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO) {
                 $('#pageOrder_Panel_listView_Riapri').hide();
+                $('#pageOrder_Panel_listView_Conferma').hide();
                 $('#pageOrder_Panel_listView_Trasferisci').hide();
             }
 
@@ -3514,7 +4069,7 @@ $(document).on("pagebeforeshow", "#pageProfile", function () {
     _ProfileInfo = null;
     $("#pageProfileTxtQtUser").val(_qtProfile.OperatoreCodice);
     $("#pageProfileTxtQtPassword").val(_qtProfile.OperatorePassword);
-    $("#pageProfileTxtQtUUID").val(device.uuid);
+    $("#pageProfileTxtQtUUID").val(_qtProfile.SerialNumber);
 
 });
 
@@ -3522,15 +4077,33 @@ $("#pageProfileTxtQtUser").change(function () {
     _ProfileInfo = null;
 });
 
-$("#pageProfileVerify").click(function () {
-    ProfileOperatorsVerify($("#pageProfileTxtQtUser").val(), $("#pageProfileTxtQtPassword").val());
+$("#pageProfileLogin").click(function () {
+    ProfileOperatorsVerify($("#pageProfileTxtQtUser").val(), $("#pageProfileTxtQtPassword").val(), $("#pageProfileTxtQtUUID").val());
 });
 
-$("#pageProfileSave").click(function () {
-    ProfileSave();
+
+$("#pageProfileLogout").click(function () {
+    ProfileOperatorsLogout();
 });
 
-function ProfileOperatorsVerify(OperatorCode, OperatorPsw) {
+
+
+
+function ProfileOperatorsVerify(OperatorCode, OperatorPsw, SerialNumber) {
+
+
+
+    ServerOnlineVerify(function () {
+        //ONLINE, niente da notificare
+    }, function (textStatus, textError) {
+        //OFFLINE-ERRORE
+        navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non \u00e8 possibile verificare il profilo.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return false;
+    });
+
+    _ProfileInfo = null;
 
     try {
 
@@ -3538,18 +4111,18 @@ function ProfileOperatorsVerify(OperatorCode, OperatorPsw) {
             url: GetServerURL("operators"),
             method: "GET",
             dataType: "jsonp",
-            data: { filter: OperatorCode },
+            data: { DispositivoCodice: OperatorCode, Password: OperatorPsw, DispositivoSerialNumer: SerialNumber },
             beforeSend: function () {
             },
             success: function (objResp) {
                 try {
                     //Gestisco l'errore
                     if (objResp.errors) {
-                        _ProfileInfo = null;
+
                         navigator.notification.alert("La verifica dell'operatore \u00e8 fallita a causa di un errore: " + objResp.errors.toString(), function () {
                             return;
                         }, "Attenzione", "OK");
-                        return;
+
                     }
 
                     if (objResp.operatorFound == true) {
@@ -3557,14 +4130,13 @@ function ProfileOperatorsVerify(OperatorCode, OperatorPsw) {
                         _ProfileInfo.OperatoreCodice = objResp.operatorCode;
                         _ProfileInfo.OperatoreDescrizione = objResp.operatorDesc;
                         _ProfileInfo.OperatorePassword = OperatorPsw;
-                        navigator.notification.alert("Verifica dell'operatore completata con successo!\n\nDescrizione: " + objResp.operatorDesc, function () {
-                            return;
-                        }, "Attenzione", "OK");
-                        return;
+                        navigator.notification.alert("Verifica dell'operatore completata con successo!\n\nDescrizione: " + objResp.operatorDesc, function () { ProfileSave(); }, "Operazione completata", "OK");
+
+
 
                     } else {
-                        _ProfileInfo = null;
-                        navigator.notification.alert("Nessun operatore trovato con codice: " + OperatorCode.toString(), function () {
+
+                        navigator.notification.alert(objResp.ErrorMessage, function () {
                             return;
                         }, "Attenzione", "OK");
                         return;
@@ -3572,18 +4144,21 @@ function ProfileOperatorsVerify(OperatorCode, OperatorPsw) {
 
                 } catch (e) {
                     LoaderHide();
-                    alert("Errore StatLoadHitScelte risposta: " + e.message);
+                    alert("Errore ProfileOperatorsVerify risposta: " + e.message);
+                    return;
                 }
             },
             error: function (xhr, textStatus, textError) {
                 LoaderHide();
-                alert("Errore StatLoadHitScelte AJAX: " + textError + " (" + textStatus + ")");
+                alert("Errore ProfileOperatorsVerify AJAX: " + textError + " (" + textStatus + ")");
+                return;
             }
         });
 
     } catch (e) {
         LoaderHide();
-        alert("Errore StatLoadHitScelte: " + e.message);
+        alert("Errore ProfileOperatorsVerify: " + e.message);
+        return;
     }
 }
 
@@ -3591,6 +4166,7 @@ function ProfileOperatorsVerify(OperatorCode, OperatorPsw) {
 function ProfileSave() {
     try {
         //controlli
+        /*
         if ($.trim($("#pageProfileTxtQtUser").val()).length == 0) {
             navigator.notification.alert("Il campo \"Nome Operatore in QuickTrade\" non \u00e8 compilato.", function () {
                 $("#pageProfileTxtQtUser").focus();
@@ -3606,12 +4182,14 @@ function ProfileSave() {
             }, "Attenzione", "OK");
             return;
         }
+        */
+
 
         //Salvo
         _qtProfile.OperatoreCodice = _ProfileInfo.OperatoreCodice;
         _qtProfile.OperatoreDescrizione = _ProfileInfo.OperatoreDescrizione;
         _qtProfile.OperatorePassword = _ProfileInfo.OperatorePassword;
-
+        //_qtProfile.SerialNumber = device.uuid();
         _qtProfile.saveToFile(function () {
 
             _ProfileInfo = null;
@@ -3638,16 +4216,125 @@ function ProfileSave() {
 
 
 
+function ProfileOperatorsLogout() {
 
 
 
+    //Verifico che la login sia stata effettuata veramente
+    if (!_qtProfile) {
+        navigator.notification.alert("Login non effettuata.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return;
+    }
+
+    if (!_qtProfile.OperatoreCodice) {
+        navigator.notification.alert("Login non effettuata.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return;
+    }
+
+    if (!_qtProfile.OperatorePassword) {
+        navigator.notification.alert("Login non effettuata.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return;
+    }
 
 
 
+    var OperatorCode = _qtProfile.OperatoreCodice;
+    var OperatorPsw = _qtProfile.OperatorePassword;
+    var SerialNumber = _qtProfile.SerialNumber;
+
+
+    ServerOnlineVerify(function () {
+        //ONLINE, niente da notificare
+    }, function (textStatus, textError) {
+        //OFFLINE-ERRORE
+        navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non \u00e8 possibile eseguire l'operazione.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return false;
+    });
+
+
+    try {
+
+        $.ajax({
+            url: GetServerURL("operators/user_logout.ashx"),
+            method: "GET",
+            dataType: "jsonp",
+            data: { DispositivoCodice: OperatorCode, Password: OperatorPsw, DispositivoSerialNumer: SerialNumber },
+            beforeSend: function () {
+            },
+            success: function (objResp) {
+                try {
+                    //Gestisco l'errore
+                    if (objResp.errors) {
+
+                        navigator.notification.alert("La verifica dell'operatore \u00e8 fallita a causa di un errore: " + objResp.errors.toString(), function () {
+                            return;
+                        }, "Attenzione", "OK");
+
+                    }
+
+                    if (objResp.operatorFound == true) {
+                        _qtProfile = new QTProfile();
+                        _qtProfile.OperatoreCodice = "";
+                        _qtProfile.OperatoreDescrizione = "";
+                        _qtProfile.OperatorePassword = "";
+
+                        _qtProfile.saveToFile(function () {
+
+                            _ProfileInfo = null;
+                            PageChange("#pageMain", true);
+
+                        }, function (err) {
+                            //ERRORE SALVATAGGIO FILE
+                            var msg = "Non \u00e8 stato possibile salvare il profilo.\nDettaglio: ";
+                            if (err.code)
+                                msg += FileGetErrorMessage(err);
+                            else
+                                msg += err.message.toString();
+
+                            navigator.notification.alert(msg, function () {
+                                return;
+                            }, "Errore", "OK");
+                        });
+
+                        navigator.notification.alert("Logout dell'operatore completata con successo!\n\nDescrizione: " + objResp.operatorDesc, function () { }, "Operazione completata", "OK");
 
 
 
+                    } else {
 
+                        navigator.notification.alert(objResp.ErrorMessage, function () {
+                            return;
+                        }, "Attenzione", "OK");
+                        return;
+                    }
+
+                } catch (e) {
+                    LoaderHide();
+                    alert("Errore ProfileOperatorsVerify risposta: " + e.message);
+                    return;
+                }
+            },
+            error: function (xhr, textStatus, textError) {
+                LoaderHide();
+                alert("Errore ProfileOperatorsVerify AJAX: " + textError + " (" + textStatus + ")");
+                return;
+            }
+        });
+
+    } catch (e) {
+        LoaderHide();
+        alert("Errore ProfileOperatorsVerify: " + e.message);
+        return;
+    }
+}
 
 
 function ListiniGetList() {
@@ -4539,12 +5226,17 @@ $(document).on("pagebeforeshow", "#pageListini", function () {
 
 $(document).on("pagebeforeshow", "#pageOrdiniTrasferiti", function () {
 
+
+
     var ordiniTrasferti = SEARCHJS.matchArray(_qtOrders.orders, { "orderStatus": ORDER_STATUS.TRASFERITO });
 
     AddClassIfMissing($("#pageMainOrd_Trasferiti"), "ui-screen-hidden");
     AddClassIfMissing($("#pageMainOrd_Trasferiti_dinamico"), "ui-screen-hidden");
 
+
+
     if (ordiniTrasferti.length > NR_MASSIMO_ORDINI_VISUALIZZABILI) {
+
 
         RemoveClassIfExists($("#pageMainOrd_Trasferiti_dinamico"), "ui-screen-hidden");
 
@@ -4555,6 +5247,7 @@ $(document).on("pagebeforeshow", "#pageOrdiniTrasferiti", function () {
         OrdersCheckList_trasferiti(true);
     }
     else {
+
 
         RemoveClassIfExists($("#pageMainOrd_Trasferiti"), "ui-screen-hidden");
 
@@ -4581,34 +5274,30 @@ function ListiniInitializeNewClass() {
 }
 
 function ListiniShowPage() {
-    if (FUNZIONAMENTO_OFFLINE == true) {
 
-        ListiniInitializeNewClass();
-        _ListinoBarcodeToShow = null;
-        _ListinoShowListinoCodice = null;
-
-        $("#pageListiniListinoDiv").css("display", "");
-        $("#pageListiniSearchField").val("");
-
-        PageChange('#pageListini');
-
+    if (!_qtDS.dataSource) {
+        navigator.notification.alert("Per poter visualizzare i listini \u00e8 necessario effettuare la sincronizzazione dati.", function () {
+            return;
+        }, "Attenzione", "OK");
         return;
     }
 
 
+    $("#pageMainHeaderNavBar_ShowListini").removeClass('ui-btn-active');
+
+
+
+    /*
+    if (FUNZIONAMENTO_OFFLINE == true) {
+        ListiniShowPage_core();
+        return;
+    }
+    */
+
     //svuoto variabili
     ServerOnlineVerify(function () {
         //ONLINE, niente da notificare
-
-        ListiniInitializeNewClass();
-        _ListinoBarcodeToShow = null;
-        _ListinoShowListinoCodice = null;
-
-        $("#pageListiniListinoDiv").css("display", "");
-        $("#pageListiniSearchField").val("");
-        PageChange('#pageListini');
-
-
+        ListiniShowPage_core();
     }, function (textStatus, textError) {
         //OFFLINE-ERRORE
         navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non \u00e8 possibile consultare il listino prezzi.", function () {
@@ -4617,6 +5306,20 @@ function ListiniShowPage() {
     });
 
 }
+
+
+function ListiniShowPage_core() {
+    ListiniInitializeNewClass();
+    _ListinoBarcodeToShow = null;
+    _ListinoShowListinoCodice = null;
+
+    $("#pageListiniListinoDiv").css("display", "");
+    $("#pageListiniSearchField").val("");
+
+    PageChange('#pageListini');
+}
+
+
 
 function ListiniShowBarcode(barcodeString) {
     try {
@@ -4679,5 +5382,267 @@ $("#pageListiniListino").change(function () {
     }
 });
 
+
+/*
+-------------------------------------------------------------
+---------------GESTIONE PAGINA CONTATTI INTERNI --------------
+-------------------------------------------------------------
+*/
+
+
+$(document).on("pagebeforeshow", "#pageElencoContattiInterni", function () {
+
+    pageCustomerEMail_ShowElencoContattiInterni();
+});
+
+function pageCustomerEMail_ShowElencoContattiInterni_back() {
+    PageChange("#pageCustomer", true);
+}
+
+function pageCustomerEMail_ShowElencoContattiInterni() {
+
+    //return;
+    var fset = '<fieldset data-role="controlgroup" id="pageElencoContattiInterni_fieldset"><legend>Seleziona i contatti interni a cui inviare la mail:</legend>';
+    var labels = '';
+    //CommercialiAzienda
+
+    var testo = "";
+    if ((_qtOrders) && (_qtOrders.getOrder(_qtOrderWorking))) {
+        testo = _qtOrders.getOrder(_qtOrderWorking).orderEMail_interna;
+    }
+    if (!testo) { testo = ""; }
+
+
+
+
+
+    for (var i = 0; i < _qtDS.dataSource.CommercialiAzienda.length; i++) {
+        var c = _qtDS.dataSource.CommercialiAzienda[i];
+
+        if (!c.Email) { continue; }
+
+        var checked = ""
+
+        if (testo.indexOf(c.Email) > -1) { checked = "checked"; }
+
+        labels +=
+            "<label for=\"pageElencoContattiInterni_list_chkBox_" + c.ID + "\" data-iconpos=\"left\">" + c.Nome + " " + c.Cognome + " - " + c.Email + "</label>" +
+            "<input type=\"checkbox\" name=\"pageElencoContattiInterni_fieldset_chkbox\"" +
+            " id=\"pageElencoContattiInterni_list_chkBox_" + c.ID + "\"  value=\"" + c.Email + "\" onclick=\"pageCustomerEMail_ElencoContattiInterni_clickCheck(this);\"" + checked + " >"
+    }
+
+    $("#pageElencoContattiInterni_mainDiv").html(fset + labels + '</fieldset>');
+    $("#pageElencoContattiInterni_mainDiv").trigger("create");
+
+
+}
+
+function pageCustomerEMail_ElencoContattiInterni_clickCheck(cb) {
+    if (!_qtOrders) { return; }
+    if (!_qtOrders.getOrder(_qtOrderWorking)) { return; }
+    var testo = _qtOrders.getOrder(_qtOrderWorking).orderEMail_interna;
+    testo = pageCustomerEMail_ElencoContatti_clickCheck_core(testo, cb);
+    _qtOrders.getOrder(_qtOrderWorking).orderEMail_interna = testo;
+}
+
+function pageCustomerEMail_ElencoContatti_clickCheck_core(testo, cb) {
+
+
+    var mail = cb.value;
+
+    if (!testo) { testo = ""; }
+
+    testo = testo.replace(new RegExp(";", "g"), "§");
+    testo = testo.replace(new RegExp(",", "g"), "§");
+    testo = testo.replace(new RegExp(" ", "g"), "");
+    testo = testo.trim();
+
+    if (testo != "") {
+        var lastChar = testo.substr(testo.length - 1);
+        if (lastChar != "§") { testo = testo + "§"; }
+    }
+
+
+    if (cb.checked == true) {
+        //aggiungo
+        if (!testo.indexOf(mail) > -1) {
+            testo = testo + mail + "§";
+        }
+    }
+    else {
+        //rimuovo
+        testo = testo.replace(new RegExp(mail + "§", "g"), "");
+    }
+    testo = testo.replace(new RegExp("§", "g"), "; ")
+    testo = testo.trim();
+    return testo;
+}
+
+/*
+-------------------------------------------------------------
+---------------GESTIONE PAGINA CONTATTI CLIENTI --------------
+-------------------------------------------------------------
+*/
+
+$(document).on("pagebeforeshow", "#pageElencoContatti", function () {
+    pageCustomerEMail_ShowElencoContatti();
+});
+
+
+function pageCustomerEMail_ShowElencoContatti_back() {
+    PageChange("#pageCustomer", true);
+}
+
+
+function pageCustomerEMail_ShowElencoContatti() {
+
+
+    $("#pageElencoContatti_mainDiv").html("Nessuna voce disponibile");
+    $("#pageElencoContatti_mainDiv").trigger("create");
+
+    $("#pageElencoContattiClienti_menu").hide();
+
+    if (!_MailClienteMgr) { return; }
+    if (!_MailClienteMgr.Elenco) { return; }
+    if (_MailClienteMgr.Elenco.length == 0) { return; }
+    if (!_qtOrders) { return; }
+    if (!_qtOrders.getOrder(_qtOrderWorking)) { return; }
+
+    var CodiceCliente = _qtOrders.getOrder(_qtOrderWorking).customerCode;
+
+    var objResp = SEARCHJS.matchArray(_MailClienteMgr.Elenco, { "CodiceCliente": CodiceCliente });
+
+    if (!objResp) { return; }
+    if (objResp.length == 0) { return; }
+
+
+
+    var mgrCliente = objResp[0];
+
+
+
+    if (!mgrCliente.Mail) { return; }
+    if (mgrCliente.Mail.length == 0) { return; }
+
+    $("#pageElencoContattiClienti_menu").show();
+
+    var fset = '<fieldset data-role="controlgroup" id="pageElencoContatti_fieldset"><legend>Seleziona le mail del cliente:</legend>';
+    var labels = '';
+
+    var testo = "";
+    if (_qtOrders.getOrder(_qtOrderWorking)) {
+        testo = _qtOrders.getOrder(_qtOrderWorking).orderEMail;
+    }
+    if (!testo) { testo = ""; }
+
+    for (var i = 0; i < mgrCliente.Mail.length; i++) {
+        var m = mgrCliente.Mail[i]
+        var checked = ""
+        if (testo.indexOf(m) > -1) { checked = "checked"; }
+        labels +=
+            "<label for=\"pageElencoContatti_fieldset_chkbox" + i + "\" data-iconpos=\"left\">" + m + "</label>" +
+            "<input type=\"checkbox\" name=\"pageElencoContatti_fieldset_chkbox\"" +
+            " id=\"pageElencoContatti_fieldset_chkbox" + i + "\"  value=\"" + m + "\" onclick=\"pageCustomerEMail_ElencoContattiClienti_clickCheck(this);\"" + checked + " >"
+    }
+    $("#pageElencoContatti_mainDiv").html(fset + labels + '</fieldset>');
+
+    $("#pageElencoContatti_mainDiv").trigger("create");
+
+
+}
+
+
+function pageCustomerEMail_ElencoContattiClienti_clickCheck(cb) {
+    if (!_qtOrders) { return; }
+    if (!_qtOrders.getOrder(_qtOrderWorking)) { return; }
+    var testo = _qtOrders.getOrder(_qtOrderWorking).orderEMail;
+    testo = pageCustomerEMail_ElencoContatti_clickCheck_core(testo, cb);
+    _qtOrders.getOrder(_qtOrderWorking).orderEMail = testo;
+}
+
+
+function pageElencoContattiClienti_EliminaVociSelezionate() {
+    //alert("pageElencoContattiClienti_EliminaVociSelezionate");
+
+    var names = [];
+    $('#pageElencoContatti_mainDiv input:checked').each(function () {
+        names.push(this.value);
+    });
+
+
+    if (names.length > 0) {
+        navigator.notification.confirm("Eliminare le voci selezionate?",
+                                function (buttonIndex) {
+                                    if (buttonIndex == 1) {
+                                        pageElencoContattiClienti_EliminaVociSelezionate_core(names);
+                                    }
+                                },
+                                "Conferma eliminazione",
+                                "Si,No");
+    } else {
+        navigator.notification.alert("Selezionare almeno un contatto da eliminare.", function () { }, "Nessun contatto selezionato", "OK");
+    }
+
+}
+
+
+function pageElencoContattiClienti_EliminaVociSelezionate_core(names) {
+    if (!names) { return; }
+    if (names.length == 0) { return; }
+
+    if (!_MailClienteMgr) { return; }
+    if (!_MailClienteMgr.Elenco) { return; }
+    if (_MailClienteMgr.Elenco.length == 0) { return; }
+
+
+    if (!_qtOrders) { return; }
+    if (!_qtOrders.getOrder(_qtOrderWorking)) { return; }
+
+
+    var CodiceCliente = _qtOrders.getOrder(_qtOrderWorking).customerCode;
+
+    var objResp = SEARCHJS.matchArray(_MailClienteMgr.Elenco, { "CodiceCliente": CodiceCliente });
+    if (!objResp) { return; }
+    if (objResp.length == 0) { return; }
+
+    var mgrCliente = objResp[0];
+    if (!mgrCliente.Mail) { return; }
+    if (mgrCliente.Mail.length == 0) { return; }
+    if (!mgrCliente.Mail) { return; }
+    if (mgrCliente.Mail.length == 0) { return; }
+
+    var testo = _qtOrders.getOrder(_qtOrderWorking).orderEMail;
+    if (!testo) { testo = ""; }
+    testo = testo.replace(new RegExp(";", "g"), "§");
+    testo = testo.replace(new RegExp(",", "g"), "§");
+    testo = testo.replace(new RegExp(" ", "g"), "");
+    testo = testo.trim();
+    if (testo != "") {
+        var lastChar = testo.substr(testo.length - 1);
+        if (lastChar != "§") { testo = testo + "§"; }
+    }
+
+
+    for (var i = mgrCliente.Mail.length - 1; i >= 0; i--) {
+        var m = mgrCliente.Mail[i];
+        for (j = 0; j < names.length; j++) {
+            if (names[j] == m) {
+                mgrCliente.Mail.splice(i, 1);
+                testo = testo.replace(new RegExp(m + "§", "g"), "");
+                break;
+            }
+        }
+    }
+
+
+    testo = testo.replace(new RegExp("§", "g"), "; ")
+    testo = testo.trim();
+
+    _qtOrders.getOrder(_qtOrderWorking).orderEMail = testo;
+
+    _MailClienteMgr.saveToFile();
+    pageCustomerEMail_ShowElencoContatti();
+
+}
 
 

@@ -1,10 +1,12 @@
 ﻿var ORDER_STATUS = { "NEW": 1, "COMPLETED": 2, "TRASFERITO": 3 };
 
+var TIPO_UTILIZZO = { "SEDE_CENTRALE": 1, "FIERA": 2 };
+
 function QTConfiguration() {
     var __fileName = "QTConfig.txt";
 
     //public properties
-    this.initialize = function (vServerIP, vServerPortNumber) { //, vOperatoreCodiceQT
+    this.initialize = function (vServerIP, vServerPortNumber, vServerIP_Fiera, vServerPortNumber_Fiera, vind_tipo_utilizzo) {
         if (vServerIP)
             this.ServerIP = vServerIP;
         else
@@ -14,6 +16,25 @@ function QTConfiguration() {
             this.ServerPortNumber = vServerPortNumber;
         else
             this.ServerPortNumber = 0;
+
+
+        if (vServerIP_Fiera)
+            this.ServerIP_Fiera = vServerIP_Fiera;
+        else
+            this.ServerIP_Fiera = "";
+
+        if (vServerPortNumber_Fiera)
+            this.ServerPortNumber_Fiera = vServerPortNumber_Fiera;
+        else
+            this.ServerPortNumber_Fiera = 0;
+
+        if (vind_tipo_utilizzo)
+            this.ind_tipo_utilizzo = vind_tipo_utilizzo;
+        else
+            this.ind_tipo_utilizzo = TIPO_UTILIZZO.SEDE_CENTRALE;
+
+        
+
 
         //if(vOperatoreCodiceQT)
         //    this.OperatoreCodiceQT = vOperatoreCodiceQT;
@@ -25,12 +46,12 @@ function QTConfiguration() {
         FileExists(__fileName, function (fileExists) {
             if (fileExists) {
                 FileDelete(__fileName, function () {
-                    alert("cancellato");
+                    //alert("cancellato");
                 }, function (e) {
                     alert("Errore cancellazione configurazione: " + e.toString());
                 })
             } else {
-                alert("file non esiste x cancellarlo");
+              //alert("file non esiste x cancellarlo");
             }
         }, function (_err) {
             alert("Errore verifica esistenza configurazione: " + _err.toString());
@@ -78,6 +99,9 @@ function QTConfiguration() {
 function QTProfile() {
     var __fileName = "QTProfile.txt";
 
+
+    this.SerialNumber = device.uuid;
+
     //public properties
     this.initialize = function (vOperatoreCodice, vOperatoreDescrizione, vOperatorePassword) {
         if (vOperatoreCodice)
@@ -97,18 +121,21 @@ function QTProfile() {
             this.OperatorePassword = "";
         }
 
+
+
+
     }
 
     this.deleteFile = function () {
         FileExists(__fileName, function (fileExists) {
             if (fileExists) {
                 FileDelete(__fileName, function () {
-                    alert("cancellato");
+               //    alert("cancellato");
                 }, function (e) {
                     alert("Errore cancellazione profilo: " + e.toString());
                 })
             } else {
-                alert("file non esiste x cancellarlo");
+              ///  alert("file non esiste x cancellarlo");
             }
         }, function (_err) {
             alert("Errore verifica esistenza profilo: " + _err.toString());
@@ -166,12 +193,12 @@ function QTDataSource() {
         FileExists(__fileName, function (fileExists) {
             if (fileExists) {
                 FileDelete(__fileName, function () {
-                    alert("cancellato");
+                  //  alert("cancellato");
                 }, function (e) {
                     alert("Errore cancellazione configurazione: " + e.toString());
                 })
             } else {
-                alert("file non esiste x cancellarlo");
+              // alert("file non esiste x cancellarlo");
             }
         }, function (_err) {
             alert("Errore verifica esistenza configurazione: " + _err.toString());
@@ -241,13 +268,16 @@ function QTOrder() {
     this.customerData = null;
     this.customerDestData = null;
 
-    this.operatorCode = null; // operatorCode; //operatorCode
-    this.operatorPassword = null; // operatorCode; //operatorCode
+    this.operatorCode = null; 
+    this.operatorPassword = null; 
 
     this.rows = [];
     this.orderContatto1 = null;
     this.orderAnnotazioni = null;
+
     this.orderEMail = null;
+    this.orderEMail_interna = null;
+    this.MailErrorDescription = null;       //eventuale errore sulla mail sul tentativo di invio da parte del server
 
 
     function GetOrderCode() {
@@ -273,19 +303,17 @@ function QTOrder() {
 
 }
 
-function QTOrderRow(ArticleBarcode, BaseObj, ListinoCorpoObj, OggettoCodice, qta) {
+function QTOrderRow(ArticleBarcode, BaseObj, articoloDescrizione, OggettoCodice, qta) {
     this.articleBarcode = ArticleBarcode;
     //this.articleObj = ArticleObj;
     this.baseObj = BaseObj;
-    this.listinoCorpoObj = ListinoCorpoObj;
+    this.Descrizione = articoloDescrizione;
     this.OggettoCodice = OggettoCodice;
     this.Qta = qta;
-
-
 }
 
 
-function QTOrderUpload(orderCode, orderDate, customerCode, customerDestCode, rows, operatorCode, operatorPsw, orderIndex, orderContatto1, orderAnnotazioni, orderEMail) {
+function QTOrderUpload(orderCode, orderDate, customerCode, customerDestCode, rows, operatorCode, operatorPsw, orderIndex, orderContatto1, orderAnnotazioni, orderEMail, orderEMail_interna) {
     this.orderCode = orderCode;
     this.orderDate = orderDate;
     this.customerCode = customerCode;
@@ -299,7 +327,10 @@ function QTOrderUpload(orderCode, orderDate, customerCode, customerDestCode, row
     this.orderContatto1 = orderContatto1;
     this.orderAnnotazioni = orderAnnotazioni;
     this.orderEMail = orderEMail;
-    
+
+    this.orderEMail_interna = orderEMail_interna;
+
+
     this.device_uuid = device.uuid;
 
     //alert("QTOrderUpload compilato");
@@ -328,12 +359,12 @@ function QTOrderList() {
         FileExists(__fileName, function (fileExists) {
             if (fileExists) {
                 FileDelete(__fileName, function () {
-                    alert("cancellato");
+               //     alert("cancellato");
                 }, function (e) {
                     alert("Errore cancellazione configurazione: " + e.toString());
                 })
             } else {
-                alert("file non esiste x cancellarlo");
+             //   alert("file non esiste x cancellarlo");
             }
         }, function (_err) {
             alert("Errore verifica esistenza configurazione: " + _err.toString());
@@ -384,6 +415,144 @@ function QTOrderList() {
         }
         return null;
     }
+}
+
+
+
+
+
+
+
+/*
+-----------------------------------------------------------------------------------
+---------------------------------MailClienteManager---------------------------------
+-----------------------------------------------------------------------------------
+*/
+
+
+function MailClienteManager() {
+
+    var __fileName = "QTMailClienteManager.txt";
+
+    this.Elenco = [];
+
+    MailClienteManager.prototype.Add = function (CodiceCliente, MailString) {
+        try {
+
+
+            var cliList = SEARCHJS.matchArray(this.Elenco, { "CodiceCliente": CodiceCliente });
+            var cli = null;
+
+            if (cliList.length == 0) {
+
+                cli = new MailCliente(CodiceCliente);
+                this.Elenco.push(cli)
+            } else {
+
+                cli = cliList[0];
+
+
+            }
+
+            this.gestisciMail(cli, MailString);
+            this.saveToFile();
+
+        } catch (e) {
+            alert("ERRORE MailClienteManager.prototype.Add: " + e.message);
+        }
+    }
+
+
+
+    this.gestisciMail = function (cli, MailString) {
+        //function Aggiungi(MailString) {
+        try {
+
+
+            MailString = MailString.replace(new RegExp(" ", "g"), "");
+            MailString = MailString.replace(new RegExp(";", "g"), "§");
+            MailString = MailString.replace(new RegExp(",", "g"), "§");
+            var elencomail = MailString.split("§");
+            for (i = 0 ; i < elencomail.length ; i++) {
+                var m = elencomail[i].trim();
+
+                if (validateEmail(m) == true) {
+                    if (cli.Mail.indexOf(m) == -1) {
+                        cli.Mail.push(m);
+                    }
+                }
+            }
+
+
+        } catch (e) {
+            alert("ERRORE MailClienteManager.gestisciMail: " + e.message);
+        }
+    }
+
+
+
+
+
+    this.deleteFile = function () {
+        FileExists(__fileName, function (fileExists) {
+            if (fileExists) {
+                FileDelete(__fileName, function () {
+                  //  alert("cancellato");
+                }, function (e) {
+                    alert("Errore cancellazione profilo: " + e.toString());
+                })
+            } else {
+             //   alert("file non esiste x cancellarlo");
+            }
+        }, function (_err) {
+            alert("Errore verifica esistenza profilo: " + _err.toString());
+        })
+    }
+
+    this.loadFromFile = function (Success, ConfigNotFound, Fail) {
+        FileExists(__fileName, function (fileExists) {
+            if (fileExists) {
+                FileRead(__fileName,
+                         function (text) {
+                             // leggo il contenuto del file e me lo carico
+                             var _read = JSON.parse(text.toString());
+                             Success(_read);
+                         },
+                         function (_err) {
+                             if (_err.code) {
+                                 if (_err.code == FileError.NOT_FOUND_ERR) {
+                                     ConfigNotFound();
+                                 } else {
+                                     Fail(_err);
+                                 }
+                             } else {
+                                 Fail(_err);
+                             }
+                         });
+            } else {
+                ConfigNotFound();
+            }
+        }, function (_err) {
+            alert("Errore verifica esistenza profilo: " + _err.toString());
+        })
+
+    }
+
+    this.saveToFile = function (Success, Fail) {
+
+        FileWrite(__fileName,
+                  JSON.stringify(this.Elenco),
+                  Success,
+                  Fail);
+    }
+
+
+}
+
+function MailCliente(myCodiceCliente) {
+    this.CodiceCliente = myCodiceCliente;
+    this.Mail = [];     //elenco delle mail
+
 }
 
 
@@ -489,6 +658,7 @@ function ConvertToUTF8(text) {
     var t = text;
     t = ReplaceAll(t, "è", "\u00e8");
     t = ReplaceAll(t, "à", "\u00e0");
+    t = ReplaceAll(t, "ù", "\u00f9");
     return t;
 }
 
@@ -748,10 +918,37 @@ function ArticoloSelezioneGuidata() {
 /*
 Tronca numero a N decimali
 */
-function TroncaDecimali(Numero,  digits) {
+function TroncaDecimali(Numero, digits) {
     var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
         m = Numero.toString().match(re);
     return m ? parseFloat(m[1]) : Numero.valueOf();
 };
 
 
+
+
+
+
+
+
+function validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+
+
+
+/*CODICE DIF RIFERIMENTO X CHECK SERVER ONLINE
+
+    ServerOnlineVerify(function () {
+        //ONLINE, niente da notificare
+    }, function (textStatus, textError) {
+        //OFFLINE-ERRORE
+        navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non \u00e8 possibile eseguire l'operazione.", function () {
+            return;
+        }, "Attenzione", "OK");
+    });
+
+
+
+*/
