@@ -76,11 +76,15 @@
   <icon src="res/icon/windows-phone/icon-48.png" platform="winphone"/>
   <icon src="res/icon/windows-phone/icon-173-tile.png" platform="winphone" role="background"/>
 
+
+<splash src="res/screen/android/screen-hdpi-portrait.png"/>
+
+
   <splash src="res/screen/android/screen-ldpi-portrait.png" platform="android" qualifier="port-ldpi"/>
   <splash src="res/screen/android/screen-mdpi-portrait.png" platform="android" qualifier="port-mdpi"/>
   <splash src="res/screen/android/screen-hdpi-portrait.png" platform="android" qualifier="port-hdpi"/>
   <splash src="res/screen/android/screen-xhdpi-portrait.png" platform="android" qualifier="port-xhdpi"/>
-  <splash src="res/screen/android/screen-hdpi-portrait.png" platform="android" width="800" height="1280"/>
+  
   
   <!--<gap:splash src="www/res/screen/blackberry/screen-225.png" gap:platform="blackberry"/>-->
   <splash src="res/screen/ios/screen-iphone-portrait.png" platform="ios" width="320" height="480"/>
