@@ -77,7 +77,7 @@
   <icon src="res/icon/windows-phone/icon-173-tile.png" platform="winphone" role="background"/>
 
 
-<splash src="res/screen/android/screen-xhdpi-portrait.png"/>
+<splash src="res/screen/android/screen-mdpi-portrait.png"/>
 
 
   <splash src="res/screen/android/screen-ldpi-portrait.png" platform="android" qualifier="port-ldpi"/>
