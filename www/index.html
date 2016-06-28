@@ -54,14 +54,16 @@
                 <li data-icon="refresh" class="iconLeft"><a href="#" onclick="PageChange('#pageSync');">Sincronizzazione</a></li>
                 <li data-icon="user" class="iconLeft"><a href="#" onclick="PageChange('#pageProfile');">Profilo</a></li>
                 <li data-icon="gear" class="iconLeft"><a href="#" onclick="PageChange('#pageOptions');">Configurazione</a></li>
+                <li data-icon="shop" class="iconLeft"><a href="#" onclick="gotoUpdatePage();">Aggiorna</a></li>
             </ul>
             <div id="pageMainPanelVersion" style="position: absolute; bottom: 18px; width: 100%; text-align: center;"></div>
         </div>
+
         <div data-role="header" data-position="fixed">
             <div class="custom-border-radius">
                 <a href="#pageMainPanel" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-bars"></a>
             </div>
-            <h1 id="pageMainHeader">Quick Trade</h1>
+            <h1 id="pageMainHeader">Quick Trade Mobile</h1>
             <div class="custom-border-radius">
                 <a id="pageMainOrdToUpload" href="#" onclick="PageChange('#pageSync');" class="ui-btn-right ui-btn ui-btn-inline ui-corner-all ui-btn-icon-left ui-icon-shop ui-screen-hidden"></a>
             </div>
@@ -77,7 +79,7 @@
                     <ul>
                         <li><a href="#" data-icon="plus" id="pageMainHeaderNavBar_NuovoOrdine" onclick="OrderStartNew();">Nuovo ordine</a></li>
                         <li><a href="#" data-icon="tag" id="pageMainHeaderNavBar_ShowListini" onclick="ListiniShowPage();">Listino prezzi</a></li>
-                        <li><a href="#" data-icon="action" id="pageMainHeaderNavBar_SaveAll" onclick="OrderSave_All()">Trasferisci tutti</a></li>
+                        <li><a href="#" data-icon="action" id="pageMainHeaderNavBar_SaveAll" onclick="OrderSave_All_withCheck()">Trasferisci tutti</a></li>
                         <li><a href="#" data-icon="delete" id="pageMainHeaderNavBar_DeleteAll" onclick="OrderDeleteAll_PageMain();">Elimina tutti</a></li>
                         <!--<li><a href="#" data-icon="bullets" onclick="PageChange('#pageHitScelte',false);">Visualizza HIT Scelte</a></li>-->
                         <li><a href="#" data-icon="check" id="pageMainHeaderNavBar_VisualizzaTrasferiti" onclick="PageChange('#pageOrdiniTrasferiti');">Ordini trasferiti</a></li>
@@ -197,7 +199,7 @@
                 <label for="pageOptionsDeleteAll_psw">Password per formattazione:</label>
                 <input type="password" name="pageOptionsDeleteAll_psw" id="pageOptionsDeleteAll_psw" value="" />
                 <a id="pop_up_richiesta_psw_reset_OK" onclick="CancellaTutto();" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check">OK</a>
-                <a id="pop_up_richiesta_psw_reset_Annulla"  data-rel="back" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-delete">Annulla</a>
+                <a id="pop_up_richiesta_psw_reset_Annulla" data-rel="back" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-delete">Annulla</a>
             </div>
         </div>
 
@@ -217,6 +219,12 @@
 
             <label for="pageProfileTxtQtPassword">Password:</label>
             <input type="text" name="pageProfileTxtQtPassword" id="pageProfileTxtQtPassword" value="" />
+
+            <label for="pageProfileTxtQtDescription">Descrizione:</label>
+            <input type="text" name="pageProfileTxtQtDescription" id="pageProfileTxtQtDescription" value="" readonly />
+
+            <label for="pageProfileTxtQtMailOperatore">E-Mail operatore:</label>
+            <input type="text" name="pageProfileTxtQtMailOperatore" id="pageProfileTxtQtMailOperatore" value="" readonly />
 
             <label for="pageProfileTxtQtUUID">ID dispositivo (Universally Unique Identifier):</label>
             <input type="text" name="pageProfileTxtQtUUID" id="pageProfileTxtQtUUID" value="" readonly />
@@ -241,7 +249,7 @@
                 <li data-icon="user" class="iconLeft" id="pageOrder_Panel_listView_Testata"><a href="#" onclick="CustomerShowSelect();">Testata ordine</a></li>
                 <li data-icon="edit" class="iconLeft" id="pageOrder_Panel_listView_Riapri"><a href="#" onclick="OrderReopen();">Modifica</a></li>
                 <li data-icon="check" class="iconLeft" id="pageOrder_Panel_listView_Conferma"><a href="#" onclick="OrderConfirm();">Conferma</a></li>
-                <li data-icon="check" class="iconLeft" id="pageOrder_Panel_listView_Trasferisci"><a href="#" onclick="OrderSave();">Trasferisci</a></li>
+                <li data-icon="check" class="iconLeft" id="pageOrder_Panel_listView_Trasferisci"><a href="#" onclick="OrderSave_withCheck();">Trasferisci</a></li>
                 <li data-icon="check" class="iconLeft" id="pageOrder_Panel_listView_InviaMail"><a href="#" onclick="OrderSendMail();">Re-invia mail</a></li>
                 <li data-icon="delete" class="iconLeft" id="pageOrder_Panel_listView_Elimina"><a href="#" onclick="pageOrderDelete()">Elimina</a></li>
             </ul>
@@ -390,6 +398,9 @@
                 <a id="pageOrder_SelezArticolo_Step03_back" href="#" onclick="SelezArticolo_Step03_back();" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
             </div>
             <h1>Selezione Articolo</h1>
+            <div>
+                <a id="pageOrder_SelezArticolo_Step03_Confirm" href="#" onclick="SelezArticolo_chkList_Confirm();" class="ui-btn-right ui-btn ui-btn-inline ui-corner-all ui-btn-icon-left ui-icon-check">Conferma</a>
+            </div>
         </div>
         <div data-role="content" data-theme="a">
             <div id="pageOrder_SelezArticolo_Step03_Panel">
@@ -400,6 +411,12 @@
                 </div>
                 <ul id="pageOrder_SelezArticolo_Step03_Panel_list" data-role="listview" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
             </div>
+            <div id="pageOrder_SelezArticolo_Step03_Panel_chkList">
+            </div>
+        </div>
+        <div data-role="footer" data-position="fixed" style="text-align: center;">
+            <a href="#" id="pageOrder_SelezArticolo_Step03_Panel_chkList_SelezionaTutto" onclick="pageOrder_SelezArticolo_Step03_SelezTutto_ClickCheck(true)" data-icon="check">Seleziona tutto</a>
+            <a href="#" id="pageOrder_SelezArticolo_Step03_Panel_chkList_DeselezionaTutto" onclick="pageOrder_SelezArticolo_Step03_SelezTutto_ClickCheck(false)" data-icon="delete">Deseleziona tutto</a>
         </div>
     </div>
 
@@ -408,34 +425,27 @@
     <div data-role="page" id="pageOrder_SelezArticolo_Step02_TGG" data-theme="a">
         <div data-role="header" data-position="fixed">
             <div class="custom-border-radius">
-                <a id="pageOrder_SelezArticolo_Step02_TGG_back" href="#" onclick="PageChange('#pageOrder_SelezArticolo_Step01',true);" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
+                <a id="pageOrder_SelezArticolo_Step02_TGG_back" href="#" onclick="PageChange('#pageOrder_SelezArticolo_Step01',true);" class="ui-btn-left ui-btn ui-btn-inline  ui-btn-icon-notext ui-corner-all ui-icon-arrow-l"></a>
             </div>
-            <h1>Selezione Articolo</h1>
+            <h1>Selezione Variante</h1>
+            <div>
+                <a id="pageOrder_SelezArticolo_Step02_TGG_Confirm" href="#" onclick="SelezArticolo_chkList_TGG_Confirm();" class="ui-btn-right ui-btn ui-btn-inline ui-corner-all ui-btn-icon-left ui-icon-check">Conferma</a>
+            </div>
         </div>
         <div data-role="content" data-theme="a">
             <div id="pageOrder_SelezArticolo_Step02_TGG_Panel">
-                <input id="pageOrder_SelezArticolo_Step02_TGG_Panel_filter" data-type="search" placeholder="Ricerca articolo..." data-clear-btn="true" data-clear-btn-text="Svuota">
+                <input id="pageOrder_SelezArticolo_Step02_TGG_Panel_filter" data-type="search" placeholder="Ricerca variante..." data-clear-btn="true" data-clear-btn-text="Svuota">
                 <ul id="pageOrder_SelezArticolo_Step02_TGG_Panel_list" data-role="listview" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
             </div>
+            <div id="pageOrder_SelezArticolo_Step02_TGG_Panel_chkList">
+            </div>
         </div>
+        <div id="pageOrder_SelezArticolo_Step02_TGG_footer" data-role="footer" data-position="fixed" style="text-align: center;">
+            <a href="#" id="pageOrder_SelezArticolo_Step02_TGG_Panel_chkList_SelezionaTutto" onclick="pageOrder_SelezArticolo_Step02_TGG_SelezTutto_ClickCheck(true)" data-icon="check">Seleziona tutto</a>
+            <a href="#" id="pageOrder_SelezArticolo_Step02_TGG_Panel_chkList_DeselezionaTutto" onclick="pageOrder_SelezArticolo_Step02_TGG_SelezTutto_ClickCheck(false)" data-icon="delete">Deseleziona tutto</a>
+        </div>
+
     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     <!--CUSTOMER PAGE-->
@@ -483,7 +493,12 @@
 
                 <p id="pageCustomer_errorimailinviate"></p>
             </div>
+
             <div id="pageCustomerRicerca">
+                <!--     
+                <a href="#" id="pageCustomer_NewCustomers_addNew" onclick="GotoPage_NuoviClienti_Edit()" class="ui-btn ui-icon-search ui-btn-icon-left ui-corner-all">Nuovo cliente</a>
+                <a href="#" id="pageCustomer_NewCustomers_List" onclick="GotoPage_NuoviClienti_Elenco()" class="ui-btn ui-icon-search ui-btn-icon-left ui-corner-all">Elenco nuovi clienti</a>
+                -->
                 <h2 style="text-align: right; margin-top: -5px;">Ricerca Cliente</h2>
                 <div id="pageCustomerRicercaContent">
                     <input id="pageCustomerFilter" value="" placeholder="Ragione Sociale o Codice..." type="search" />
@@ -493,6 +508,36 @@
         </div>
     </div>
 
+
+    <!--  PAGINA CLIENTI TEMPORANEI - ELENCO-->
+    <div data-role="page" id="pageNuoviClienti_Elenco" data-theme="a">
+        <div data-role="header" data-position="fixed">
+            <div class="custom-border-radius">
+                <a id="pageNuoviClienti_Elenco_btnback" href="#" onclick="GotoPage_NuoviClienti_Elenco_goBack();" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
+            </div>
+            <h1>Elenco clienti temporanei</h1>
+        </div>
+        <div data-role="content" data-theme="a">
+            <div id="pageNuoviClienti_Elenco_MainDiv">
+                <input id="pageNuoviClienti_Elenco_MainList_Src" value="" placeholder="Ricerca cliente temporaneo..." type="search" />
+                <ul id="pageNuoviClienti_Elenco_MainList" data-role="listview" data-filter="true" data-inset="true" data-divider-theme="b" data-count-theme="a" data-input="#pageNuoviClienti_Elenco_MainList_Src"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!--  PAGINA CLIENTI TEMPORANEI - EDIT-->
+    <div data-role="page" id="pageNuoviClienti_Edit" data-theme="a">
+        <div data-role="header" data-position="fixed">
+            <div class="custom-border-radius">
+                <a id="pageNuoviClienti_Edit_btnback" href="#" onclick="GotoPage_NuoviClienti_Edit_goBack();" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
+            </div>
+            <h1 id="pageNuoviClienti_Edit_Titolo">Creazione nuovo cliente..</h1>
+        </div>
+        <div data-role="content" data-theme="a">
+            <div id="pageNuoviClienti_Edit_MainDiv">
+            </div>
+        </div>
+    </div>
 
 
     <!--  PAGINA SELEZIONE MAIL - SELEZIONE ELENCO CONTATTI CLIENTE-->
@@ -536,7 +581,7 @@
             <h1>Sincronizzazione</h1>
         </div>
         <div data-role="content" data-theme="a">
-            <a href="#" class="ui-btn ui-corner-all ui-icon-refresh ui-btn-icon-left" onclick="SynchronizeDataSource();">Avvia Sincronizzazione</a>
+            <a href="#" class="ui-btn ui-corner-all ui-icon-refresh ui-btn-icon-left" onclick="SynchronizeDataSource_withCheck();">Avvia Sincronizzazione</a>
             <div id="pageSyncOrdMissing" class="ui-screen-hidden">
                 <hr />
                 <p id="pageSymcInfo">Sono presenti ordini da scaricare sul server di Quick Trade.</p>
