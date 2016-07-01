@@ -7,6 +7,10 @@ var FUNZIONAMENTO_OFFLINE = true;
 
 var PSW_RESET_APPLICAZIONE = "QT16RESET!"
 
+
+var AddArticolo_BeepSuErrore = false;
+var AddArticolo_BeepSuBuonFine = true;
+
 /*
 escluse dalla logica online le seguenti 2 funzioni:
 ListiniShowPage
@@ -46,7 +50,7 @@ var _MailClienteMgr = null;
 
 var AppVers_Major = "1";
 var AppVers_Minor = "4";
-var AppVers_Build = "2";
+var AppVers_Build = "3";
 var AppVers_Revision = "0";
 
 
@@ -2521,7 +2525,7 @@ function OrderRemoveArticle(RowIndex) {
                                             _qtOrders.getOrder(_qtOrderWorking).rows.splice(RowIndex, 1);
                                             OrderTableRefresh();
                                             try {
-                                                //Salvo su file l'ordine che sto compilando (non si sa mai!) Success, Fail
+                                                //Salvo su file l'ordine che sto compilando (non si sa mai!) Succeif (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }ss, Fail
                                                 _qtOrders.saveToFile(function () {
                                                     //salvataggio temporaneo dell'ordine riuscito.
                                                 }, function (err) {
@@ -2550,11 +2554,21 @@ function OrderAddArticle_Check() {
         var code = $.trim($("#pageOrderRowAdd").val());
         //controllo che ci sia un barcode
         if (code.length == 0) {
-            navigator.notification.beep(1);
+
+            if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
             navigator.notification.vibrate(2000);
+
+
             navigator.notification.alert("Il campo [Codice] non \u00e8 stato compilato.", function () {
-                $("#pageOrderRowAdd").focus();
             }, "Attenzione", "OK");
+
+
+            /*
+            BARRA CON MESSAGGIO DI ERRORE IN ROSSO
+            $("#pageOrderCliente_error").text("Il campo [Codice] non \u00e8 stato compilato.")
+            $('#pageOrderCliente_error_div').show(400);
+            $("#pageOrderRowAdd").focus();
+            */
 
             return false;
         }
@@ -2587,7 +2601,7 @@ function OrderAddArticle_Check() {
 
                 if (tipoArticolo_descr != tipoPrimoArt_Descr) {
                     elencoCodici = [];
-                    navigator.notification.beep(1);
+                    if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
                     navigator.notification.vibrate(2000);
                     navigator.notification.alert("Sono stati indicati diversi codici, mischiando articoli CervoTessile ed articoli SecondoTempo.", function () {
                         $("#pageOrderRowAdd").focus();
@@ -2626,7 +2640,7 @@ function OrderAddArticle_Check_core(code) {
 
         //controllo che ci sia un barcode
         if (code.length == 0) {
-            navigator.notification.beep(1);
+            if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
             navigator.notification.vibrate(2000);
             //navigator.notification.alert("Il campo [Codice] non \u00e8 stato compilato.", function () {
             //    return;
@@ -2641,7 +2655,7 @@ function OrderAddArticle_Check_core(code) {
 
         //se il valore letto è di lunghezza inferiore al codice standard cervotessile (19 char) svuoto il campo 
         if (code.length < 19) {
-            navigator.notification.beep(1);
+            if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
             navigator.notification.vibrate(2000);
             navigator.notification.alert("Il campo [Codice] non ha un formato valido.", function () {
                 //  $("#pageOrderRowAdd").val("");
@@ -2661,7 +2675,7 @@ function OrderAddArticle_Check_core(code) {
         //verifico esito ricerca
         if (matches.length == 0) {
             //match not found
-            navigator.notification.beep(1);
+            if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
             navigator.notification.vibrate(2000);
             navigator.notification.alert("Codice non trovato.", function () {
                 //  $("#pageOrderRowAdd").val("");
@@ -2672,7 +2686,7 @@ function OrderAddArticle_Check_core(code) {
 
         if (matches.length > 1) {
             //più risultati
-            navigator.notification.beep(1);
+            if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
             navigator.notification.vibrate(2000);
             navigator.notification.alert("Il Codice \u00e8 stato trovato, ma risultano " + matches.length.toString() + " corrispondenze.", function () {
                 //    $("#pageOrderRowAdd").val("");
@@ -2690,7 +2704,7 @@ function OrderAddArticle_Check_core(code) {
                 var alreadyExists = SEARCHJS.matchArray(_qtOrders.getOrder(_qtOrderWorking).rows, { "articleBarcode": code, "OggettoCodice": "TP" });
 
                 if (alreadyExists.length > 0) {
-                    navigator.notification.beep(1);
+                    if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
                     navigator.notification.vibrate(2000);
                     navigator.notification.alert(ConvertToUTF8("Il codice \u00e8 gi\u00e0 stato letto, non verr\u00e0 inserito nuovamente."), function () {
                         alreadyExists = null;
@@ -2707,7 +2721,7 @@ function OrderAddArticle_Check_core(code) {
             //Cerco la base
             var matchBase = SEARCHJS.matchArray(_qtDS.dataSource.basi, { "BaseCodice": matches[0].BaseCodice });
             if (matchBase.length == 0) {
-                navigator.notification.beep(1);
+                if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
                 navigator.notification.vibrate(2000);
                 navigator.notification.alert(ConvertToUTF8("Corrispondenza con la Base non trovata. Il codice letto non verr\u00e0 inserito."), function () {
                     alreadyExists = null;
@@ -2731,7 +2745,7 @@ function OrderAddArticle_Check_core(code) {
 
                 if (bolOrder2T && (firstCharArtLetto != "2") && (firstCharArtLetto != "3")) {
                     //ordine 2T ma articolo letto Cervo
-                    navigator.notification.beep(1);
+                    if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
                     navigator.notification.vibrate(2000);
                     navigator.notification.alert(ConvertToUTF8("E' stato letto un articolo Cervotessile ma \u00e8 in corso una campionatura Secondo Tempo. Il codice letto non verr\u00e0 inserito."), function () {
                         alreadyExists = null;
@@ -2745,7 +2759,7 @@ function OrderAddArticle_Check_core(code) {
                 } else {
                     if ((!bolOrder2T) && (firstCharArtLetto == "2" || firstCharArtLetto == "3")) {
                         //ordine Cervo ma articolo letto 2T
-                        navigator.notification.beep(1);
+                        if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
                         navigator.notification.vibrate(2000);
                         navigator.notification.alert(ConvertToUTF8("E' stato letto un articolo Secondo Tempo ma \u00e8 in corso una campionatura Cervotessile. Il codice letto non verr\u00e0 inserito."), function () {
                             alreadyExists = null;
@@ -2794,7 +2808,6 @@ function OrderAddArticle() {
     try {
 
         if (OrderAddArticle_Check() == true) {
-
             if (_pageOrder_TipoArticoloSelezionato == 'TP') {
                 OrderAddArticle_core(1)
             }
@@ -2849,11 +2862,14 @@ function OrderAddArticle_core(qta) {
         _qtOrders.saveToFile(function () {
             //salvataggio temporaneo dell'ordine riuscito.
             $("#pageOrderRowAdd").val("");
+            $("#pageOrderRowAdd").focus();
+            if (AddArticolo_BeepSuBuonFine == true) { navigator.notification.beep(1); }
+
             matches = null;
 
         }, function (err) {
             navigator.notification.beep(1);
-            navigator.notification.vibrate(2000);
+            if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
             navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () {
                 $("#pageOrderRowAdd").val("");
                 matches = null;
@@ -4186,8 +4202,6 @@ function CustomerShowDestinations(customerCode) {
 
 
 function CustomerShowDestinations_OffLine(customerCode) {
-
-
     try {
 
         var objResp = SEARCHJS.matchArray(_qtDS.dataSource.customersdestinations, { "AnagraficaCodice": customerCode, _text: true });
@@ -4740,7 +4754,13 @@ function ServerCheckAppVersionForOperation(Operation, SuccessFunction) {
             }
             else {
                 LoaderHide();
-                navigator.notification.alert(result.errors.toString(), function () { }, "Operazione non consentita", "OK");
+                //navigator.notification.alert(result.errors.toString(), function () { }, "Operazione non consentita", "OK");
+
+                navigator.notification.confirm(result.errors.toString() + "\nAggiornare il software?",
+                        function (buttonIndex) { if (buttonIndex == 1) { gotoUpdatePage(); } },
+                        "Operazione non consentita",
+                        "Si,No");
+
             }
         },
         error: function (xhr, textStatus, textError) {
