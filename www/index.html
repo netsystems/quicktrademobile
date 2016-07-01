@@ -302,11 +302,20 @@
                     </tr>
                 </table>
             </div>
+
+           <div id ="pageOrderCliente_error_div" data-role="navbar" data-iconpos="left" style="border-bottom: 1px solid #996600; display: none;">
+                <ul>
+                    <li><a id="pageOrderCliente_error" href="#" data-icon="alert" data-theme="c" style="white-space: normal;"  onclick="$('#pageOrderCliente_error_div').hide(400);"></a></li>
+                </ul>
+            </div>
+
             <h2 id="pageOrderRowNum" style="float: left; margin-left: 5px;">0 Righe</h2>
             <div style="float: right;" id="pageOrderTableInfo"></div>
         </div>
 
-        <!-- richiesta qta -->
+
+
+        <!-- popup richiesta qta -->
         <div data-role="popup" id="popup_pageOrderRowQta" data-theme="a" class="ui-corner-all ui-content" data-overlay-theme="b" style="width: 265px;" data-dismissible="false">
             <div style="padding: 10px 20px;">
                 <label for="pageOrderRowQta"><b>Quantit&agrave: </b></label>
