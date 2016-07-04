@@ -286,6 +286,7 @@ function QTOrder() {
     this.rows = [];
     this.orderContatto1 = null;
     this.orderAnnotazioni = null;
+    this.orderAnnotazioni_interna = null;
 
     this.orderEMail = null;
     this.orderEMail_interna = null;
@@ -325,7 +326,7 @@ function QTOrderRow(ArticleBarcode, BaseObj, articoloDescrizione, OggettoCodice,
 }
 
 
-function QTOrderUpload(orderCode, orderDate, customerCode, customerDestCode, rows, operatorCode, operatorPsw, orderIndex, orderContatto1, orderAnnotazioni, orderEMail, orderEMail_interna) {
+function QTOrderUpload(orderCode, orderDate, customerCode, customerDestCode, rows, operatorCode, operatorPsw, orderIndex, orderContatto1, orderAnnotazioni, orderAnnotazioni_interna, orderEMail, orderEMail_interna) {
     this.orderCode = orderCode;
     this.orderDate = orderDate;
     this.customerCode = customerCode;
@@ -338,18 +339,11 @@ function QTOrderUpload(orderCode, orderDate, customerCode, customerDestCode, row
     this.orderIndex = orderIndex; //tengo traccia dell'index nell'array di partenza degli ordini (per successiva rimozione)
     this.orderContatto1 = orderContatto1;
     this.orderAnnotazioni = orderAnnotazioni;
+    this.orderAnnotazioni_interna = orderAnnotazioni_interna;
     this.orderEMail = orderEMail;
-
     this.orderEMail_interna = orderEMail_interna;
 
-
     this.device_uuid = device.uuid;
-
-    //alert("QTOrderUpload compilato");
-    //alert("QTOrderUpload operatorPsw: " + this.operatorPsw);
-    //alert("QTOrderUpload orderEMail: " + this.orderEMail);
-    //alert("device_uuid  " + this.device_uuid);
-
 }
 
 function QTOrderRowUpload(articleBarcode, OggettoCodice, qta) {
