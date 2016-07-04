@@ -303,9 +303,9 @@
                 </table>
             </div>
 
-           <div id ="pageOrderCliente_error_div" data-role="navbar" data-iconpos="left" style="border-bottom: 1px solid #996600; display: none;">
+            <div id="pageOrderCliente_error_div" data-role="navbar" data-iconpos="left" style="border-bottom: 1px solid #996600; display: none;">
                 <ul>
-                    <li><a id="pageOrderCliente_error" href="#" data-icon="alert" data-theme="c" style="white-space: normal;"  onclick="$('#pageOrderCliente_error_div').hide(400);"></a></li>
+                    <li><a id="pageOrderCliente_error" href="#" data-icon="alert" data-theme="c" style="white-space: normal;" onclick="$('#pageOrderCliente_error_div').hide(400);"></a></li>
                 </ul>
             </div>
 
@@ -315,7 +315,7 @@
 
 
 
-        <!-- popup richiesta qta -->
+        <!-- popup richiesta qta (inserimento articolo)-->
         <div data-role="popup" id="popup_pageOrderRowQta" data-theme="a" class="ui-corner-all ui-content" data-overlay-theme="b" style="width: 265px;" data-dismissible="false">
             <div style="padding: 10px 20px;">
                 <label for="pageOrderRowQta"><b>Quantit&agrave: </b></label>
@@ -326,11 +326,13 @@
                         <td><a id="pageOrderRowQta_2" onclick="pageOrderRowQta(2);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">2</a></td>
                         <td><a id="pageOrderRowQta_3" onclick="pageOrderRowQta(3);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">3</a></td>
                     </tr>
+                    <!--                    
                     <tr>
                         <td><a id="pageOrderRowQta_4" onclick="pageOrderRowQta(4);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">4</a></td>
                         <td><a id="pageOrderRowQta_5" onclick="pageOrderRowQta(5);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">5</a></td>
                         <td><a id="pageOrderRowQta_10" onclick="pageOrderRowQta(10);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">10</a></td>
                     </tr>
+                     -->
                 </table>
                 <a id="popup_pageOrderRowQta_OK" data-rel="back" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check">OK</a>
                 <a id="popup_pageOrderRowQta_Annulla" onclick="pageOrderRowQta(0);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-delete">Annulla</a>
@@ -346,7 +348,7 @@
                         <th>Descr. Etichetta</th>
                         <th>Oggetto</th>
                         <th>Qta</th>
-                        <th style="width: 30px;">Opzioni</th>
+                        <th colspan="2">Opzioni</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -489,8 +491,10 @@
                 <label for="pageCustomerContatto1">Contatto 1:</label>
                 <input name="pageCustomerContatto1" id="pageCustomerContatto1" value="" type="text" maxlength="50">
                 <label for="pageCustomerAnnotazioni">Annotazioni:</label>
-                <!--<input name="pageCustomerAnnotazioni" id="pageCustomerAnnotazioni" value="" type="text" maxlength="180">-->
                 <textarea name="pageCustomerAnnotazioni" id="pageCustomerAnnotazioni" rows="5" maxlength="180"></textarea>
+
+                <label for="pageCustomerAnnotazioni_interna">Annotazioni interne:</label>
+                <textarea name="pageCustomerAnnotazioni_interna" id="pageCustomerAnnotazioni_interna" rows="5" maxlength="180"></textarea>
 
                 <label for="pageCustomerEMail">E-Mail:</label>
                 <input name="pageCustomerEMail" id="pageCustomerEMail" value="" type="text" maxlength="255">
