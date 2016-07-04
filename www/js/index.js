@@ -48,9 +48,11 @@ var _MailClienteMgr = null;
 //var APP_VERSION = "1.4.0.0";
 
 
+var _rigaOrdineInModifica = null;
+
 var AppVers_Major = "1";
 var AppVers_Minor = "4";
-var AppVers_Build = "3";
+var AppVers_Build = "4";
 var AppVers_Revision = "0";
 
 
@@ -168,7 +170,7 @@ function gotoUpdatePage() {
     }
 
     if (sistoperativo.toUpperCase() == "ANDROID") {
-        window.open("http://www.google.it", '_system');
+        window.open("https://spinetix.videothron.it/AppStore/android", '_system');
         return;
     }
 
@@ -1165,6 +1167,7 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
                     var destCodice = null;
                     var contatto = null;
                     var annotazioni = null;
+                    var annotazioni_interna = null;
                     var email = null;
                     var email_interna = null;
                     if (_qtOrders.orders[index].customerDestData) {
@@ -1186,6 +1189,15 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
                         annotazioni = annotazioni.replace(/'/g, "");
                         annotazioni = annotazioni.replace(/"/g, "");
                     }
+                    if (_qtOrders.orders[index].orderAnnotazioni_interna) {
+                        annotazioni_interna = _qtOrders.orders[index].orderAnnotazioni_interna;
+                        annotazioni_interna = annotazioni_interna.replace(/&/g, "");
+                        annotazioni_interna = annotazioni_interna.replace(/=/g, "");
+                        annotazioni_interna = annotazioni_interna.replace(/\?/g, "");
+                        annotazioni_interna = annotazioni_interna.replace(/'/g, "");
+                        annotazioni_interna = annotazioni_interna.replace(/"/g, "");
+                    }
+
                     if (_qtOrders.orders[index].orderEMail) {
                         email = _qtOrders.orders[index].orderEMail;
                         email = email.replace(/&/g, "");
@@ -1219,6 +1231,7 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
                                                                       index,
                                                                       contatto,
                                                                       annotazioni,
+                                                                      annotazioni_interna,
                                                                       email,
                                                                       email_interna));
                     } catch (e) {
@@ -2002,7 +2015,6 @@ function pageOrder_SelezionatoTipoArticolo(tipo, ricerca_automatica) {
 
 function pageOrderRowQta(qtaRichiesta) {
     $("#pageOrderRowQta").val(qtaRichiesta);
-    var elem = document.getElementById("popup_pageOrderRowQta_OK");
     $("#popup_pageOrderRowQta").popup("close");
 }
 
@@ -2435,12 +2447,13 @@ function OrderDeleteByStatus_core(status) {
 
 function OrderTableRefresh() {
 
+    _rigaOrdineInModifica = null;
 
     /*
     Daniele BArlocco 30/5/2016 a volte entra qua dentro automaticamente (come se ci fosse un timer, ma non c'è!) ed esce il seguente errore
     null is not an object (evaluating '_qtOrders.getOrder')
     */
-
+    
     if (!_qtOrderWorking) { return; }
     if (!_qtOrders) { return; }
     if (!_qtOrders.getOrder(_qtOrderWorking)) { return; }
@@ -2489,7 +2502,8 @@ function OrderTableRefresh() {
                     "<td style=\"vertical-align: middle;\">" + descrEtichetta + "</td>" +
                     "<td style=\"vertical-align: middle;\">" + rows[i].OggettoCodice + "</td>" +
                     "<td style=\"vertical-align: middle;\">" + rows[i].Qta + "</td>" +
-                    "<td style=\"vertical-align: middle; align: center;\">--</td>" +
+                    "<td style=\"vertical-align: middle; align: center;\"></td>" +
+                    "<td style=\"vertical-align: middle; align: center;\"></td>" +
                   "</tr>";
             } else {
 
@@ -2501,6 +2515,9 @@ function OrderTableRefresh() {
                                 "<td style=\"vertical-align: middle;\">" + rows[i].OggettoCodice + "</td>" +
                                 "<td style=\"vertical-align: middle;\">" + rows[i].Qta + "</td>" +
                                 "<td style=\"vertical-align: middle; align: center;\">" +
+                                    "<a href=\"#\" class=\"ui-shadow ui-btn ui-corner-all ui-btn-icon-notext ui-icon-edit ui-btn-a\" onclick=\"OrderEditArticle(" + i.toString() + ");\">Modifica</a>" +
+                                "</td>" +
+                                "<td style=\"vertical-align: middle; align: center;\">" +                                
                                     "<a href=\"#\" class=\"ui-shadow ui-btn ui-corner-all ui-btn-icon-notext ui-icon-delete ui-btn-a\" onclick=\"OrderRemoveArticle(" + i.toString() + ");\">Rimuovi</a>" +
                                 "</td>" +
                               "</tr>";
@@ -2542,9 +2559,32 @@ function OrderRemoveArticle(RowIndex) {
                                         }
                                         //$('#pageOrderRowAdd').focus();
                                     },
-                                    "Cancellazione Riga",
+                                    "Cancellazione riga",
                                     "Si,No");
 }
+
+
+
+
+function OrderEditArticle(RowIndex) {
+    navigator.notification.confirm("Modificare la riga dell'ordine?",
+                                    function (buttonIndex) {
+                                        if (buttonIndex == 1) {
+                                            //rimuovo
+                                            _rigaOrdineInModifica = _qtOrders.getOrder(_qtOrderWorking).rows[RowIndex];  //tipo QTOrderRow
+                                            if (_rigaOrdineInModifica) {
+                                                $("#pageOrderRowQta").val(_rigaOrdineInModifica.Qta);
+                                                $("#popup_pageOrderRowQta").popup("open");
+                                            }
+                                        }
+                                    },
+                                    "Modifica riga",
+                                    "Si,No");
+}
+
+
+
+
 
 function OrderAddArticle_Check() {
     try {
@@ -2784,24 +2824,6 @@ function OrderAddArticle_Check_core(code) {
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //----------------------------------------------------------------------------------------------------------------------
 
 function OrderAddArticle() {
@@ -2821,15 +2843,38 @@ function OrderAddArticle() {
     }
 }
 
-
-
 $("#popup_pageOrderRowQta").bind({
     popupafterclose: function (event, ui) {
         var qta = $('#pageOrderRowQta').val();
-        OrderAddArticle_core(qta);
+
+
+        if (!_rigaOrdineInModifica) {
+            OrderAddArticle_core(qta);
+        } else {
+            if (qta > 0) {
+                _rigaOrdineInModifica.Qta = qta;
+                OrderTableRefresh();
+                try {
+                    //Salvo su file l'ordine che sto compilando (non si sa mai!) Succeif (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }ss, Fail
+                    _qtOrders.saveToFile(function () {
+                        //salvataggio temporaneo dell'ordine riuscito.
+                    }, function (err) {
+                        navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () {
+                            return;
+
+                        }, "Attenzione", "OK");
+                        return;
+                    });
+                } catch (e) {
+                    alert("Errore popup_pageOrderRowQta - close popup - tmp save: " + e.message);
+                }
+            }
+        }
+
+        _rigaOrdineInModifica = null;
+
     }
 });
-
 
 function OrderAddArticle_core(qta) {
 
@@ -2884,8 +2929,6 @@ function OrderAddArticle_core(qta) {
     }
 
 }
-
-
 
 function OrderConfirm() {
 
@@ -3297,6 +3340,7 @@ function OrderSendMail_core() {
                     var destCodice = null;
                     var contatto = null;
                     var annotazioni = null;
+                    var annotazioni_interna = null;
                     var email = null;
                     var email_interna = null;
                     if (_qtOrders.orders[index].customerDestData) {
@@ -3317,6 +3361,14 @@ function OrderSendMail_core() {
                         annotazioni = annotazioni.replace(/\?/g, "");
                         annotazioni = annotazioni.replace(/'/g, "");
                         annotazioni = annotazioni.replace(/"/g, "");
+                    }
+                    if (_qtOrders.orders[index].orderAnnotazioni_interna) {
+                        annotazioni_interna = _qtOrders.orders[index].orderAnnotazioni_interna;
+                        annotazioni_interna = annotazioni_interna.replace(/&/g, "");
+                        annotazioni_interna = annotazioni_interna.replace(/=/g, "");
+                        annotazioni_interna = annotazioni_interna.replace(/\?/g, "");
+                        annotazioni_interna = annotazioni_interna.replace(/'/g, "");
+                        annotazioni_interna = annotazioni_interna.replace(/"/g, "");
                     }
                     if (_qtOrders.orders[index].orderEMail) {
                         email = _qtOrders.orders[index].orderEMail;
@@ -3351,6 +3403,7 @@ function OrderSendMail_core() {
                                                                       index,
                                                                       contatto,
                                                                       annotazioni,
+                                                                        annotazioni_interna,
                                                                       email,
                                                                       email_interna));
                     } catch (e) {
@@ -3621,6 +3674,7 @@ $(document).on("pagebeforeshow", "#pageCustomer", function () {
         $("#pageCustomerNavbar").show();
         $("#pageCustomerContatto1").val(_qtOrders.getOrder(_qtOrderWorking).orderContatto1);
         $("#pageCustomerAnnotazioni").val(_qtOrders.getOrder(_qtOrderWorking).orderAnnotazioni);
+        $("#pageCustomerAnnotazioni_interna").val(_qtOrders.getOrder(_qtOrderWorking).orderAnnotazioni_interna);
         $("#pageCustomerEMail").val(_qtOrders.getOrder(_qtOrderWorking).orderEMail);
         $("#pageCustomerEMail_interna").val(_qtOrders.getOrder(_qtOrderWorking).orderEMail_interna);
 
@@ -3700,6 +3754,48 @@ $("#pageCustomerAnnotazioni").change(function () {
 });
 
 $('#pageCustomerAnnotazioni').keypress(function (e) {
+    var keyCode = event.keyCode || event.which
+    // Don't validate the input if below arrow, delete and backspace keys were pressed 
+    if (keyCode == 8 || (keyCode >= 35 && keyCode <= 40)) { // Left / Up / Right / Down Arrow, Backspace, Delete keys
+        return;
+    }
+
+    if (keyCode === 13)
+    { }
+    else
+    {
+        var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+        if (CONTATTO_NOTE_ALLOWED_CHARS.toUpperCase().indexOf(key.toUpperCase()) == -1) {
+            event.preventDefault();
+            return false;
+        }
+    }
+});
+
+
+/*------------------------------------------------  ANNOTAZIONI INTERNE --------------------------------------------------*/
+$("#pageCustomerAnnotazioni_interna").change(function () {
+    if (_qtOrderWorking) {
+        _qtOrders.getOrder(_qtOrderWorking).orderAnnotazioni_interna = $(this).val();
+
+        try {
+            //Salvo su file l'ordine che sto compilando (non si sa mai!) Success, Fail
+            _qtOrders.saveToFile(function () {
+                //salvataggio temporaneo dell'ordine riuscito.
+            }, function (err) {
+                navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () {
+                    return;
+                }, "Attenzione", "OK");
+                return;
+            });
+
+        } catch (e) {
+            alert("Errore JS pageCustomerAnnotazioni_interna change save ordine: " + e.message);
+        }
+    }
+});
+
+$('#pageCustomerAnnotazioni_interna').keypress(function (e) {
     var keyCode = event.keyCode || event.which
     // Don't validate the input if below arrow, delete and backspace keys were pressed 
     if (keyCode == 8 || (keyCode >= 35 && keyCode <= 40)) { // Left / Up / Right / Down Arrow, Backspace, Delete keys
