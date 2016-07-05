@@ -10,6 +10,8 @@ var PSW_RESET_APPLICAZIONE = "QT16RESET!"
 
 var AddArticolo_BeepSuErrore = false;
 var AddArticolo_BeepSuBuonFine = true;
+var _OrderAddArticle_Check_showError_barraRossa = true;
+
 
 /*
 escluse dalla logica online le seguenti 2 funzioni:
@@ -17,6 +19,10 @@ ListiniShowPage
 ListiniLoadBarcodeInfo
 ListiniLoadListView
 */
+
+
+
+var COD_NUOVO_CLIENTE = "NEWCLI";
 
 var NR_MASSIMO_ORDINI_VISUALIZZABILI = 200;
 
@@ -1888,6 +1894,8 @@ $(document).on("pagebeforeshow", "#pageOrder", function () {
 
 $(document).on("pageshow", "#pageOrder", function () {
 
+    //if (_pageOrder_TipoArticoloSelezionato == "TP") { $("#pageOrderRowAdd").focus(); }
+
     if (!_artSelezGuidata) { return; }
     if (!_artSelezGuidata.ArticoloCodice) { return; }
     if (_artSelezGuidata.ArticoloCodice == "") { return; }
@@ -1895,7 +1903,6 @@ $(document).on("pageshow", "#pageOrder", function () {
     //if (_pageOrder_TipoArticoloSelezionato == 'TP') {
     OrderAddArticle();
     //}
-
     _artSelezGuidata = new ArticoloSelezioneGuidata();
 });
 
@@ -1976,29 +1983,22 @@ function pageOrder_SelezionatoTipoArticolo(tipo, ricerca_automatica) {
 
     if (tipo == 'TP') {
         $("#pageOrder_TipoArticolo_TP").addClass('ui-btn-active');
-
         $("#pageOrderRowQta").val(1);
         $("#pageOrderRowQta").attr("readonly", "readonly");
-
         $("#pageOrderRowAdd").removeAttr('readonly');
-
-
+        $("#pageOrderRowAdd").focus();
     }
+
     if (tipo == 'TG') {
         $("#pageOrder_TipoArticolo_TG").addClass('ui-btn-active');
-
         $("#pageOrderRowQta").removeAttr('readonly');
-
         $("#pageOrderRowAdd").attr("readonly", "readonly");
-
     }
+
     if (tipo == 'TGG') {
         $("#pageOrder_TipoArticolo_TGG").addClass('ui-btn-active');
-
         $("#pageOrderRowQta").removeAttr('readonly');
-
         $("#pageOrderRowAdd").attr("readonly", "readonly");
-
     }
 
     _pageOrder_TipoArticoloSelezionato = tipo;
@@ -2007,6 +2007,8 @@ function pageOrder_SelezionatoTipoArticolo(tipo, ricerca_automatica) {
         if (_pageOrder_TipoArticoloSelezionato == "TGG") {
             PageChange('#pageOrder_SelezArticolo_Step01', false);
         }
+    } else {
+
     }
 
 }
@@ -2453,7 +2455,7 @@ function OrderTableRefresh() {
     Daniele BArlocco 30/5/2016 a volte entra qua dentro automaticamente (come se ci fosse un timer, ma non c'è!) ed esce il seguente errore
     null is not an object (evaluating '_qtOrders.getOrder')
     */
-    
+
     if (!_qtOrderWorking) { return; }
     if (!_qtOrders) { return; }
     if (!_qtOrders.getOrder(_qtOrderWorking)) { return; }
@@ -2517,7 +2519,7 @@ function OrderTableRefresh() {
                                 "<td style=\"vertical-align: middle; align: center;\">" +
                                     "<a href=\"#\" class=\"ui-shadow ui-btn ui-corner-all ui-btn-icon-notext ui-icon-edit ui-btn-a\" onclick=\"OrderEditArticle(" + i.toString() + ");\">Modifica</a>" +
                                 "</td>" +
-                                "<td style=\"vertical-align: middle; align: center;\">" +                                
+                                "<td style=\"vertical-align: middle; align: center;\">" +
                                     "<a href=\"#\" class=\"ui-shadow ui-btn ui-corner-all ui-btn-icon-notext ui-icon-delete ui-btn-a\" onclick=\"OrderRemoveArticle(" + i.toString() + ");\">Rimuovi</a>" +
                                 "</td>" +
                               "</tr>";
@@ -2585,6 +2587,52 @@ function OrderEditArticle(RowIndex) {
 
 
 
+function OrderAddArticle_Check_showError(errorMsg) {
+    if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
+    navigator.notification.vibrate(2000);
+    if (_OrderAddArticle_Check_showError_barraRossa == true) {
+        //BARRA CON MESSAGGIO DI ERRORE IN ROSSO
+        $("#pageOrderCliente_error").text(errorMsg)
+
+        var sistoperativo = device.platform;
+
+        if (sistoperativo.toUpperCase() == "IOS") {
+            $('#pageOrderCliente_error_div').show(400);
+            $('#pageOrderCliente_error').focus();
+            //$("#pageOrderRowAdd").focus();
+        }
+
+        if (sistoperativo.toUpperCase() == "ANDROID") {
+            $('#pageOrderCliente_error_div').show();
+            $('#pageOrderRowAdd').blur();
+        }
+
+
+
+
+
+    }
+    else {
+        navigator.notification.alert(errorMsg, function () {
+        }, "Attenzione", "OK");
+    }
+}
+
+
+function OrderAddArticle_Check_hideError() {
+    var sistoperativo = device.platform;
+
+    if (sistoperativo.toUpperCase() == "IOS") {
+        $('#pageOrderCliente_error_div').hide(400);
+        $('#pageOrderRowAdd').focus();
+    }
+
+    if (sistoperativo.toUpperCase() == "ANDROID") {
+        $('#pageOrderCliente_error_div').hide();
+        $('#pageOrderRowAdd').focus();
+    }
+
+}
 
 function OrderAddArticle_Check() {
     try {
@@ -2594,22 +2642,7 @@ function OrderAddArticle_Check() {
         var code = $.trim($("#pageOrderRowAdd").val());
         //controllo che ci sia un barcode
         if (code.length == 0) {
-
-            if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
-            navigator.notification.vibrate(2000);
-
-
-            navigator.notification.alert("Il campo [Codice] non \u00e8 stato compilato.", function () {
-            }, "Attenzione", "OK");
-
-
-            /*
-            BARRA CON MESSAGGIO DI ERRORE IN ROSSO
-            $("#pageOrderCliente_error").text("Il campo [Codice] non \u00e8 stato compilato.")
-            $('#pageOrderCliente_error_div').show(400);
-            $("#pageOrderRowAdd").focus();
-            */
-
+            OrderAddArticle_Check_showError("Il campo [Codice] non \u00e8 stato compilato.");
             return false;
         }
 
@@ -2641,11 +2674,16 @@ function OrderAddArticle_Check() {
 
                 if (tipoArticolo_descr != tipoPrimoArt_Descr) {
                     elencoCodici = [];
+
+                    OrderAddArticle_Check_showError("Sono stati indicati diversi codici, mischiando articoli CervoTessile ed articoli SecondoTempo.")
+
+                    /*
                     if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
                     navigator.notification.vibrate(2000);
                     navigator.notification.alert("Sono stati indicati diversi codici, mischiando articoli CervoTessile ed articoli SecondoTempo.", function () {
                         $("#pageOrderRowAdd").focus();
                     }, "Attenzione", "OK");
+                    */
                 }
 
             }
@@ -2680,27 +2718,38 @@ function OrderAddArticle_Check_core(code) {
 
         //controllo che ci sia un barcode
         if (code.length == 0) {
+
+
+
+            OrderAddArticle_Check_showError("Il campo [Codice] non \u00e8 stato compilato.")
+
+            /*
             if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
             navigator.notification.vibrate(2000);
-            //navigator.notification.alert("Il campo [Codice] non \u00e8 stato compilato.", function () {
-            //    return;
-            //}, "Attenzione", "OK");
-
-            navigator.notification.alert("Il campo [Codice] non \u00e8 stato compilato.", function () {
+                        navigator.notification.alert("Il campo [Codice] non \u00e8 stato compilato.", function () {
                 $("#pageOrderRowAdd").focus();
             }, "Attenzione", "OK");
+            */
+
+
 
             return false;
         }
 
         //se il valore letto è di lunghezza inferiore al codice standard cervotessile (19 char) svuoto il campo 
         if (code.length < 19) {
+
+            OrderAddArticle_Check_showError("Il campo [Codice] non ha un formato valido.")
+
+            /*
             if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
             navigator.notification.vibrate(2000);
             navigator.notification.alert("Il campo [Codice] non ha un formato valido.", function () {
                 //  $("#pageOrderRowAdd").val("");
                 return;
             }, "Attenzione", "OK");
+            */
+
             return false;
         }
 
@@ -2715,23 +2764,37 @@ function OrderAddArticle_Check_core(code) {
         //verifico esito ricerca
         if (matches.length == 0) {
             //match not found
+
+            OrderAddArticle_Check_showError("Codice non trovato.")
+
+            /*
             if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
             navigator.notification.vibrate(2000);
             navigator.notification.alert("Codice non trovato.", function () {
                 //  $("#pageOrderRowAdd").val("");
                 return false;
             }, "Attenzione", "OK");
+            */
+
             return false;
+
+
         }
 
         if (matches.length > 1) {
             //più risultati
+
+            OrderAddArticle_Check_showError("Il Codice \u00e8 stato trovato, ma risultano " + matches.length.toString() + " corrispondenze.")
+
+            /*
             if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
             navigator.notification.vibrate(2000);
             navigator.notification.alert("Il Codice \u00e8 stato trovato, ma risultano " + matches.length.toString() + " corrispondenze.", function () {
                 //    $("#pageOrderRowAdd").val("");
                 return false;
             }, "Attenzione", "OK");
+            */
+
             return false;
         }
 
@@ -2744,6 +2807,11 @@ function OrderAddArticle_Check_core(code) {
                 var alreadyExists = SEARCHJS.matchArray(_qtOrders.getOrder(_qtOrderWorking).rows, { "articleBarcode": code, "OggettoCodice": "TP" });
 
                 if (alreadyExists.length > 0) {
+
+
+                    OrderAddArticle_Check_showError(ConvertToUTF8("Il codice \u00e8 gi\u00e0 stato letto, non verr\u00e0 inserito nuovamente."))
+
+                    /*
                     if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
                     navigator.notification.vibrate(2000);
                     navigator.notification.alert(ConvertToUTF8("Il codice \u00e8 gi\u00e0 stato letto, non verr\u00e0 inserito nuovamente."), function () {
@@ -2751,6 +2819,8 @@ function OrderAddArticle_Check_core(code) {
                         //$("#pageOrderRowAdd").val("");
                         return false;
                     }, "Attenzione", "OK");
+                    */
+
                     return false;
                 }
             }
@@ -2761,6 +2831,10 @@ function OrderAddArticle_Check_core(code) {
             //Cerco la base
             var matchBase = SEARCHJS.matchArray(_qtDS.dataSource.basi, { "BaseCodice": matches[0].BaseCodice });
             if (matchBase.length == 0) {
+
+                OrderAddArticle_Check_showError(ConvertToUTF8("Corrispondenza con la Base non trovata. Il codice letto non verr\u00e0 inserito."))
+
+                /*
                 if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
                 navigator.notification.vibrate(2000);
                 navigator.notification.alert(ConvertToUTF8("Corrispondenza con la Base non trovata. Il codice letto non verr\u00e0 inserito."), function () {
@@ -2768,6 +2842,8 @@ function OrderAddArticle_Check_core(code) {
                     //$("#pageOrderRowAdd").val("");
                     return;
                 }, "Attenzione", "OK");
+                */
+
                 return false;
             }
 
@@ -2785,6 +2861,10 @@ function OrderAddArticle_Check_core(code) {
 
                 if (bolOrder2T && (firstCharArtLetto != "2") && (firstCharArtLetto != "3")) {
                     //ordine 2T ma articolo letto Cervo
+
+                    OrderAddArticle_Check_showError(ConvertToUTF8("E' stato letto un articolo Cervotessile ma \u00e8 in corso una campionatura Secondo Tempo. Il codice letto non verr\u00e0 inserito."))
+
+                    /*
                     if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
                     navigator.notification.vibrate(2000);
                     navigator.notification.alert(ConvertToUTF8("E' stato letto un articolo Cervotessile ma \u00e8 in corso una campionatura Secondo Tempo. Il codice letto non verr\u00e0 inserito."), function () {
@@ -2794,11 +2874,18 @@ function OrderAddArticle_Check_core(code) {
                         //$("#pageOrderRowAdd").val("");
                         return;
                     }, "Attenzione", "OK");
+                    */
+
                     return false;
 
                 } else {
                     if ((!bolOrder2T) && (firstCharArtLetto == "2" || firstCharArtLetto == "3")) {
                         //ordine Cervo ma articolo letto 2T
+
+
+                        OrderAddArticle_Check_showError(ConvertToUTF8("E' stato letto un articolo Secondo Tempo ma \u00e8 in corso una campionatura Cervotessile. Il codice letto non verr\u00e0 inserito."))
+
+                        /*
                         if (AddArticolo_BeepSuErrore == true) { navigator.notification.beep(1); }
                         navigator.notification.vibrate(2000);
                         navigator.notification.alert(ConvertToUTF8("E' stato letto un articolo Secondo Tempo ma \u00e8 in corso una campionatura Cervotessile. Il codice letto non verr\u00e0 inserito."), function () {
@@ -2808,6 +2895,9 @@ function OrderAddArticle_Check_core(code) {
                             // $("#pageOrderRowAdd").val("");
                             return;
                         }, "Attenzione", "OK");
+                        */
+
+
                         return false;
 
                     }
@@ -2879,6 +2969,9 @@ $("#popup_pageOrderRowQta").bind({
 function OrderAddArticle_core(qta) {
 
     try {
+
+        $('#pageOrderCliente_error_div').hide();
+
         if (!qta) { qta = 0; }
         if (qta == 0) {
             $("#pageOrderRowAdd").val("");
@@ -3613,7 +3706,9 @@ $(document).on("pageinit", "#pageCustomer", function () {
 
     $("#pageCustomerInfoDest").click(function (event) {
         if (_qtOrders.getOrder(_qtOrderWorking).customerCode && _qtOrders.getOrder(_qtOrderWorking).orderStatus != ORDER_STATUS.TRASFERITO) {
-            CustomerSelect(_qtOrders.getOrder(_qtOrderWorking).customerCode);
+            if (_qtOrders.getOrder(_qtOrderWorking).customerCode != COD_NUOVO_CLIENTE) {
+                CustomerSelect(_qtOrders.getOrder(_qtOrderWorking).customerCode);
+            }
         }
     });
 
@@ -3637,16 +3732,17 @@ $(document).on("pagebeforeshow", "#pageCustomer", function () {
         CustomerChangeView(null, 0);
         $("#pageCustomerContatto1").attr("readonly", "readonly");
         $("#pageCustomerAnnotazioni").attr('readonly', 'readonly');
+        $("#pageCustomerAnnotazioni_interna").attr('readonly', 'readonly');
         $("#pageCustomerEMail").attr('readonly', 'readonly');
         $("#pageCustomerEMail_interna").attr('readonly', 'readonly');
         $("#pageCustomer_goto_elencoContattiCliente").hide();
         $("#pageCustomer_goto_elencoContattiInterni").hide();
-
     }
     else {
 
         $("#pageCustomerContatto1").removeAttr('readonly');
         $("#pageCustomerAnnotazioni").removeAttr('readonly');
+        $("#pageCustomerAnnotazioni_interna").removeAttr('readonly');
         $("#pageCustomerEMail").removeAttr('readonly');
         $("#pageCustomerEMail_interna").removeAttr('readonly');
         $("#pageCustomer_goto_elencoContattiCliente").show();
@@ -3896,60 +3992,51 @@ $('#pageCustomerEMail_interna').keypress(function (e) {
 });
 
 
-
-
-
-////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function CustomerInfoFill() {
+
     if (_qtOrders.getOrder(_qtOrderWorking).customerCode) {
         //Cliente scelto
         var strInfo = "";
 
-        strInfo += "<h2>" + _qtOrders.getOrder(_qtOrderWorking).customerData.RagioneSociale + "</h2><p>";
-        strInfo += CustomerDestinationGetInfo(_qtOrders.getOrder(_qtOrderWorking).customerData);
-        strInfo += "<br/><br/>Listino: <b>" + _qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice + "</b>";
-        strInfo += "</p>";
+
+        if (_qtOrders.getOrder(_qtOrderWorking).customerData) {
+            strInfo += "<h2>" + _qtOrders.getOrder(_qtOrderWorking).customerData.RagioneSociale + "</h2><p>";
+            strInfo += CustomerDestinationGetInfo(_qtOrders.getOrder(_qtOrderWorking).customerData);
+            strInfo += "<br/><br/>Listino: <b>" + _qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice + "</b>";
+            strInfo += "</p>";
+        }
+        else {
+            strInfo += "<h2>" + _qtOrders.getOrder(_qtOrderWorking).customerDescr + "</h2>";
+        }
         $("#pageCustomerInfoCli").html(strInfo);
 
-        var destRagSoc = "---";
-        var tipoDest = "Non specificato.";
 
+        strInfo = "";
         if (_qtOrders.getOrder(_qtOrderWorking).customerDestData) {
+            var destRagSoc = "---";
+            var tipoDest = "Non specificato.";
             if (_qtOrders.getOrder(_qtOrderWorking).customerDestData.RagioneSociale) {
                 destRagSoc = _qtOrders.getOrder(_qtOrderWorking).customerDestData.RagioneSociale;
             }
             if (_qtOrders.getOrder(_qtOrderWorking).customerDestData.TipoDestinazione) {
                 tipoDest = _qtOrders.getOrder(_qtOrderWorking).customerDestData.TipoDestinazione;
             }
+            strInfo += "<h2>" + destRagSoc + "</h2><p>";
+            strInfo += CustomerDestinationGetInfo(_qtOrders.getOrder(_qtOrderWorking).customerDestData);
+            strInfo += "<br/>Tipo Destinazione: <b>" + tipoDest + "</b></p>";
+
+            $("#pageCustomerInfoDest_ul").show();
+
+        } else {
+
+            $("#pageCustomerInfoDest_ul").hide();
         }
 
-        strInfo = "";
-        strInfo += "<h2>" + destRagSoc + "</h2><p>";
-        strInfo += CustomerDestinationGetInfo(_qtOrders.getOrder(_qtOrderWorking).customerDestData);
-        strInfo += "<br/>Tipo Destinazione: <b>" + tipoDest + "</b></p>";
-
         $("#pageCustomerInfoDest").html(strInfo);
+
+
     }
+
 }
 
 
@@ -4400,8 +4487,11 @@ function CustomerSelectWithDestination(customerCode, destinationCode) {
 
 
 function OrderCustomerApplyStyle() {
+
     RemoveClassIfExists($("#pageOrderCliente_div_TableAddArticolo"), "ui-screen-hidden");
     $("#pageOrderCliente").css("background-color", "");
+
+    $('#pageOrderCliente_error_div').hide();
 
     if (_qtOrders.getOrder(_qtOrderWorking)) {
 
@@ -4415,12 +4505,18 @@ function OrderCustomerApplyStyle() {
 
 
 
+            var msgInfoListino = "";
+            if (_qtOrders.getOrder(_qtOrderWorking).customerData) {
+                msgInfoListino = "\n\nListino " + _qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice.toString()
+            }
+
+
             if ((_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO) || (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED)) {
-                $("#pageOrderCliente").text(_qtOrders.getOrder(_qtOrderWorking).customerDescr + "\n\nListino " + _qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice.toString() + "\n\n" + msgInfoTrasferimento);
+                $("#pageOrderCliente").text(_qtOrders.getOrder(_qtOrderWorking).customerDescr + msgInfoListino + "\n\n" + msgInfoTrasferimento);
                 AddClassIfMissing($("#pageOrderCliente_div_TableAddArticolo"), "ui-screen-hidden");
                 $("#pageOrderCliente").css("background-color", "grey");
             } else {
-                $("#pageOrderCliente").text(_qtOrders.getOrder(_qtOrderWorking).customerDescr + "\n\nListino " + _qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice.toString());
+                $("#pageOrderCliente").text(_qtOrders.getOrder(_qtOrderWorking).customerDescr + msgInfoListino);
             }
 
             //GESTIONE VISUALIZZAZIONE PULSANTI PANNELLO DI CONTROLLO DELL'ORDINE
@@ -4451,6 +4547,7 @@ function OrderCustomerApplyStyle() {
             $("#pageOrderCliente").text("Clicca qui per scegliere il Cliente");
         }
     }
+
 }
 
 
@@ -6181,29 +6278,43 @@ function pageElencoContattiClienti_EliminaVociSelezionate_core(names) {
 }
 
 
-function GotoPage_NuoviClienti_Edit() {
-    PageChange('#pageNuoviClienti_Edit');
+function Ordine_SetNuovoCliente() {
+
+    if (!_qtOrderWorking) { return; }
+    if (!_qtOrders) { return; }
+    if (!_qtOrders.getOrder(_qtOrderWorking)) { return; }
+
+    navigator.notification.confirm("Impostare un nuovo cliente all'ordine corrente?",
+                        function (buttonIndex) {
+                            if (buttonIndex == 1) {
+
+
+                                _qtOrders.getOrder(_qtOrderWorking).customerCode = COD_NUOVO_CLIENTE;
+                                _qtOrders.getOrder(_qtOrderWorking).customerDescr = "Nuovo Cliente (vedi note)";
+                                _qtOrders.getOrder(_qtOrderWorking).customerData = null;
+                                _qtOrders.getOrder(_qtOrderWorking).customerDestData = null;
+
+
+                                _qtOrders.saveToFile(function () {
+                                    //salvataggio temporaneo dell'ordine riuscito.
+                                }, function (err) {
+                                    navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () {
+                                        return;
+                                    }, "Attenzione", "OK");
+                                    return;
+                                });
+
+
+                                PageChange("#pageOrder", true);
+
+                            }
+                        },
+                        "Richiesta di conferma",
+                        "Si,No");
+
+
+
 }
-
-
-
-
-function GotoPage_NuoviClienti_Edit_goBack() {
-    PageChange('#pageCustomer', true);
-    CustomerChangeView(null, 1);
-}
-
-
-function GotoPage_NuoviClienti_Elenco() {
-    PageChange('#pageNuoviClienti_Elenco');
-}
-
-function GotoPage_NuoviClienti_Elenco_goBack() {
-    PageChange('#pageCustomer', true);
-    CustomerChangeView(null, 1);
-}
-
-
 
 
 
