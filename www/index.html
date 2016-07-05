@@ -305,7 +305,7 @@
 
             <div id="pageOrderCliente_error_div" data-role="navbar" data-iconpos="left" style="border-bottom: 1px solid #996600; display: none;">
                 <ul>
-                    <li><a id="pageOrderCliente_error" href="#" data-icon="alert" data-theme="c" style="white-space: normal;" onclick="$('#pageOrderCliente_error_div').hide(400);"></a></li>
+                    <li><a id="pageOrderCliente_error" href="#" data-icon="alert" data-theme="c" style="white-space: normal;" onclick="OrderAddArticle_Check_hideError();"></a></li>
                 </ul>
             </div>
 
@@ -482,7 +482,7 @@
                     <li data-role="list-divider">Cliente Scelto</li>
                     <li data-theme="b" data-icon="none"><a href="#" id="pageCustomerInfoCli"></a></li>
                 </ul>
-                <ul data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b">
+                <ul id="pageCustomerInfoDest_ul" data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b">
                     <li data-role="list-divider">Destinazione Cliente Selezionata</li>
                     <li data-theme="b" data-icon="forward"><a href="#" class="ui-alt-icon" id="pageCustomerInfoDest"></a></li>
                 </ul>
@@ -508,10 +508,10 @@
             </div>
 
             <div id="pageCustomerRicerca">
-                <!--     
-                <a href="#" id="pageCustomer_NewCustomers_addNew" onclick="GotoPage_NuoviClienti_Edit()" class="ui-btn ui-icon-search ui-btn-icon-left ui-corner-all">Nuovo cliente</a>
+                <!--                     
                 <a href="#" id="pageCustomer_NewCustomers_List" onclick="GotoPage_NuoviClienti_Elenco()" class="ui-btn ui-icon-search ui-btn-icon-left ui-corner-all">Elenco nuovi clienti</a>
                 -->
+                <a href="#" id="pageCustomer_NewCustomer" onclick="Ordine_SetNuovoCliente()" class="ui-btn ui-icon-search ui-btn-icon-user ui-corner-all">Nuovo cliente</a><br />
                 <h2 style="text-align: right; margin-top: -5px;">Ricerca Cliente</h2>
                 <div id="pageCustomerRicercaContent">
                     <input id="pageCustomerFilter" value="" placeholder="Ragione Sociale o Codice..." type="search" />
@@ -522,35 +522,7 @@
     </div>
 
 
-    <!--  PAGINA CLIENTI TEMPORANEI - ELENCO-->
-    <div data-role="page" id="pageNuoviClienti_Elenco" data-theme="a">
-        <div data-role="header" data-position="fixed">
-            <div class="custom-border-radius">
-                <a id="pageNuoviClienti_Elenco_btnback" href="#" onclick="GotoPage_NuoviClienti_Elenco_goBack();" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
-            </div>
-            <h1>Elenco clienti temporanei</h1>
-        </div>
-        <div data-role="content" data-theme="a">
-            <div id="pageNuoviClienti_Elenco_MainDiv">
-                <input id="pageNuoviClienti_Elenco_MainList_Src" value="" placeholder="Ricerca cliente temporaneo..." type="search" />
-                <ul id="pageNuoviClienti_Elenco_MainList" data-role="listview" data-filter="true" data-inset="true" data-divider-theme="b" data-count-theme="a" data-input="#pageNuoviClienti_Elenco_MainList_Src"></ul>
-            </div>
-        </div>
-    </div>
 
-    <!--  PAGINA CLIENTI TEMPORANEI - EDIT-->
-    <div data-role="page" id="pageNuoviClienti_Edit" data-theme="a">
-        <div data-role="header" data-position="fixed">
-            <div class="custom-border-radius">
-                <a id="pageNuoviClienti_Edit_btnback" href="#" onclick="GotoPage_NuoviClienti_Edit_goBack();" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
-            </div>
-            <h1 id="pageNuoviClienti_Edit_Titolo">Creazione nuovo cliente..</h1>
-        </div>
-        <div data-role="content" data-theme="a">
-            <div id="pageNuoviClienti_Edit_MainDiv">
-            </div>
-        </div>
-    </div>
 
 
     <!--  PAGINA SELEZIONE MAIL - SELEZIONE ELENCO CONTATTI CLIENTE-->
