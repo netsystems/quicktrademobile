@@ -59,7 +59,7 @@ var _rigaOrdineInModifica = null;
 var AppVers_Major = "1";
 var AppVers_Minor = "4";
 var AppVers_Build = "4";
-var AppVers_Revision = "0";
+var AppVers_Revision = "1";
 
 
 function GetAppVersion() {
@@ -710,7 +710,7 @@ function SelezArticolo_Step02_fillList() {
                 var listino = objResp[index];
 
                 var listItem = "<li data-theme=\"b\">" +
-                                    "<a href=\"#\" onclick=\"SelezArticolo_GoTo_Step03(" + listino.Gruppo + ");\" class=\"ui-alt-icon\"><h2>" + listino.Gruppo + " - " + listino.Descrizione + "</h2></p></a></li>";
+                                    "<a href=\"#\" onclick=\"SelezArticolo_GoTo_Step03(" + listino.Gruppo + ");\" class=\"ui-alt-icon\"><h2>" + listino.Descrizione + "</h2></p></a></li>";
                 $("#pageOrder_SelezArticolo_Step02_Panel_list").append(listItem);
             }
         }
