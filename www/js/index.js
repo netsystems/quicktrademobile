@@ -59,7 +59,7 @@ var _rigaOrdineInModifica = null;
 var AppVers_Major = "1";
 var AppVers_Minor = "4";
 var AppVers_Build = "4";
-var AppVers_Revision = "1";
+var AppVers_Revision = "2";
 
 
 function GetAppVersion() {
@@ -76,6 +76,19 @@ function setTitolo() {
     if (_qtProfile.OperatoreDescrizione != "") {
         $("#pageMainHeader").html(_qtProfile.OperatoreDescrizione);
     }
+
+
+    $("#pageMainPanel_goto_HITScelte").hide();
+    $("#pageMainPanel_goto_ListinoPrezzi").hide();
+
+    if (!_qtConfig) { return; }
+    if (!_qtConfig.ind_tipo_utilizzo) { return; }
+    if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.FIERA) {
+        $("#pageMainPanel_goto_HITScelte").show();
+        $("#pageMainPanel_goto_ListinoPrezzi").show();
+    }
+
+
 
 
 }
@@ -480,6 +493,10 @@ function OrdersCheckList_trasferiti(troppiOrdini) {
         } else if (ordiniDaVisualizzare_liv2.length > NR_MASSIMO_ORDINI_VISUALIZZABILI) {
             lista.append("<li data-theme=\"b\"><a href=\"#\"><h2><i>La ricerca ha restituito troppi risultati.</i></h2></a></li>");
         } else {
+
+            ordiniDaVisualizzare_liv2 = sortByKey(ordiniDaVisualizzare_liv2, "orderDateTransfer");
+            ordiniDaVisualizzare_liv2.reverse();
+
             for (var index = 0; index < ordiniDaVisualizzare_liv2.length; index++) {
                 var order_trasf = ordiniDaVisualizzare_liv2[index];
 
@@ -1103,6 +1120,30 @@ function SelezArticolo_Confirm(ArticoloCodice) {
 
 function OrderOpen(orderCode) {
 
+
+
+    if (!_qtProfile) {
+        navigator.notification.alert("Per poter visualizzare l'ordine \u00e8 necessario compilare la sezione Profilo.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return;
+    }
+
+    if (!_qtProfile.OperatoreCodice) {
+        navigator.notification.alert("Per poter visualizzare l'ordine \u00e8 necessario compilare la sezione Profilo.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return;
+    }
+
+    if (!_qtProfile.OperatorePassword) {
+        navigator.notification.alert("Per poter visualizzare l'ordine \u00e8 necessario compilare la sezione Profilo.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return;
+    }
+    
+
     var richiestaConferma = false;
 
     var ordini = SEARCHJS.matchArray(_qtOrders.orders, { "orderCode": orderCode });
@@ -1347,8 +1388,9 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
 
 
 
+/*
 //ritorna data attuale in stringa con formato YYYYMMDD
-function GetDataAttuale() {
+function GetDataAttuale_OLD() {
     var dt = new Date();
     var yyyy = dt.getFullYear().toString();
     var mm = (dt.getMonth() + 1).toString();
@@ -1358,7 +1400,7 @@ function GetDataAttuale() {
 
 
 //ritorna data attuale in stringa con formato DD/MM/YYYY
-function GetDataAttuale_PerUtente() {
+function GetDataAttuale_PerUtente_OLD() {
 
     var dt = new Date();
     var yyyy = dt.getFullYear().toString();
@@ -1371,7 +1413,7 @@ function GetDataAttuale_PerUtente() {
     //return (dd[1] ? dd : "0" + dd[0]) + "/" + (mm[1] ? mm : "0" + mm[0]) + "/" + yyyy + ' ' + (hh[1] ? hh : "0" + hh[0]) + ":" + (nn[1] ? nn : "0" + nn[0]) + ":" + (ss[1] ? ss : "0" + ss[0]);
     return (dd[1] ? dd : "0" + dd[0]) + "/" + (mm[1] ? mm : "0" + mm[0]) + "/" + yyyy + ' ' + (hh[1] ? hh : "0" + hh[0]) + ":" + (nn[1] ? nn : "0" + nn[0]);
 }
-
+*/
 
 
 //function ImgDownload() {
@@ -1631,20 +1673,6 @@ function GetServerURL(branchUrl) {
     return url;
 }
 
-function ServerOnlineVerify(IsOnline, IsOffline) {
-    $.ajax({
-        url: GetServerURL("checksystem"),
-        method: "GET",
-        dataType: "jsonp",
-        timeout: 5000,
-        success: function (result) {
-            IsOnline();
-        },
-        error: function (xhr, textStatus, textError) {
-            IsOffline(textStatus, textError);
-        }
-    });
-}
 
 
 
@@ -1894,7 +1922,7 @@ $(document).on("pagebeforeshow", "#pageOrder", function () {
 
 $(document).on("pageshow", "#pageOrder", function () {
 
-    //if (_pageOrder_TipoArticoloSelezionato == "TP") { $("#pageOrderRowAdd").focus(); }
+
 
     if (!_artSelezGuidata) { return; }
     if (!_artSelezGuidata.ArticoloCodice) { return; }
@@ -1984,20 +2012,20 @@ function pageOrder_SelezionatoTipoArticolo(tipo, ricerca_automatica) {
     if (tipo == 'TP') {
         $("#pageOrder_TipoArticolo_TP").addClass('ui-btn-active');
         $("#pageOrderRowQta").val(1);
-        $("#pageOrderRowQta").attr("readonly", "readonly");
+        //$("#pageOrderRowQta").attr("readonly", "readonly");
         $("#pageOrderRowAdd").removeAttr('readonly');
         $("#pageOrderRowAdd").focus();
     }
 
     if (tipo == 'TG') {
         $("#pageOrder_TipoArticolo_TG").addClass('ui-btn-active');
-        $("#pageOrderRowQta").removeAttr('readonly');
+        //$("#pageOrderRowQta").removeAttr('readonly');
         $("#pageOrderRowAdd").attr("readonly", "readonly");
     }
 
     if (tipo == 'TGG') {
         $("#pageOrder_TipoArticolo_TGG").addClass('ui-btn-active');
-        $("#pageOrderRowQta").removeAttr('readonly');
+        //$("#pageOrderRowQta").removeAttr('readonly');
         $("#pageOrderRowAdd").attr("readonly", "readonly");
     }
 
@@ -2510,19 +2538,27 @@ function OrderTableRefresh() {
             } else {
 
                 //RIGA EDITABILE
-                html = html + "<tr>" +
-                                "<td style=\"vertical-align: middle;\"><a href=\"#\" onclick=\"ListiniShowBarcode('" + rows[i].articleBarcode + "');\">" + rows[i].articleBarcode + "</a></td>" +
-                                "<td style=\"vertical-align: middle;\">" + rows[i].baseObj.Descrizione + "</td>" +
-                                "<td style=\"vertical-align: middle;\">" + descrEtichetta + "</td>" +
-                                "<td style=\"vertical-align: middle;\">" + rows[i].OggettoCodice + "</td>" +
-                                "<td style=\"vertical-align: middle;\">" + rows[i].Qta + "</td>" +
-                                "<td style=\"vertical-align: middle; align: center;\">" +
-                                    "<a href=\"#\" class=\"ui-shadow ui-btn ui-corner-all ui-btn-icon-notext ui-icon-edit ui-btn-a\" onclick=\"OrderEditArticle(" + i.toString() + ");\">Modifica</a>" +
-                                "</td>" +
-                                "<td style=\"vertical-align: middle; align: center;\">" +
-                                    "<a href=\"#\" class=\"ui-shadow ui-btn ui-corner-all ui-btn-icon-notext ui-icon-delete ui-btn-a\" onclick=\"OrderRemoveArticle(" + i.toString() + ");\">Rimuovi</a>" +
-                                "</td>" +
-                              "</tr>";
+
+                html = html + "<tr>"
+                if (rows[i].OggettoCodice == "TP") {
+                    html = html + "<td style=\"vertical-align: middle;\"><a href=\"#\" onclick=\"ListiniShowBarcode('" + rows[i].articleBarcode + "');\">" + rows[i].articleBarcode + "</a></td>"
+                }
+                else {
+                    html = html + "<td style=\"vertical-align: middle;\">" + rows[i].articleBarcode + "</td>"
+                }
+
+                html = html +
+                "<td style=\"vertical-align: middle;\">" + rows[i].baseObj.Descrizione + "</td>" +
+                "<td style=\"vertical-align: middle;\">" + descrEtichetta + "</td>" +
+                "<td style=\"vertical-align: middle;\">" + rows[i].OggettoCodice + "</td>" +
+                "<td style=\"vertical-align: middle;\">" + rows[i].Qta + "</td>" +
+                "<td style=\"vertical-align: middle; align: center;\">" +
+                    "<a href=\"#\" class=\"ui-shadow ui-btn ui-corner-all ui-btn-icon-notext ui-icon-edit ui-btn-a\" onclick=\"OrderEditArticle(" + i.toString() + ");\">Modifica</a>" +
+                "</td>" +
+                "<td style=\"vertical-align: middle; align: center;\">" +
+                    "<a href=\"#\" class=\"ui-shadow ui-btn ui-corner-all ui-btn-icon-notext ui-icon-delete ui-btn-a\" onclick=\"OrderRemoveArticle(" + i.toString() + ");\">Rimuovi</a>" +
+                "</td>" +
+              "</tr>";
             }
         }
 
@@ -2559,7 +2595,6 @@ function OrderRemoveArticle(RowIndex) {
                                             }
 
                                         }
-                                        //$('#pageOrderRowAdd').focus();
                                     },
                                     "Cancellazione riga",
                                     "Si,No");
@@ -3171,6 +3206,39 @@ function OrderReopen() {
 
 
 function OrderSave_All_withCheck() {
+
+
+
+    if (!_qtProfile) {
+        navigator.notification.alert("Per trasferire gli ordini \u00e8 necessario compilare la sezione Profilo.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return;
+    }
+
+    if (!_qtProfile.OperatoreCodice) {
+        navigator.notification.alert("Per trasferire gli ordini \u00e8 necessario compilare la sezione Profilo.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return;
+    }
+
+    if (!_qtProfile.OperatorePassword) {
+        navigator.notification.alert("Per trasferire gli ordini \u00e8 necessario compilare la sezione Profilo.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return;
+    }
+
+
+
+
+
+
+
+
+
+
     ServerCheckAppVersionForOperation(OPERAZIONI.UPLOAD_ORDINE, OrderSave_All);
 }
 
@@ -3368,6 +3436,8 @@ function OrderSaveExecute_core(uploadOnlyWorkingOrder) {
 
 function OrderSendMail() {
 
+
+
     if (!_qtOrderWorking) { return; }
     if (!_qtOrders.getOrder(_qtOrderWorking)) { return; }
 
@@ -3391,6 +3461,8 @@ function OrderSendMail() {
         return;
     }
 
+
+
     ServerOnlineVerify(function () {
         //ONLINE, niente da notificare
     }, function (textStatus, textError) {
@@ -3401,9 +3473,12 @@ function OrderSendMail() {
     });
 
 
+
+
     navigator.notification.confirm("Inviare nuovamente la mail?",
                                     function (buttonIndex) {
                                         if (buttonIndex == 1) {
+                                            LoaderShow("Invio mail in corso...");
                                             OrderSendMail_core();
                                         }
                                     }, "Richiesta di conferma", "Si,No");
@@ -3412,8 +3487,6 @@ function OrderSendMail() {
 
 function OrderSendMail_core() {
     try {
-
-
         _qtOrdersUpload = new QTOrderList();
 
         ordineinlavoro = null;
@@ -3507,14 +3580,8 @@ function OrderSendMail_core() {
             }
         }
 
-        //alert(JSON.stringify(_qtOrdersUpload));
-
-        //data: JSON.stringify({ "orders": JSON.stringify(_qtOrdersUpload) }),
-        //Effettuo l'invio
 
         if (_qtOrdersUpload.orders.length == 0) { return; }
-
-
 
         var datijson = JSON.stringify({ ordini: _qtOrdersUpload, profiloutente: _qtProfile })
 
@@ -3525,9 +3592,11 @@ function OrderSendMail_core() {
             //data: JSON.stringify(_qtOrdersUpload),
             data: datijson,
             success: function (result) {
+                LoaderHide();
+
                 if (result.success) {
 
-                    LoaderHide();
+
                     try {
                         _qtOrdersUpload = null;
                         if (result.MailErrorDescription != "") {
@@ -3564,7 +3633,7 @@ function OrderSendMail_core() {
 
                 } else {
                     _qtOrdersUpload = null;
-                    LoaderHide();
+
                     navigator.notification.alert("Invio mail fallito.\nDettaglio: " + result.errors.toString(), function () {
                         return;
                     }, "Invio mail fallito", "OK");
@@ -3578,8 +3647,6 @@ function OrderSendMail_core() {
             }
         });
 
-        LoaderHide();
-
     } catch (e) {
         LoaderHide();
         alert("Errore OrderSendMail_core: " + e.message);
@@ -3587,11 +3654,19 @@ function OrderSendMail_core() {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
 function CancellaTutto() {
     try {
-
-
-
         var psw = $("#pageOptionsDeleteAll_psw").val();
         $("#pageOptionsDeleteAll_psw").val("");
 
@@ -4369,7 +4444,8 @@ function CustomerShowDestinations(customerCode) {
 
                 $("#pageCustomerDestList").listview("refresh");
 
-                $("#pageCustomerPopupDest").popup("open");
+                //$("#pageCustomerPopupDest").popup("open");
+                PageChange('#pageCustomerDest');
 
             } catch (e) {
                 alert("Errore risposta CustomerShowDestinations: " + e.message);
@@ -4414,7 +4490,8 @@ function CustomerShowDestinations_OffLine(customerCode) {
 
         $("#pageCustomerDestList").listview("refresh");
 
-        $("#pageCustomerPopupDest").popup("open");
+        //$("#pageCustomerPopupDest").popup("open");
+        PageChange('#pageCustomerDest');
 
     } catch (e) {
         alert("Errore risposta CustomerShowDestinations: " + e.message);
@@ -4452,9 +4529,10 @@ function CustomerSelectWithDestination(customerCode, destinationCode) {
             destinations = null;
         }
 
-        $("#pageCustomerPopupDest").popup("close");
+        //$("#pageCustomerPopupDest").popup("close");
 
-        PageChange("#pageOrder", true);
+        //PageChange("#pageOrder", true);
+        PageChange("#pageCustomer", true);
 
         _CustomerList = null;
         _CustomerDestinationList = null;
@@ -4693,13 +4771,19 @@ function ProfileOperatorsVerify(OperatorCode, OperatorPsw, SerialNumber) {
 
     _ProfileInfo = null;
 
+
+    var sistoperativo_id = 0;  //sconosciuto
+    var sistoperativo = device.platform;
+    if (sistoperativo.toUpperCase() == "IOS") { sistoperativo_id = 1; }
+    if (sistoperativo.toUpperCase() == "ANDROID") { sistoperativo_id = 2; }
+
     try {
 
         $.ajax({
             url: GetServerURL("operators"),
             method: "GET",
             dataType: "jsonp",
-            data: { DispositivoCodice: OperatorCode, Password: OperatorPsw, DispositivoSerialNumer: SerialNumber },
+            data: { DispositivoCodice: OperatorCode, Password: OperatorPsw, DispositivoSerialNumer: SerialNumber, IdSistemaOperativo: sistoperativo_id },
             beforeSend: function () {
             },
             success: function (objResp) {
@@ -4927,11 +5011,50 @@ function ProfileOperatorsLogout() {
 }
 
 
+function ServerOnlineVerify(IsOnline, IsOffline) {
 
+    LoaderShow("Verifica rete...");
 
+    /*
+    La chiamata deve essere per forza asincrona in quanto viene utilizzato il timeout
+    http://api.jquery.com/jquery.ajax/
+    http://stackoverflow.com/questions/7919881/why-dont-synchronous-ajax-calls-in-jquery-support-timeout
+    */
+
+    $.ajax({
+        url: GetServerURL("checksystem"),
+        method: "GET",
+        dataType: "jsonp",
+        timeout: 5000,
+        async: true,
+        success: function (result) {
+            LoaderHide();
+            IsOnline();
+        },
+        error: function (xhr, textStatus, textError) {
+            LoaderHide();
+            IsOffline(textStatus, textError);
+        }
+    });
+}
 
 
 function ServerCheckAppVersionForOperation(Operation, SuccessFunction) {
+
+    ServerOnlineVerify(function () {
+        ServerCheckAppVersionForOperation_core(Operation, SuccessFunction);
+    }, function (textStatus, textError) {
+        //OFFLINE-ERRORE
+        navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non \u00e8 possibile procedere.", function () {
+            return;
+        }, "Attenzione", "OK");
+    });
+
+}
+
+function ServerCheckAppVersionForOperation_core(Operation, SuccessFunction) {
+
+    LoaderShow("Verifica versione APP...");
 
     var versione = GetAppVersion();
 
@@ -4942,11 +5065,12 @@ function ServerCheckAppVersionForOperation(Operation, SuccessFunction) {
         data: { OperazioneRichiesta: Operation, VersioneApp: versione },
         async: false,
         success: function (result) {
+            LoaderHide();
             if (result.OperazioneConsentita == true) {
                 SuccessFunction();
             }
             else {
-                LoaderHide();
+
                 //navigator.notification.alert(result.errors.toString(), function () { }, "Operazione non consentita", "OK");
 
                 navigator.notification.confirm(result.errors.toString() + "\nAggiornare il software?",
@@ -4974,8 +5098,6 @@ function ServerCheckAppVersionForOperation(Operation, SuccessFunction) {
 
 
 function ListiniGetList() {
-
-
 
     if (FUNZIONAMENTO_OFFLINE == true) {
         ListiniGetList_OffLine();
@@ -5064,7 +5186,6 @@ function ListiniGetList_OffLine() {
         }
 
 
-
         $('#pageListiniListino option')[selIndex].selected = true;
         $("#pageListiniListino").trigger("change");
 
@@ -5096,6 +5217,11 @@ function ListiniLoadBarcodeInfo() {
     */
     try {
 
+        /*
+        alert("_ListinoBarcodeToShow " + _ListinoBarcodeToShow)
+        alert("_ListinoShowListinoCodice " + _ListinoShowListinoCodice)
+        */
+
         $.ajax({
             url: GetServerURL("lists/barcode"),
             method: "GET",
@@ -5119,7 +5245,6 @@ function ListiniLoadBarcodeInfo() {
                     _ListinoViewed.listinoProgressivo = objResp.result.progCodice;
                     _ListinoViewed.listinoProgressivoDesc = objResp.result.progDesc;
                     _ListinoViewed.objGruppi = objResp.result.objGruppi;
-
                     _ListinoBarcodeToShow = null;
                     _ListinoShowListinoCodice = null;
                     ListiniDrawDatas();
@@ -5232,12 +5357,16 @@ function ListiniLoadBarcodeInfo_OffLine() {
 function ListiniDrawDatas() {
     try {
 
+
         LoaderShow("Caricamento...");
 
         if (!_ListinoViewed) {
             alert("Nessuna informazione da visualizzare.");
             return;
         }
+
+
+        //alert("_ListinoShowListinoCodice " + _ListinoShowListinoCodice);
 
         if (_ListinoShowListinoCodice) {
             $("#pageListiniListino").val(_ListinoShowListinoCodice);
@@ -5318,14 +5447,12 @@ function ListiniDrawDatas() {
 }
 
 function ListiniLoadListView() {
-
     /*
     if (FUNZIONAMENTO_OFFLINE == true) {
         ListiniLoadListView_OffLine();
         return;
     }
     */
-
     try {
         ////se ho sia base che gruppo devo mostrare gli articoli del gruppo (già scaricati), evito di proseguire nella function
         //if (_ListinoViewed.baseCodice && _ListinoViewed.gruppo) {
@@ -5343,14 +5470,30 @@ function ListiniLoadListView() {
             //alert("dabar - GRUPPI");
         }
 
+
         //filtro da passare
         var filter = null;
+
+        /*        
         if (!_ListinoViewed.baseCodice) {
             filter = { filter: $("#pageListiniSearchField").val().toString() };
         } else {
             filter = { base: _ListinoViewed.baseCodice.toString(), listino: $("#pageListiniListino").val() };
         }
+        */
+        
+        if (!_ListinoViewed.baseCodice) {
+            filter = { filter: $("#pageListiniSearchField").val().toString(), OperatoreCodice: _qtProfile.OperatoreCodice };
+        } else {
+            filter = { base: _ListinoViewed.baseCodice.toString(), listino: $("#pageListiniListino").val(), OperatoreCodice: _qtProfile.OperatoreCodice };
+        }
 
+
+        /*
+        alert("httpReq " + httpReq);
+        alert(_ListinoViewed.baseCodice.toString());
+        alert($("#pageListiniListino").val());
+        */
         $.ajax({
             url: GetServerURL(httpReq),
             method: "GET",
@@ -5406,6 +5549,7 @@ function ListiniLoadListView() {
 
                     } else {
 
+                        //alert("Elenco gruppi ritornato: " + objResp.result)
                         var bolRows = false;
                         if (objResp.result) {
                             if (objResp.result.length > 0) {
@@ -5653,6 +5797,12 @@ function ListiniLoadListView_OffLine() {
 
 function ListiniLoadArticoliGruppo() {
     try {
+
+        /*
+        alert("ListiniLoadArticoliGruppo");
+        alert("_ListinoViewed.objGruppi " + _ListinoViewed.objGruppi);
+        */
+
         //############################################
         //## CARICO ELENCO ARTICOLI GRUPPO
         //############################################
@@ -5785,7 +5935,6 @@ $("#pageListiniGruppo").click(function () {
     _ListinoViewed.listinoProgressivo = null;
     _ListinoViewed.listinoProgressivoDesc = null;
     ListiniDrawDatas();
-    ListiniDrawDatas();
 });
 
 $("#pageListiniArticolo").click(function () {
@@ -5796,18 +5945,11 @@ $("#pageListiniArticolo").click(function () {
 
 $("#pageListiniBack").click(function () {
 
-
-    PageChange('', true);
-    return;
-
-    navigator.notification.confirm("Abbandonare la schermata del listino prezzi?",
-                                    function (buttonIndex) {
-                                        if (buttonIndex == 1) {
-                                            PageChange('', true);
-                                        }
-                                    },
-                                    "Indietro",
-                                    "Si,No");
+    if (_qtOrderWorking) {
+        PageChange("#pageOrder", true);
+    } else {
+        PageChange('', true);
+    }
 
 });
 
@@ -5836,11 +5978,12 @@ function ListiniSelectGruppo(strGruppo, strDescrizione) {
 
 $(document).on("pageinit", "#pageListini", function () {
 
-    //alert("pageListini.pageinit");
+
 
     $(".ui-input-clear").css("backgroundColor", "#000");
 
     $("#pageListiniSearchField").keyup(function (event) {
+
         ListiniLoadListView();
     });
 
@@ -5850,11 +5993,10 @@ $(document).on("pageinit", "#pageListini", function () {
 
 $(document).on("pagebeforeshow", "#pageListini", function () {
 
-    //alert("pageListini.pagebeforeshow");
 
     $("#pageListiniContainer").css("display", "none");
-
     ListiniGetList();
+
 });
 
 
@@ -5958,8 +6100,18 @@ function ListiniShowPage_core() {
 
 
 function ListiniShowBarcode(barcodeString) {
-    try {
+    ServerOnlineVerify(function () {
+        ListiniShowBarcode_core(barcodeString)
+    }, function (textStatus, textError) {
+        //OFFLINE-ERRORE
+        navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non \u00e8 possibile consultare il listino prezzi", function () {
+            return;
+        }, "Attenzione", "OK");
+    });
+}
 
+function ListiniShowBarcode_core(barcodeString) {
+    try {
 
         if (!_qtOrderWorking) {
             navigator.notification.alert("Nessun ordine in acquisizione.", function () {
@@ -5975,12 +6127,23 @@ function ListiniShowBarcode(barcodeString) {
             return;
         }
 
+        if (_qtOrders.getOrder(_qtOrderWorking).customerCode == COD_NUOVO_CLIENTE) {
+            navigator.notification.alert("E' necessario scegliere un cliente presente in anagrafica per poter visualizzare il listino prezzi.", function () {
+                return;
+            }, "Attenzione", "OK");
+            return;
+        }
+
+
         if (!_qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice) {
             navigator.notification.alert("Il cliente non dispone di un listino valido per poter visualizzare il listino prezzi.", function () {
                 return;
             }, "Attenzione", "OK");
             return;
         }
+
+
+
 
 
         ListiniInitializeNewClass();

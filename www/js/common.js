@@ -2,7 +2,7 @@
 
 var TIPO_UTILIZZO = { "SEDE_CENTRALE": 1, "FIERA": 2 };
 
-var OPERAZIONI = { "DOWNLOAD_DATASOURCE": 1, "UPLOAD_ORDINE": 2 };
+var OPERAZIONI = { "DOWNLOAD_DATASOURCE": 1, "UPLOAD_ORDINE": 2 ,"RICHIESTA_PREZZI": 3};
 
 function QTConfiguration() {
     var __fileName = "QTConfig.txt";
@@ -304,15 +304,17 @@ function QTOrder() {
         return yyyy + (mm[1] ? mm : "0" + mm[0]) + (dd[1] ? dd : "0" + dd[0]) + (hh[1] ? hh : "0" + hh[0]) + (nn[1] ? nn : "0" + nn[0]) + (ss[1] ? ss : "0" + ss[0]);
     }
 
+
+    /*
     //ritorna data attuale in stringa con formato YYYYMMDD
-    function GetDataAttuale() {
+    function GetDataAttuale_OLD() {
         var dt = new Date();
         var yyyy = dt.getFullYear().toString();
         var mm = (dt.getMonth() + 1).toString();
         var dd = dt.getDate().toString();
         return yyyy + (mm[1] ? mm : "0" + mm[0]) + (dd[1] ? dd : "0" + dd[0]);
     }
-
+    */
 
 }
 
@@ -886,7 +888,16 @@ function GetDataAttuale() {
     var yyyy = dt.getFullYear().toString();
     var mm = (dt.getMonth() + 1).toString();
     var dd = dt.getDate().toString();
-    return yyyy + (mm[1] ? mm : "0" + mm[0]) + (dd[1] ? dd : "0" + dd[0]);
+
+    var hh = dt.getHours().toString();
+    var nn = dt.getMinutes().toString();
+    var ss = dt.getSeconds().toString();
+
+    var result = yyyy + (mm[1] ? mm : "0" + mm[0]) + (dd[1] ? dd : "0" + dd[0]);
+    var result2 = yyyy + (mm[1] ? mm : "0" + mm[0]) + (dd[1] ? dd : "0" + dd[0]) + (hh[1] ? hh : "0" + hh[0]) + (nn[1] ? nn : "0" + nn[0]) + (ss[1] ? ss : "0" + ss[0])
+
+
+    return result2
 }
 
 
@@ -930,16 +941,21 @@ function TroncaDecimali(Numero, digits) {
 };
 
 
-
-
-
-
-
-
 function validateEmail(email) {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
 }
+
+
+
+function sortByKey(array, key) {
+    return array.sort(function (a, b) {
+        var x = a[key]; var y = b[key];
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+}
+
+
 
 
 
