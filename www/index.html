@@ -46,8 +46,8 @@
                     Men&ugrave di navigazione<br />
                 </p>
                 <li data-icon="check" class="iconLeft"><a href="#" onclick="PageChange('#pageOrdiniTrasferiti');">Ordini trasferiti</a></li>
-                <li data-icon="refresh" class="iconLeft"><a href="#" onclick="ListiniShowPage()">Listino dei prezzi</a></li>
-                <li data-icon="bullets" class="iconLeft"><a href="#" onclick="PageChange('#pageHitScelte',false);">Visualizzazione HIT Scelte</a></li>
+                <li id="pageMainPanel_goto_ListinoPrezzi" data-icon="refresh" class="iconLeft"><a href="#" onclick="ListiniShowPage()">Listino dei prezzi</a></li>
+                <li id="pageMainPanel_goto_HITScelte" data-icon="bullets" class="iconLeft"><a href="#" onclick="PageChange('#pageHitScelte',false);">Visualizzazione HIT Scelte</a></li>
                 <p style="text-align: center; font-weight: bold;">
                     Pannello di Controllo<br />
                 </p>
@@ -78,7 +78,7 @@
                 <div id="pageMainHeaderNavBar" data-role="navbar" data-iconpos="top" style="display: none;">
                     <ul>
                         <li><a href="#" data-icon="plus" id="pageMainHeaderNavBar_NuovoOrdine" onclick="OrderStartNew();">Nuovo ordine</a></li>
-                        <li><a href="#" data-icon="tag" id="pageMainHeaderNavBar_ShowListini" onclick="ListiniShowPage();">Listino prezzi</a></li>
+                        <!--<li><a href="#" data-icon="tag" id="pageMainHeaderNavBar_ShowListini" onclick="ListiniShowPage();">Listino prezzi</a></li>-->
                         <li><a href="#" data-icon="action" id="pageMainHeaderNavBar_SaveAll" onclick="OrderSave_All_withCheck()">Trasferisci tutti</a></li>
                         <li><a href="#" data-icon="delete" id="pageMainHeaderNavBar_DeleteAll" onclick="OrderDeleteAll_PageMain();">Elimina tutti</a></li>
                         <!--<li><a href="#" data-icon="bullets" onclick="PageChange('#pageHitScelte',false);">Visualizza HIT Scelte</a></li>-->
@@ -119,7 +119,7 @@
 
         <div data-role="content" data-theme="a">
             <div id="pageOrdiniTrasferitiContent">
-                <a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" onclick="OrderDeleteAll_PageTrasferiti();">Elimina tutti gli ordini trasferiti</a>
+                <!--<a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" onclick="OrderDeleteAll_PageTrasferiti();">Elimina tutti gli ordini trasferiti</a>-->
                 <form class="ui-filterable">
                     <input id="pageMainOrdList_Trasferiti_Filter" data-type="search" placeholder="Ricerca ordine...">
                 </form>
@@ -473,9 +473,6 @@
             <!-- /navbar -->
         </div>
         <div data-role="content" data-theme="a">
-            <div data-role="popup" id="pageCustomerPopupDest" data-theme="a" data-overlay-theme="a" data-history="false">
-                <ul id="pageCustomerDestList" data-role="listview" data-inset="true" data-filter="false" data-divider-theme="b" style="min-width: 80%;"></ul>
-            </div>
             <div id="pageCustomerInfo">
                 <h2 style="text-align: right; margin-top: -5px;">Cliente</h2>
                 <ul data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b">
@@ -490,7 +487,7 @@
                 <h2 style="text-align: right; margin-top: -5px;">Altri Dati</h2>
                 <label for="pageCustomerContatto1">Contatto 1:</label>
                 <input name="pageCustomerContatto1" id="pageCustomerContatto1" value="" type="text" maxlength="50">
-                <label for="pageCustomerAnnotazioni">Annotazioni:</label>
+                <label for="pageCustomerAnnotazioni">Annotazioni cliente:</label>
                 <textarea name="pageCustomerAnnotazioni" id="pageCustomerAnnotazioni" rows="5" maxlength="180"></textarea>
 
                 <label for="pageCustomerAnnotazioni_interna">Annotazioni interne:</label>
@@ -511,13 +508,28 @@
                 <!--                     
                 <a href="#" id="pageCustomer_NewCustomers_List" onclick="GotoPage_NuoviClienti_Elenco()" class="ui-btn ui-icon-search ui-btn-icon-left ui-corner-all">Elenco nuovi clienti</a>
                 -->
-                <a href="#" id="pageCustomer_NewCustomer" onclick="Ordine_SetNuovoCliente()" class="ui-btn ui-icon-search ui-btn-icon-user ui-corner-all">Nuovo cliente</a><br />
+                <a href="#" id="pageCustomer_NewCustomer" onclick="Ordine_SetNuovoCliente()" class="ui-btn ui-icon-user ui-btn-icon-left ui-corner-all">Nuovo cliente</a><br />
                 <h2 style="text-align: right; margin-top: -5px;">Ricerca Cliente</h2>
                 <div id="pageCustomerRicercaContent">
                     <input id="pageCustomerFilter" value="" placeholder="Ragione Sociale o Codice..." type="search" />
                     <ul id="pageCustomerList" data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
                 </div>
             </div>
+        </div>
+    </div>
+
+
+
+    <!--CUSTOMER PAGE - SELEZIONE DESTINAZIONE-->
+    <div data-role="page" id="pageCustomerDest">
+        <div data-role="header" data-position="fixed">
+            <div class="custom-border-radius">
+                <a id="pageCustomerDest_back" href="#" onclick="PageChange('#pageCustomer',true);" class="ui-btn-left ui-btn ui-btn-inline ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
+            </div>
+            <h1>Scegli destinazione</h1>
+        </div>
+        <div data-role="content" data-theme="a">
+            <ul id="pageCustomerDestList" data-role="listview" data-inset="true" data-filter="false" data-divider-theme="b" style="min-width: 80%;"></ul>
         </div>
     </div>
 
