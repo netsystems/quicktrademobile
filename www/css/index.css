@@ -42,12 +42,9 @@ ul li h2 {
     word-wrap: break-word;      /* IE 5+ */
 }
 
-#pageCustomerPopupDest-popup {
+
+/*#pageCustomerPopupDest-popup {
     width: 90%;
     left: 5%;
     right: 5%;
-}
-
-.table-highlight {
-    background-color: #fdbf44;
-}
+}*/
