@@ -6,7 +6,7 @@
   <!-- MultiPlatform-->
   <preference name="phonegap-version" value="3.7.0"/>
   <preference name="orientation" value="default"/>
-  <preference name="fullscreen" value="true"/>
+  <preference name="fullscreen" value="false"/>
   <!-- iOS -->
   <preference name="target-device" value="universal"/>
   <preference name="prerendered-icon" value="true"/>
