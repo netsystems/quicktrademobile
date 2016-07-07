@@ -16,9 +16,7 @@
   <!-- Android -->
   <preference name="android-minSdkVersion" value="7"/>
   <preference name="android-installLocation" value="auto"/>
-  <preference name="android-windowSoftInputMode" value="stateVisible|adjustResize" />
-
-
+ 
   <preference name="permissions" value="none"/>
   <preference name="webviewbounce" value="false"/>
   <preference name="stay-in-webview" value="false"/>
