@@ -318,13 +318,16 @@ function QTOrder() {
 
 }
 
-function QTOrderRow(ArticleBarcode, BaseObj, articoloDescrizione, OggettoCodice, qta) {
+function QTOrderRow(ArticleBarcode, BaseObj, articoloDescrizione, OggettoCodice, qta, parListinoTestataDescrizione) {
     this.articleBarcode = ArticleBarcode;
     //this.articleObj = ArticleObj;
     this.baseObj = BaseObj;
     this.Descrizione = articoloDescrizione;
     this.OggettoCodice = OggettoCodice;
     this.Qta = qta;
+
+    this.ListinoTestataDescrizione = parListinoTestataDescrizione;
+
 }
 
 
