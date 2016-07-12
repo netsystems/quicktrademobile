@@ -31,7 +31,8 @@
     <link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
     <link rel="stylesheet" href="css/jquery.mobile.structure-1.4.5.min.css" />
     <link href="css/keyboard.css" rel="stylesheet" />
-    <title>Hello World</title>
+
+    <title>QuickTrade App</title>
 </head>
 <body>
 
@@ -80,7 +81,7 @@
                         <li><a href="#" data-icon="plus" id="pageMainHeaderNavBar_NuovoOrdine" onclick="OrderStartNew();">Nuovo ordine</a></li>
                         <!--<li><a href="#" data-icon="tag" id="pageMainHeaderNavBar_ShowListini" onclick="ListiniShowPage();">Listino prezzi</a></li>-->
                         <li><a href="#" data-icon="action" id="pageMainHeaderNavBar_SaveAll" onclick="OrderSave_All_withCheck()">Trasferisci tutti</a></li>
-                        <li><a href="#" data-icon="delete" id="pageMainHeaderNavBar_DeleteAll" onclick="OrderDeleteAll_PageMain();">Elimina tutti</a></li>
+                        <!--<li><a href="#" data-icon="delete" id="pageMainHeaderNavBar_DeleteAll" onclick="OrderDeleteAll_PageMain();">Elimina tutti</a></li>-->
                         <!--<li><a href="#" data-icon="bullets" onclick="PageChange('#pageHitScelte',false);">Visualizza HIT Scelte</a></li>-->
                         <li><a href="#" data-icon="check" id="pageMainHeaderNavBar_VisualizzaTrasferiti" onclick="PageChange('#pageOrdiniTrasferiti');">Ordini trasferiti</a></li>
                     </ul>
@@ -260,57 +261,16 @@
                 <a id="pageOrderBack" href="#" onclick="pageOrderExit();" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a>
             </div>
             <h1 style="margin-bottom: 5px;">Ordine Cliente</h1>
-            <!--<a id="pageOrderSave" href="#" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-check" onclick="OrderSave();">Salva</a>-->
             <div class="custom-border-radius">
                 <a href="#pageOrder_Panel" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-bars"></a>
             </div>
 
-            <div data-role="navbar" data-iconpos="top" style="border-bottom: 1px solid #996600;">
-                <ul>
-                    <li><a id="pageOrderCliente" href="#" data-icon="user" data-theme="c" onclick="CustomerShowSelect();" style="white-space: normal;"></a></li>
-                </ul>
-            </div>
-
-
-
-            <div id="pageOrderCliente_div_TableAddArticolo">
-                <div id="pageOrder_CtlSelezTipoArticolo" data-role="navbar">
-
-                    <br />
-                    <ul>
-                        <li><a href="#" id="pageOrder_TipoArticolo_TP" onclick="pageOrder_SelezionatoTipoArticolo('TP',false);">Tipo<br />
-                            (TP)</a></li>
-                        <li><a href="#" id="pageOrder_TipoArticolo_TGG" onclick="pageOrder_SelezionatoTipoArticolo('TGG',true);">Taglio gratuito<br />
-                            (TGG)</a></li>
-                        <!--                      <li><a href="#" id="pageOrder_TipoArticolo_TG" onclick="pageOrder_SelezionatoTipoArticolo('TG');">Taglio<br />
-                                        (TG)</a></li>-->
-                    </ul>
-                    <br />
-                </div>
-
-                <table style="width: 100%;" id="pageOrderCliente_TableAddArticolo" border="0">
-                    <tr>
-                        <td>
-                            <input type="text" name="pageOrderRowAdd" id="pageOrderRowAdd" placeholder="Sparare il codice a barre o ricercarlo dall'elenco..." value="" style="height: 35px; width: 100%;" data-clear-btn="true" data-clear-btn-text="Svuota" />
-                        </td>
-                        <td style="width: 100px;">
-                            <div class="custom-border-radius"><a style="width: 100px;" href="#" id="pageOrderSelezionaArticolo" class="ui-btn ui-icon-search ui-btn-icon-left" onclick="PageChange('#pageOrder_SelezArticolo_Step01',false);">Ricerca</a></div>
-                        </td>
-                        <td style="width: 100px;">
-                            <div class="custom-border-radius"><a style="width: 100px;" href="#" id="pageOrderRowAddBtn" class="ui-btn ui-icon-plus ui-btn-icon-left" onclick="OrderAddArticle();">Aggiungi</a></div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-
-            <div id="pageOrderCliente_error_div" data-role="navbar" data-iconpos="left" style="border-bottom: 1px solid #996600; display: none;">
+            <div id="pageOrderCliente_error_div" data-role="navbar" data-iconpos="top" style="border-bottom: 1px solid #996600; display: none;">
                 <ul>
                     <li><a id="pageOrderCliente_error" href="#" data-icon="alert" data-theme="c" style="white-space: normal;" onclick="OrderAddArticle_Check_hideError();"></a></li>
                 </ul>
             </div>
 
-            <h2 id="pageOrderRowNum" style="float: left; margin-left: 5px;">0 Righe</h2>
-            <div style="float: right;" id="pageOrderTableInfo"></div>
         </div>
 
 
@@ -326,34 +286,94 @@
                         <td><a id="pageOrderRowQta_2" onclick="pageOrderRowQta(2);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">2</a></td>
                         <td><a id="pageOrderRowQta_3" onclick="pageOrderRowQta(3);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">3</a></td>
                     </tr>
-                    <!--                    
-                    <tr>
-                        <td><a id="pageOrderRowQta_4" onclick="pageOrderRowQta(4);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">4</a></td>
-                        <td><a id="pageOrderRowQta_5" onclick="pageOrderRowQta(5);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">5</a></td>
-                        <td><a id="pageOrderRowQta_10" onclick="pageOrderRowQta(10);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left">10</a></td>
-                    </tr>
-                     -->
                 </table>
                 <a id="popup_pageOrderRowQta_OK" data-rel="back" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check">OK</a>
                 <a id="popup_pageOrderRowQta_Annulla" onclick="pageOrderRowQta(0);" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-delete">Annulla</a>
             </div>
         </div>
 
+
+
+
         <div data-role="content" data-theme="a">
-            <table data-role="table" id="table-articles" data-mode="columntoggle" class="ui-responsive table-stripe" data-column-btn-text="Colonne Griglia">
-                <thead>
-                    <tr>
-                        <th data-priority="2">Codice</th>
-                        <th>Descr. Base</th>
-                        <th>Descr. Etichetta</th>
-                        <th>Oggetto</th>
-                        <th>Qta</th>
-                        <th colspan="2">Opzioni</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+
+            <div data-role="navbar" data-iconpos="top" style="border-bottom: 1px solid #996600;">
+                <ul>
+                    <li><a id="pageOrderCliente" href="#" data-icon="user" data-theme="c" onclick="CustomerShowSelect();" style="white-space: normal;"></a></li>
+                </ul>
+            </div>
+
+            <div id="pageOrderCliente_div_TableAddArticolo">
+                <div id="pageOrder_CtlSelezTipoArticolo" data-role="navbar">
+                    <br />
+                    <ul>
+                        <li><a href="#" id="pageOrder_TipoArticolo_TP" onclick="pageOrder_SelezionatoTipoArticolo('TP',false);">Tipo<br />
+                            (TP)</a></li>
+                        <li><a href="#" id="pageOrder_TipoArticolo_TGG" onclick="pageOrder_SelezionatoTipoArticolo('TGG',true);">Taglio gratuito<br />
+                            (TGG)</a></li>
+                        <!--<li><a href="#" id="pageOrder_TipoArticolo_TG" onclick="pageOrder_SelezionatoTipoArticolo('TG');">Taglio<br />(TG)</a></li>-->
+                    </ul>
+
+                </div>
+
+
+
+                <!--                
+                <div id="pageOrderCliente_div_TableAddArticolo_core" style="overflow: auto;">
+                    <table style="width: 100%;" id="pageOrderCliente_TableAddArticolo" border="0">
+                        <tr>
+                            <td>
+                                <input type="text" name="pageOrderRowAdd" id="pageOrderRowAdd" placeholder="Sparare il codice a barre o ricercarlo dall'elenco..." value="" style="height: 35px; width: 100%;" data-clear-btn="true" data-clear-btn-text="Svuota" />
+                            </td>
+                            <td style="width: 100px;">
+                                <div class="custom-border-radius"><a style="width: 100px;" href="#" id="pageOrderSelezionaArticolo" class="ui-btn ui-icon-search ui-btn-icon-left" onclick="PageChange('#pageOrder_SelezArticolo_Step01',false);">Ricerca</a></div>
+                            </td>
+                            <td style="width: 100px;">
+                                <div class="custom-border-radius"><a style="width: 100px;" href="#" id="pageOrderRowAddBtn" class="ui-btn ui-icon-plus ui-btn-icon-left" onclick="OrderAddArticle();">Aggiungi</a></div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                    -->
+               
+                <a  href="#" id="pageOrderSelezionaArticolo" class="ui-corner-all ui-btn ui-icon-search ui-btn-icon-left" onclick="PageChange('#pageOrder_SelezArticolo_Step01',false);">Ricerca</a>
+                <input type="text" name="pageOrderRowAdd" id="pageOrderRowAdd" placeholder="Sparare il codice a barre o ricercarlo dall'elenco..." value="" style="height: 35px; width: 100%;" data-clear-btn="true" data-clear-btn-text="Svuota" />
+                <a href="#" id="pageOrderRowAddBtn" class="ui-corner-all ui-btn ui-icon-plus ui-btn-icon-left" onclick="OrderAddArticle();">Aggiungi</a>
+                
+            </div>
+
+
+
+            <!-- TABELLA ELENCO ARTICOLI -->
+            <div style="overflow: auto;">
+                <table data-role="table" id="table-articles" data-mode="columntoggle" class="ui-responsive table-stripe" data-column-btn-text="Colonne Griglia">
+                    <thead>
+                        <tr>
+                            <th data-priority="2">Codice</th>
+                            <th>Descr. Base</th>
+                            <th>Descr. Etichetta</th>
+                            <th>Oggetto</th>
+                            <th>Qta</th>
+                            <th colspan="2">Opzioni</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
         </div>
+
+
+        <div data-role="footer">
+            <!--data-position="fixed"-->
+            <div class="custom-border-radius">
+            </div>
+            <h2 id="pageOrderRowNum">0 Righe</h2>
+            <div class="custom-border-radius">
+            </div>
+        </div>
+
     </div>
 
 
@@ -464,15 +484,16 @@
         <div data-role="header" data-position="fixed" data-tap-toggle="false">
             <div class="custom-border-radius"><a id="pageCustomerBack" href="#" onclick="PageChange('#pageOrder',true);" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a></div>
             <h1>Testata Ordine</h1>
+            <!-- /navbar -->
+        </div>
+        <div data-role="content" data-theme="a">
             <div data-role="navbar" id="pageCustomerNavbar">
                 <ul>
                     <li><a href="#" id="pageCustomerViewInfo" onclick="CustomerChangeView(this,0)" data-icon="info">Informazioni</a></li>
                     <li><a href="#" id="pageCustomerViewRicerca" onclick="CustomerChangeView(this,1)" data-icon="search">Cambio cliente</a></li>
                 </ul>
+                <br />
             </div>
-            <!-- /navbar -->
-        </div>
-        <div data-role="content" data-theme="a">
             <div id="pageCustomerInfo">
                 <h2 style="text-align: right; margin-top: -5px;">Cliente</h2>
                 <ul data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b">
