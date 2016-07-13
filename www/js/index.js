@@ -1308,7 +1308,7 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
 
         var datijson = JSON.stringify({ ordini: _qtOrdersUpload, profiloutente: _qtProfile })
 
-        alert("datijson: " & datijson)
+        //alert("datijson: " & datijson)
 
         $.ajax({
             url: GetServerURL("orders/SaveOrder.ashx"), // orders
@@ -3174,7 +3174,7 @@ function OrderSave() {
 
     var msgConferma = "Trasferire l'ordine?"
     if (mailMancante_interna == true && mailMancante_cliente == true) {
-        msgConferma = "ATTENZIONE: non \u00e8 stata specificata alcuna mail di destinazione per l'ordine in esame.\Trasferire l'ordine?";
+        msgConferma = "ATTENZIONE: non \u00e8 stata specificata alcuna mail di destinazione per l'ordine in esame.\nTrasferire l'ordine?";
     }
 
 
