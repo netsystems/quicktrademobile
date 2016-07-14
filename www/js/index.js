@@ -1772,11 +1772,20 @@ function SynchronizeDataSourceStart() {
     try {
         //Verifico Online con Server
         LoaderShow("Download in corso...");
+
+
+
+        var params = JSON.stringify(_qtProfile);
+        var params = JSON.parse(params);
+        params.VersioneApp = GetAppVersion();
+        params = JSON.stringify(params);
+
         $.ajax({
             url: GetServerURL("datasource"),
             method: "GET",
             dataType: "text",
-            data: JSON.stringify(_qtProfile),
+            data: params,
+            
             success: function (result) {
 
 
