@@ -2,7 +2,7 @@
 
 var TIPO_UTILIZZO = { "SEDE_CENTRALE": 1, "FIERA": 2 };
 
-var OPERAZIONI = { "DOWNLOAD_DATASOURCE": 1, "UPLOAD_ORDINE": 2 ,"RICHIESTA_PREZZI": 3};
+var OPERAZIONI = { "DOWNLOAD_DATASOURCE": 1, "UPLOAD_ORDINE": 2, "RICHIESTA_PREZZI": 3, "MAIL_CLIENTE_SINCRONIZZAZIONE": 4 };
 
 function QTConfiguration() {
     var __fileName = "QTConfig.txt";
@@ -292,6 +292,8 @@ function QTOrder() {
     this.orderEMail_interna = null;
     this.MailErrorDescription = null;       //eventuale errore sulla mail sul tentativo di invio da parte del server
 
+    //codice AWB post trasferimento a sede centrele ed elaborazione back-office, viene letto dalla tabella DispositiviOrdiniTestata in fase di sincronizzazione
+    this.LetteraVettura = null;
 
     function GetOrderCode() {
         var dt = new Date();
@@ -450,24 +452,21 @@ function MailClienteManager() {
     MailClienteManager.prototype.Add = function (CodiceCliente, MailString) {
         try {
 
-
             var cliList = SEARCHJS.matchArray(this.Elenco, { "CodiceCliente": CodiceCliente });
             var cli = null;
 
             if (cliList.length == 0) {
-
                 cli = new MailCliente(CodiceCliente);
                 this.Elenco.push(cli)
+
             } else {
-
                 cli = cliList[0];
-
-
             }
 
             this.gestisciMail(cli, MailString);
-            this.saveToFile();
-
+                       
+            //this.saveToFile();
+            
         } catch (e) {
             alert("ERRORE MailClienteManager.prototype.Add: " + e.message);
         }
@@ -479,21 +478,26 @@ function MailClienteManager() {
         //function Aggiungi(MailString) {
         try {
 
-
+            if (!MailString) { return; }
+            MailString = MailString.trim();
+            if (MailString == "") { return; }
+            
             MailString = MailString.replace(new RegExp(" ", "g"), "");
             MailString = MailString.replace(new RegExp(";", "g"), "§");
             MailString = MailString.replace(new RegExp(",", "g"), "§");
             var elencomail = MailString.split("§");
+
             for (i = 0 ; i < elencomail.length ; i++) {
                 var m = elencomail[i].trim();
 
                 if (validateEmail(m) == true) {
                     if (cli.Mail.indexOf(m) == -1) {
                         cli.Mail.push(m);
+                        cli.DataOraUltimaModifica = GetDataAttuale();
+
                     }
                 }
             }
-
 
         } catch (e) {
             alert("ERRORE MailClienteManager.gestisciMail: " + e.message);
@@ -551,10 +555,14 @@ function MailClienteManager() {
 
     this.saveToFile = function (Success, Fail) {
 
+        //alert("MailClienteManager - saveToFile - 01");
+
         FileWrite(__fileName,
                   JSON.stringify(this.Elenco),
                   Success,
                   Fail);
+
+        //alert("MailClienteManager - saveToFile - 02");
     }
 
 
@@ -563,8 +571,11 @@ function MailClienteManager() {
 function MailCliente(myCodiceCliente) {
     this.CodiceCliente = myCodiceCliente;
     this.Mail = [];     //elenco delle mail
-
+    this.DataOraUltimaModifica = null;
 }
+
+
+
 
 
 

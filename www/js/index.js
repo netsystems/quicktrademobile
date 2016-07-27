@@ -58,7 +58,7 @@ var _rigaOrdineInModifica = null;
 
 var AppVers_Major = "1";
 var AppVers_Minor = "4";
-var AppVers_Build = "5";
+var AppVers_Build = "6";
 var AppVers_Revision = "0";
 
 
@@ -68,7 +68,6 @@ function GetAppVersion() {
 
 function setTitolo() {
 
-    var titolo = "Quick Trade Mobile";
     $("#pageMainHeader").html("Quick Trade Mobile");
 
     if (!_qtProfile) { return; }
@@ -83,6 +82,8 @@ function setTitolo() {
 
     if (!_qtConfig) { return; }
     if (!_qtConfig.ind_tipo_utilizzo) { return; }
+
+
     if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.FIERA) {
         $("#pageMainPanel_goto_HITScelte").show();
         $("#pageMainPanel_goto_ListinoPrezzi").show();
@@ -214,6 +215,13 @@ function QTConfigInitAndVerify() {
             _qtConfig.ServerIP_Fiera = _readConfig.ServerIP_Fiera;
             _qtConfig.ServerPortNumber_Fiera = _readConfig.ServerPortNumber_Fiera;
             _qtConfig.ind_tipo_utilizzo = _readConfig.ind_tipo_utilizzo;
+
+
+            //alert("_qtConfig.ind_tipo_utilizzo caricato: " + _qtConfig.ind_tipo_utilizzo)
+
+            FUNZIONAMENTO_OFFLINE = true;
+            if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.FIERA) { FUNZIONAMENTO_OFFLINE = false; }
+
 
         }, function () {
             //File inesistente, propongo quindi la configurazione
@@ -512,12 +520,14 @@ function OrdersCheckList_trasferiti(troppiOrdini) {
                 var msgCodiceTrasferimento = "";
                 if (order_trasf.orderCode_PerCliente) { msgCodiceTrasferimento = " - Ordine di riferimento per il cliente: " + order_trasf.orderCode_PerCliente; }
 
+                var msgCodiceAWB = "";
+                if (order_trasf.CodiceAWB) { msgCodiceAWB = " - Codice AWB: " + order_trasf.LetteraVettura; }
 
                 var listItem = "<li data-theme=\"b\" data-icon=\"eye\">" +
                                 "<a href=\"#\" onclick=\"OrderOpen('" + order_trasf.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + customerStr_trasf + "</h2>" +
                                 "<span class=\"ui-li-count\">" + numRows + ((numRows == 1) ? " Riga" : " Righe") + "</span>" +
                                 "<p>Del " + order_trasf.orderCode.substring(6, 8) + "/" + order_trasf.orderCode.substring(4, 6) + "/" + order_trasf.orderCode.substring(0, 4) + " alle " + order_trasf.orderCode.substring(8, 10) + ":" + order_trasf.orderCode.substring(10, 12) + "</p>" +
-                                "<p><b>Data di trasferimento: " + order_trasf.orderDateTransfer_PerUtente + msgCodiceTrasferimento + "</b></p>" +
+                                "<p><b>Data di trasferimento: " + order_trasf.orderDateTransfer_PerUtente + msgCodiceTrasferimento + msgCodiceAWB + "</b></p>" +
                                 "</a></li>";
 
                 lista.append(listItem);
@@ -1248,7 +1258,7 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
                         annotazioni_interna = annotazioni_interna.replace(/'/g, "");
                         annotazioni_interna = annotazioni_interna.replace(/"/g, "");
                         annotazioni_interna = annotazioni_interna.replace(/#/g, "");
-   
+
                     }
 
                     if (_qtOrders.orders[index].orderEMail) {
@@ -1457,24 +1467,31 @@ function GetDataAttuale_PerUtente_OLD() {
 
 
 
+var _chk_usa_ip_ctrlgrp_voceSelezionata = TIPO_UTILIZZO.SEDE_CENTRALE;
+
+
+function chk_usa_ip_ctrlgr_clickButton_SedeCentrale() {
+    _chk_usa_ip_ctrlgrp_voceSelezionata = TIPO_UTILIZZO.SEDE_CENTRALE;
+}
+
+
+function chk_usa_ip_ctrlgr_clickButton_Fiera() {
+    _chk_usa_ip_ctrlgrp_voceSelezionata = TIPO_UTILIZZO.FIERA;
+}
+
 function pageConfigSaveExecute() {
     try {
-        //OTtengo il tipo di utilizzo selezionato
-        var tipo_utilizzo = TIPO_UTILIZZO.SEDE_CENTRALE;
-        tipo_utilizzo = $("#chk_usa_ip_ctrlgrp :radio:checked").val();
 
-        if (tipo_utilizzo == "usa_ip_sede_centrale")
-        { tipo_utilizzo = TIPO_UTILIZZO.SEDE_CENTRALE; }
-
-        if (tipo_utilizzo == "usa_ip_fiera")
-        { tipo_utilizzo = TIPO_UTILIZZO.FIERA; }
-
+        var tipo_utilizzo = _chk_usa_ip_ctrlgrp_voceSelezionata;
 
         var portNum = parseInt($.trim($("#pageOptionsTxtServerPort").val()));
         if (isNaN(portNum)) { portNum = 0; }
 
         var portNum_fiera = parseInt($.trim($("#pageOptionsTxtServerPort_Fiera").val()));
         if (isNaN(portNum_fiera)) { portNum_fiera = 0; }
+
+
+
 
         if (tipo_utilizzo == TIPO_UTILIZZO.SEDE_CENTRALE) {
 
@@ -1565,16 +1582,7 @@ function pageConfigSaveExecute() {
         }
 
 
-        var tipo_utilizzo = TIPO_UTILIZZO.SEDE_CENTRALE;
-        tipo_utilizzo = $("#chk_usa_ip_ctrlgrp :radio:checked").val();
 
-        if (tipo_utilizzo == "usa_ip_sede_centrale")
-        { tipo_utilizzo = TIPO_UTILIZZO.SEDE_CENTRALE; }
-
-        if (tipo_utilizzo == "usa_ip_fiera")
-        { tipo_utilizzo = TIPO_UTILIZZO.FIERA; }
-
-        //Salvo
         _qtConfig.ServerIP = $.trim($("#pageOptionsTxtServerIp").val());
         _qtConfig.ServerPortNumber = portNum;
         _qtConfig.ServerIP_Fiera = $.trim($("#pageOptionsTxtServerIp_Fiera").val());
@@ -1582,10 +1590,11 @@ function pageConfigSaveExecute() {
         _qtConfig.ind_tipo_utilizzo = tipo_utilizzo;
 
 
-        //alert("_qtConfig.ServerPortNumber " + _qtConfig.ServerPortNumber);
-        //alert("_qtConfig.ServerPortNumber_Fiera " + _qtConfig.ServerPortNumber_Fiera);
+        FUNZIONAMENTO_OFFLINE = true;
+        if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.FIERA) { FUNZIONAMENTO_OFFLINE = false; }
 
 
+        //Salvo
         _qtConfig.saveToFile(function () {
             if (_firstStart) {
                 //Al salvataggio della configurazione, se è il primo avvio reinizializzo tutto.
@@ -1616,6 +1625,9 @@ function pageConfigSaveExecute() {
             }, "Errore", "OK");
         });
 
+
+
+
     } catch (e) {
         alert("Errore pageConfigSaveExecute: " + e.message);
     }
@@ -1644,13 +1656,22 @@ $(document).on("pagebeforeshow", "#pageOptions", function () {
         //$("#chk_usa_ip_fiera").attr("checked", false).checkboxradio("refresh");
         //$("#chk_usa_ip_sede_centrale").attr("checked", false).checkboxradio("refresh");
 
+
+        $("#chk_usa_ip_sede_centrale").removeClass('ui-btn-active');
+        $("#chk_usa_ip_fiera").removeClass('ui-btn-active');
         if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.SEDE_CENTRALE) {
-            $("#chk_usa_ip_sede_centrale").attr("checked", true).checkboxradio("refresh");
+            //alert("SEDE_CENTRALE")
+            _chk_usa_ip_ctrlgrp_voceSelezionata = TIPO_UTILIZZO.SEDE_CENTRALE;
+            $("#chk_usa_ip_sede_centrale").addClass('ui-btn-active');
         }
         if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.FIERA) {
-            $("#chk_usa_ip_fiera").attr("checked", true).checkboxradio("refresh");
+            //alert("FIERA")
+            _chk_usa_ip_ctrlgrp_voceSelezionata = TIPO_UTILIZZO.FIERA;
+            $("#chk_usa_ip_fiera").addClass('ui-btn-active');
         }
-        $("#pageOptionsTxtQtUser").val(_qtConfig.OperatoreCodiceQT);
+
+
+        //$("#pageOptionsTxtQtUser").val(_qtConfig.OperatoreCodiceQT);
     }
     $("#pageOptionsDeleteAll_psw").val("");
 });
@@ -1680,6 +1701,11 @@ $(document).on("pagecontainerbeforechange", function (event, data) {
 
 function GetServerURL(branchUrl) {
     var url = "http://" + _qtConfig.ServerIP + ":" + _qtConfig.ServerPortNumber + "/";
+
+    if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.FIERA) {
+        url = "http://" + _qtConfig.ServerIP_Fiera + ":" + _qtConfig.ServerPortNumber_Fiera + "/";
+    }
+
     if (branchUrl)
         url += branchUrl + "/";
     return url;
@@ -1713,38 +1739,51 @@ function SynchronizeDataSource() {
                                                     var uploadCount = OrdersCheckToUploadCount();
 
                                                     if (uploadCount > 0) {
-                                                        //avvio upload ordini, se ne ho.
-                                                        LoaderShow("Upload Ordini...");
-                                                        OrderUploadAll(function () {
-                                                            //upload ordini riuscito, ora download data source
 
-                                                            SynchronizeDataSourceStart();
+                                                        navigator.notification.confirm("Sono presenti " + uploadCount + " ordini da trasferire. Eseguire il trasferimento?",
 
-                                                        }, function (errorDetail) {
-                                                            //fallito
-                                                            var str = "";
-                                                            if (errorDetail) {
-                                                                str = "Impossibile sincronizzare uno o pi\u00f9 ordini.\n\nDettaglio: " + errorDetail.toString();
-                                                            } else {
-                                                                str = "Impossibile sincronizzare uno o pi\u00f9 ordini.";
-                                                            }
-                                                            navigator.notification.alert(str, function () {
-                                                                PageChange("#pageMain", true);
-                                                                return;
-                                                            }, "Ordine non sincronizzato", "OK");
-                                                            return;
+                                                            function (buttonIndex) {
+                                                                if (buttonIndex == 1) {
+                                                                    //avvio upload ordini, se ne ho.
+                                                                    LoaderShow("Upload Ordini...");
+                                                                    OrderUploadAll(function () {
+                                                                        //upload ordini riuscito, ora download data source
+
+                                                                        SynchronizeDataSourceStart();
+
+                                                                    }, function (errorDetail) {
+                                                                        //fallito
+                                                                        var str = "";
+                                                                        if (errorDetail) {
+                                                                            str = "Impossibile sincronizzare uno o pi\u00f9 ordini.\n\nDettaglio: " + errorDetail.toString();
+                                                                        } else {
+                                                                            str = "Impossibile sincronizzare uno o pi\u00f9 ordini.";
+                                                                        }
+                                                                        navigator.notification.alert(str, function () {
+                                                                            PageChange("#pageMain", true);
+                                                                            return;
+                                                                        }, "Ordine non sincronizzato", "OK");
+                                                                        return;
 
 
 
-                                                            navigator.notification.alert("Impossibile sincronizzare gli ordini. Sincronizzazione interrotta.", function () {
-                                                                return;
-                                                            }, "Sincronizzazione fallita", "OK");
-                                                        },
-                                                        false);
+                                                                        navigator.notification.alert("Impossibile sincronizzare gli ordini. Sincronizzazione interrotta.", function () {
+                                                                            return;
+                                                                        }, "Sincronizzazione fallita", "OK");
+                                                                    },
+                                                                    false);
+
+
+                                                                }
+                                                                else {
+                                                                    SynchronizeDataSourceStart();
+                                                                }
+                                                            }, "Richiesta di conferma", "Si,No");
+
+
+
                                                     } else {
                                                         //Scarico subito il datasource
-
-
                                                         SynchronizeDataSourceStart();
                                                     }
 
@@ -1768,6 +1807,38 @@ function SynchronizeDataSource() {
     }
 }
 
+
+function applicaCodiciAWBAgliOrdini() {
+
+
+    if (!_qtOrders) { return; }
+    if (!_qtOrders.orders) { return; }
+    if (_qtOrders.orders.length == 0) { return; }
+
+    var cnt = 0;
+
+    for (var i = 0; i < _qtDS.dataSource.CodiciAWB.length; i++) {
+        var obj = _qtDS.dataSource.CodiciAWB[i];
+        var OrdineCodiceDispositivo = obj.OrdineCodiceDispositivo;
+        var ordine = _qtOrders.getOrder(OrdineCodiceDispositivo);
+        if (ordine) { ordine.LetteraVettura = obj.LetteraVettura; cnt++ }
+    }
+
+
+    if (cnt > 0) {
+        //Salvo su file l'ordine che sto compilando (non si sa mai!) Success, Fail
+        _qtOrders.saveToFile(function () {
+            //salvataggio temporaneo dell'ordine riuscito.
+        }, function (err) {
+            navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () { return; }, "Attenzione", "OK");
+            return;
+        });
+        navigator.notification.alert("Sono stati aggiornati " + cnt + " ordini con i relativi codici AWB", function () { }, "Codici AWB aggiornati", "OK");
+    }
+
+
+}
+
 function SynchronizeDataSourceStart() {
     try {
         //Verifico Online con Server
@@ -1785,7 +1856,7 @@ function SynchronizeDataSourceStart() {
             method: "GET",
             dataType: "text",
             data: params,
-            
+
             success: function (result) {
 
 
@@ -1806,6 +1877,9 @@ function SynchronizeDataSourceStart() {
                     QTDataSourceInitAndVerify(function () {
                         //Successo
                         //LoaderHide(); << Già richiamato
+
+                        applicaCodiciAWBAgliOrdini()
+
                         navigator.notification.alert("Sincronizzazione con il server completata.", function () {
                             //$("#pageMainPanel").panel("close");
                             PageChange("#pageMain", true);
@@ -1813,6 +1887,9 @@ function SynchronizeDataSourceStart() {
                         }, "Notifica", "OK");
 
                     });
+
+
+
 
                 }, function (err) {
                     //ERRORE SALVATAGGIO FILE
@@ -1847,6 +1924,350 @@ function SynchronizeDataSourceStart() {
         alert("Errore SynchronizeDataSourceStart: " + e.message);
     }
 }
+
+
+function UploadMailClienti_withCheck() {
+    ServerCheckAppVersionForOperation(OPERAZIONI.MAIL_CLIENTE_SINCRONIZZAZIONE, UploadMailClienti);
+}
+
+
+function UploadMailClienti() {
+
+
+    if ((!_MailClienteMgr) || (!_MailClienteMgr.Elenco) || (_MailClienteMgr.Elenco.length == 0)) {
+        navigator.notification.alert("Nessuna \u00e8 stata definita alcuna mail per nessun cliente.", function () { }, "Operazione non necessaria", "OK");
+        return;
+
+    }
+
+    try {
+        //Verifico Online con Server
+        navigator.notification.confirm("Avviare l'upload delle proprie mail cliente al server Quick Trade?",
+                                        function (buttonIndex) {
+                                            if (buttonIndex == 1) {
+                                                //avvio sincronizzazione
+                                                LoaderShow("Contatto server...");
+                                                ServerOnlineVerify(function () {
+
+
+
+
+                                                    UploadMailClienti_Step01_GetList();
+
+
+                                                }, function (textStatus, textError) {
+                                                    //OFFLINE-ERRORE
+                                                    LoaderHide();
+                                                    navigator.notification.alert("Il server non \u00e8 raggiungibile, non \u00e8 possibile eseguire l'operazione.", function () { }, "Attenzione", "OK");
+                                                });
+                                            }
+                                        },
+                                        "Richiesta di conferma",
+                                        "Avvia,Annulla");
+
+
+
+    } catch (e) {
+        LoaderHide();
+        alert("Errore SynchronizeDataSource: " + e.message);
+    }
+}
+
+
+function UploadMailClienti_Step01_GetList() {
+    try {
+        //Verifico Online con Server
+        LoaderShow("Avvio in corso...");
+
+        var params = JSON.stringify(_qtProfile);
+        var params = JSON.parse(params);
+        params.VersioneApp = GetAppVersion();
+        params = JSON.stringify(params);
+
+        $.ajax({
+            url: GetServerURL("datasource/MailCliente_GetList.ashx"),
+            method: "GET",
+            dataType: "text",
+            data: params,
+
+            success: function (result) {
+
+
+                if (result.indexOf("\"errors\"") > -1) {
+                    LoaderHide();
+                    //errore
+                    var pErrors = JSON.parse(result);
+                    navigator.notification.alert("Errori durante il download dei dati. Dettaglio: " + pErrors.errors.toString(), function () {
+                        return;
+                    }, "upload fallito", "OK");
+                    return;
+                }
+
+
+                //alert("result " + result)
+                //alert("JSON.parse(result).DispositiviMobileMailCliente_refList.length " + JSON.parse(result).DispositiviMobileMailCliente_refList.length)
+
+
+                var DispositiviMobileMailCliente_refList = JSON.parse(result).DispositiviMobileMailCliente_refList;
+                var clienti = [];
+
+                var salvataggioRichiesto = false;
+
+                for (var i = 0; i < _MailClienteMgr.Elenco.length; i++) {
+                    var codicecliente_locale = _MailClienteMgr.Elenco[i].CodiceCliente;
+
+                    if (!_MailClienteMgr.Elenco[i].DataOraUltimaModifica) {
+                        //dataora aggiornamento non impostato in locale (situazione iniziale), aggiungo il cliente
+                        // alert("DataOraUltimaModifica vuota per il cliente " + codicecliente_locale);
+                        _MailClienteMgr.Elenco[i].DataOraUltimaModifica = GetDataAttuale()
+                        salvataggioRichiesto = true;
+                        //alert("DataOraUltimaModifica " + _MailClienteMgr.Elenco[i].DataOraUltimaModifica );
+                        clienti.push(codicecliente_locale);
+                        continue;
+                    }
+
+                    var list = SEARCHJS.matchArray(DispositiviMobileMailCliente_refList, { "AnagraficaCodice": codicecliente_locale });
+
+
+                    //  alert("list.length " + list.length);
+
+                    if (list.length == 0) {
+                        //cliente non presente su server --> lo aggiungo
+                        clienti.push(codicecliente_locale);
+                        continue;
+                    }
+
+                    else {
+
+                        //alert("codicecliente_locale trovato " + codicecliente_locale)
+
+                        if (!list[0].DataUltimoUpload) {
+                            clienti.push(codicecliente_locale);
+                            continue;
+                        }
+
+
+                        if (_MailClienteMgr.Elenco[i].DataOraUltimaModifica > list[0].DataUltimoUpload) {
+                            //cliente non presente su server --> lo aggiungo
+                            clienti.push(codicecliente_locale);
+                            continue;
+                        }
+                    }
+
+
+
+                }
+
+
+
+                if (salvataggioRichiesto == true) {
+
+                    _MailClienteMgr.saveToFile();
+                }
+
+                UploadMailClienti_Step02_DoUpload(clienti)
+
+                LoaderHide();
+            },
+
+            error: function (xhr, textStatus, textError) {
+
+                alert("UploadMailClienti_Step01_GetList - error")
+
+                LoaderHide();
+                navigator.notification.alert("upload mail clienti fallito. (" + textStatus.toString() + "," + textError.toString() + ")", function () {
+                    return;
+                }, "Errore", "OK");
+            }
+        });
+        LoaderHide();
+
+    } catch (e) {
+        LoaderHide();
+        alert("Errore UploadMailClienti_Step01_GetList: " + e.message);
+    }
+}
+
+
+
+
+function UploadMailClienti_Step02_DoUpload(clienti) {
+
+    //  alert("clienti " + clienti);
+
+    if (clienti.length == 0) {
+        navigator.notification.alert("Tutte le mail cliente risultato aggiornate sul server.\nTrasferimento non necessario.", function () { }, "Operazione non eseguita", "OK");
+        return;
+    }
+
+    var dati_obj = [];
+
+    for (var i = 0; i < clienti.length; i++) {
+        var codcli = clienti[i];
+        var list = SEARCHJS.matchArray(_MailClienteMgr.Elenco, { "CodiceCliente": codcli });
+        if (list.length > 0) {
+            var m = list[0];
+            dati_obj.push(m);
+        }
+    }
+
+    if (dati_obj.length == 0) {
+        navigator.notification.alert("Tutte le mail cliente risultato aggiornate sul server.\nTrasferimento non necessario.", function () { }, "Operazione non eseguita", "Annulla");
+        return;
+    }
+
+
+    var datijson = JSON.stringify({ elencoMailCliente: dati_obj, profiloutente: _qtProfile });
+
+    //alert("datijson " + datijson);
+
+    $.ajax({
+        url: GetServerURL("datasource/MailCliente_Upload.ashx"),
+        type: "GET",
+        dataType: "jsonp",
+        data: datijson,
+        success: function (result) {
+            LoaderHide();
+
+            if (result.errors) {
+                navigator.notification.alert("Upload mail cliente su server fallito.\nDettaglio: " + result.errors.toString(), function () { }, "Operazione non eseguita", "OK");
+                return;
+            }
+
+            _MailClienteMgr.saveToFile();
+            navigator.notification.alert("Tutte le mail cliente sono state aggiornate sul server.", function () { }, "Operazione eseguita", "OK");
+
+
+        },
+        error: function (xhr, textStatus, textError) {
+            LoaderHide();
+            alert("Errore UploadMailClienti_Step02_DoUpload AJAX: " + textstatus.toString() + " " + textError.toString());
+        }
+    });
+
+
+
+
+}
+
+
+
+
+
+
+
+function DownloadMailClienti_withCheck() {
+    ServerCheckAppVersionForOperation(OPERAZIONI.MAIL_CLIENTE_SINCRONIZZAZIONE, DownloadMailClienti);
+}
+
+
+function DownloadMailClienti() {
+
+
+    try {
+        //Verifico Online con Server
+        navigator.notification.confirm("Avviare il ripristino dei propri contatti mail?",
+                                        function (buttonIndex) {
+                                            if (buttonIndex == 1) {
+                                                //avvio sincronizzazione
+                                                LoaderShow("Contatto server...");
+                                                ServerOnlineVerify(function () {
+
+                                                    var params = JSON.stringify(_qtProfile);
+                                                    var params = JSON.parse(params);
+                                                    params.VersioneApp = GetAppVersion();
+                                                    params = JSON.stringify(params);
+
+                                                    $.ajax({
+                                                        url: GetServerURL("datasource/MailCliente_Download.ashx"),
+                                                        method: "GET",
+                                                        dataType: "text",
+                                                        data: params,
+
+                                                        success: function (result) {
+
+
+                                                            if (result.indexOf("\"errors\"") > -1) {
+                                                                LoaderHide();
+                                                                //errore
+                                                                var pErrors = JSON.parse(result);
+                                                                navigator.notification.alert("Errori durante il download dei dati. Dettaglio: " + pErrors.errors.toString(), function () {
+                                                                    return;
+                                                                }, "upload fallito", "OK");
+                                                                return;
+                                                            }
+
+
+                                                            //alert("result " + result)
+                                                            //alert("JSON.parse(result).DispositiviMobileMailCliente_refList.length " + JSON.parse(result).DispositiviMobileMailCliente_refList.length)
+
+
+                                                            LoaderShow("Elaborazione in corso...");
+
+                                                            var DispositiviMobileMailCliente = JSON.parse(result).DispositiviMobileMailCliente;
+
+
+                                                            if (DispositiviMobileMailCliente.length == 0) {
+                                                                LoaderHide();
+                                                                navigator.notification.alert("Nessuna mail cliente presente sul server, ripristino non necessario.", function () { }, "operazione terminata", "OK");
+                                                                return;
+                                                            }
+
+                                                            //reset elenco mail
+                                                            //_MailClienteMgr.Elenco = [];
+
+                                                            for (var i = 0; i < DispositiviMobileMailCliente.length; i++) {
+                                                                var AnagraficaCodice = DispositiviMobileMailCliente[i].AnagraficaCodice;
+                                                                var Mail = DispositiviMobileMailCliente[i].ElencoMail;
+                                                                //alert(AnagraficaCodice + " - " + Mail)
+                                                                _MailClienteMgr.Add(AnagraficaCodice, Mail);
+                                                            }
+                                                            LoaderHide();
+
+                                                            _MailClienteMgr.saveToFile();
+                                                            navigator.notification.alert("Tutte le mail associate ai clienti sono state ripristinate.", function () { }, "operazione terminata", "OK");
+
+                                                        },
+
+                                                        error: function (xhr, textStatus, textError) {
+
+
+                                                            LoaderHide();
+                                                            navigator.notification.alert("download mail clienti fallito. (" + textStatus.toString() + "," + textError.toString() + ")", function () {
+                                                                return;
+                                                            }, "Errore", "OK");
+                                                        }
+                                                    });
+                                                    LoaderHide();
+
+
+
+                                                }, function (textStatus, textError) {
+                                                    //OFFLINE-ERRORE
+                                                    LoaderHide();
+                                                    navigator.notification.alert("Il server non \u00e8 raggiungibile, non \u00e8 possibile eseguire l'operazione.", function () { }, "Attenzione", "OK");
+                                                });
+                                            }
+                                        },
+                                        "Richiesta di conferma",
+                                        "Avvia,Annulla");
+
+
+
+    } catch (e) {
+        LoaderHide();
+        alert("Errore SynchronizeDataSource: " + e.message);
+    }
+}
+
+
+
+
+
+
+
+
+
 
 
 //ELENCO ORDINI CHIUSI, MA NON TRASFERITI
@@ -2251,7 +2672,7 @@ function pageOrderExit() {
         _qtOrders.saveToFile(function () {
             //salvataggio temporaneo dell'ordine riuscito.
         }, function (err) {
-            navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () { return;}, "Attenzione", "OK");
+            navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () { return; }, "Attenzione", "OK");
             return;
         });
     } catch (e) {
@@ -3162,7 +3583,7 @@ function OrderSave_withCheck() {
 
 function OrderSave() {
 
-    
+
 
     if (!_qtOrderWorking) { return; }
     if (!_qtOrders.getOrder(_qtOrderWorking)) { return; }
@@ -4041,15 +4462,18 @@ $('#pageCustomerAnnotazioni_interna').keypress(function (e) {
 
 /*------------------------------------------------  EMAIL --------------------------------------------------*/
 $("#pageCustomerEMail").change(function () {
+    //alert("pageCustomerEMail  chg");
+
     if (_qtOrderWorking) {
+
         _qtOrders.getOrder(_qtOrderWorking).orderEMail = $(this).val();
 
         if ((_qtOrders.getOrder(_qtOrderWorking).customerCode) && (_qtOrders.getOrder(_qtOrderWorking).orderEMail)) {
             if (_qtOrders.getOrder(_qtOrderWorking).orderEMail.trim() != "") {
                 _MailClienteMgr.Add(_qtOrders.getOrder(_qtOrderWorking).customerCode, _qtOrders.getOrder(_qtOrderWorking).orderEMail);
+                _MailClienteMgr.saveToFile();
             }
         }
-
 
 
         try {
@@ -4086,7 +4510,13 @@ $('#pageCustomerEMail').keypress(function (e) {
 
 $("#pageCustomerEMail_interna").change(function () {
     if (_qtOrderWorking) {
-        _qtOrders.getOrder(_qtOrderWorking).orderEMail_interna = $(this).val();
+
+        var mail = $(this).val();
+        _qtOrders.getOrder(_qtOrderWorking).orderEMail_interna = mail;
+
+
+
+
 
         try {
             //Salvo su file l'ordine che sto compilando (non si sa mai!) Success, Fail
@@ -4340,7 +4770,7 @@ function CustomersFilter_OffLine(filterStringValue) {
         } else {
             objResp = SEARCHJS.matchArray(_qtDS.dataSource.Anagrafica, { "RagioneSociale": filterStringValue, "AnagraficaCodice": filterStringValue, _join: "OR", _text: true });
         }
-        
+
         //alert("TROVATI: " + objResp.length.toString());
 
         $("#pageCustomerList").listview()[0].innerHTML = "";
@@ -4622,6 +5052,7 @@ function OrderCustomerApplyStyle() {
             if (_qtOrders.getOrder(_qtOrderWorking).orderDateTransfer_PerUtente) { msgInfoTrasferimento = "Data di trasferimento: " + _qtOrders.getOrder(_qtOrderWorking).orderDateTransfer_PerUtente }
 
             if (_qtOrders.getOrder(_qtOrderWorking).orderCode_PerCliente) { msgInfoTrasferimento = msgInfoTrasferimento + " - Ordine di riferimento per il cliente: " + _qtOrders.getOrder(_qtOrderWorking).orderCode_PerCliente; }
+            if (_qtOrders.getOrder(_qtOrderWorking).LetteraVettura) { msgInfoTrasferimento = msgInfoTrasferimento + " - Codice AWB: " + _qtOrders.getOrder(_qtOrderWorking).LetteraVettura; }
 
 
 
@@ -4652,6 +5083,11 @@ function OrderCustomerApplyStyle() {
         $('#pageOrder_Panel_listView_Conferma').show();
         $('#pageOrder_Panel_listView_Trasferisci').show();
         $('#pageOrder_Panel_listView_InviaMail').show();
+
+        //in fiera non si inviano le mail perchè non c'è internet
+        if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.FIERA) {
+            $('#pageOrder_Panel_listView_InviaMail').hide();
+        }
 
         if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.NEW) {
             $('#pageOrder_Panel_listView_Riapri').hide();
@@ -4686,6 +5122,16 @@ function StatLoadHitScelte(LineaToLoad) {
             }, "Attenzione", "OK");
         });
 
+
+        $("#pageHitScelteLoadCT").removeClass('ui-btn-active');
+        $("#pageHitScelteLoad2T").removeClass('ui-btn-active');
+
+        if (LineaToLoad == 'FF') { $("#pageHitScelteLoadCT").addClass('ui-btn-active'); }
+        if (LineaToLoad == '2T') { $("#pageHitScelteLoad2T").addClass('ui-btn-active'); }
+
+
+        pageHitScelteLoadCT
+
         $.ajax({
             url: GetServerURL("stats/hitscelte"),
             method: "GET",
@@ -4716,6 +5162,8 @@ function StatLoadHitScelte(LineaToLoad) {
                                         "<td>" + rows[i].Articolo + "</td>" +
                                         "<td>" + rows[i].Disegno + "</td>" +
                                         "<td>" + rows[i].Qta.toString() + "</td>" +
+                                        "<td>" + rows[i].Stagione + "</td>" +
+                                        "<td>" + rows[i].Fiera + "</td>" +
                                       "</tr>";
                     }
 
@@ -6498,6 +6946,8 @@ function pageElencoContattiClienti_EliminaVociSelezionate_core(names) {
         for (j = 0; j < names.length; j++) {
             if (names[j] == m) {
                 mgrCliente.Mail.splice(i, 1);
+                mgrCliente.DataOraUltimaModifica = GetDataAttuale();
+
                 testo = testo.replace(new RegExp(m + "§", "g"), "");
                 break;
             }
