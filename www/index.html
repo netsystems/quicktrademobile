@@ -149,38 +149,36 @@
             <h2 style="text-align: right;">Comunicazione Server</h2>
             <div data-role="fieldcontain">
                 <h3 style="text-align: left;">Tipo di utilizzo</h3>
-
-                <div style="text-align: center;">
-                    <fieldset data-role="controlgroup" data-type="horizontal" name="chk_usa_ip_ctrlgrp" id="chk_usa_ip_ctrlgrp">
-                        <!--<legend></legend>-->
-                        <input type="radio" name="chk_usa_ip" id="chk_usa_ip_sede_centrale" value="usa_ip_sede_centrale" />
-                        <label for="chk_usa_ip_sede_centrale">Sede centrale</label>
-                        <input type="radio" name="chk_usa_ip" id="chk_usa_ip_fiera" value="usa_ip_fiera" />
-                        <label for="chk_usa_ip_fiera">Fiera</label>
-                    </fieldset>
+                <div id="chk_usa_ip_ctrlgrp" data-role="navbar">
+                    <br />
+                    <ul>
+                        <li><a href="#" id="chk_usa_ip_sede_centrale" onclick="chk_usa_ip_ctrlgr_clickButton_SedeCentrale()" >Sede Centrale</a></li>
+                        <li><a href="#" id="chk_usa_ip_fiera" onclick="chk_usa_ip_ctrlgr_clickButton_Fiera()">Fiera</a></li>
+                        <!--<li><a href="#" id="pageOrder_TipoArticolo_TG" onclick="pageOrder_SelezionatoTipoArticolo('TG');">Taglio<br />(TG)</a></li>-->
+                    </ul>
                 </div>
-
             </div>
 
-            <table style="width: 100%;">
-                <tr>
-                    <td style="width: 50%;">
-                        <h3 style="text-align: center;">Sede centrale</h3>
-                        <label for="pageOptionsTxtServerIp">Indirizzo IP server sede centrale:</label>
-                        <input type="text" name="pageOptionsTxtServerIp" id="pageOptionsTxtServerIp" value="" />
-                        <label for="pageOptionsTxtServerPort">Numero porta server sede centrale:</label>
-                        <input type="text" name="pageOptionsTxtServerPort" id="pageOptionsTxtServerPort" value="" placeholder="es. 49219" />
-                    </td>
-                    <td style="width: 50%;">
-                        <h3 style="text-align: center;">Fiera</h3>
-                        <label for="pageOptionsTxtServerIp_Fiera">Indirizzo IP server fiera:</label>
-                        <input type="text" name="pageOptionsTxtServerIp_Fiera" id="pageOptionsTxtServerIp_Fiera" value="" />
-                        <label for="pageOptionsTxtServerPort_Fiera">Numero porta server fiera:</label>
-                        <input type="text" name="pageOptionsTxtServerPort_Fiera" id="pageOptionsTxtServerPort_Fiera" value="" placeholder="es. 49219" />
-                    </td>
-                </tr>
-            </table>
-
+            <div style="overflow: auto;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 50%;">
+                            <h3 style="text-align: center;">Sede centrale</h3>
+                            <label for="pageOptionsTxtServerIp">Indirizzo IP server sede centrale:</label>
+                            <input type="text" name="pageOptionsTxtServerIp" id="pageOptionsTxtServerIp" value="" />
+                            <label for="pageOptionsTxtServerPort">Numero porta server sede centrale:</label>
+                            <input type="text" name="pageOptionsTxtServerPort" id="pageOptionsTxtServerPort" value="" placeholder="es. 49219" />
+                        </td>
+                        <td style="width: 50%;">
+                            <h3 style="text-align: center;">Fiera</h3>
+                            <label for="pageOptionsTxtServerIp_Fiera">Indirizzo IP server fiera:</label>
+                            <input type="text" name="pageOptionsTxtServerIp_Fiera" id="pageOptionsTxtServerIp_Fiera" value="" />
+                            <label for="pageOptionsTxtServerPort_Fiera">Numero porta server fiera:</label>
+                            <input type="text" name="pageOptionsTxtServerPort_Fiera" id="pageOptionsTxtServerPort_Fiera" value="" placeholder="es. 49219" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
             <a id="pageOptionsSave" href="#" class="ui-btn ui-corner-all ui-icon-chec ui-btn-icon-left ui-icon-check">Salva configurazione</a>
             <br />
             <br />
@@ -195,14 +193,14 @@
             </div>
         </div>
 
-        <div data-role="popup" id="pop_up_richiesta_psw_reset" data-theme="a" class="ui-corner-all ui-content" data-overlay-theme="b" style="width: 265px;" data-dismissible="false">
-            <div style="padding: 10px 20px;">
-                <label for="pageOptionsDeleteAll_psw">Password per formattazione:</label>
-                <input type="password" name="pageOptionsDeleteAll_psw" id="pageOptionsDeleteAll_psw" value="" />
-                <a id="pop_up_richiesta_psw_reset_OK" onclick="CancellaTutto();" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check">OK</a>
-                <a id="pop_up_richiesta_psw_reset_Annulla" data-rel="back" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-delete">Annulla</a>
-            </div>
+    <div data-role="popup" id="pop_up_richiesta_psw_reset" data-theme="a" class="ui-corner-all ui-content" data-overlay-theme="b" style="width: 265px;" data-dismissible="false">
+        <div style="padding: 10px 20px;">
+            <label for="pageOptionsDeleteAll_psw">Password per formattazione:</label>
+            <input type="password" name="pageOptionsDeleteAll_psw" id="pageOptionsDeleteAll_psw" value="" />
+            <a id="pop_up_richiesta_psw_reset_OK" onclick="CancellaTutto();" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check">OK</a>
+            <a id="pop_up_richiesta_psw_reset_Annulla" data-rel="back" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-delete">Annulla</a>
         </div>
+    </div>
 
     </div>
     <!--PROFILE PAGE-->
@@ -313,34 +311,12 @@
                             (TGG)</a></li>
                         <!--<li><a href="#" id="pageOrder_TipoArticolo_TG" onclick="pageOrder_SelezionatoTipoArticolo('TG');">Taglio<br />(TG)</a></li>-->
                     </ul>
-
                 </div>
 
-
-
-                <!--                
-                <div id="pageOrderCliente_div_TableAddArticolo_core" style="overflow: auto;">
-                    <table style="width: 100%;" id="pageOrderCliente_TableAddArticolo" border="0">
-                        <tr>
-                            <td>
-                                <input type="text" name="pageOrderRowAdd" id="pageOrderRowAdd" placeholder="Sparare il codice a barre o ricercarlo dall'elenco..." value="" style="height: 35px; width: 100%;" data-clear-btn="true" data-clear-btn-text="Svuota" />
-                            </td>
-                            <td style="width: 100px;">
-                                <div class="custom-border-radius"><a style="width: 100px;" href="#" id="pageOrderSelezionaArticolo" class="ui-btn ui-icon-search ui-btn-icon-left" onclick="PageChange('#pageOrder_SelezArticolo_Step01',false);">Ricerca</a></div>
-                            </td>
-                            <td style="width: 100px;">
-                                <div class="custom-border-radius"><a style="width: 100px;" href="#" id="pageOrderRowAddBtn" class="ui-btn ui-icon-plus ui-btn-icon-left" onclick="OrderAddArticle();">Aggiungi</a></div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                
-                    -->
-               
-                <a  href="#" id="pageOrderSelezionaArticolo" class="ui-corner-all ui-btn ui-icon-search ui-btn-icon-left" onclick="PageChange('#pageOrder_SelezArticolo_Step01',false);">Ricerca</a>
+                <a href="#" id="pageOrderSelezionaArticolo" class="ui-corner-all ui-btn ui-icon-search ui-btn-icon-left" onclick="PageChange('#pageOrder_SelezArticolo_Step01',false);">Ricerca</a>
                 <input type="text" name="pageOrderRowAdd" id="pageOrderRowAdd" placeholder="Sparare il codice a barre o ricercarlo dall'elenco..." value="" style="height: 35px; width: 100%;" data-clear-btn="true" data-clear-btn-text="Svuota" />
                 <a href="#" id="pageOrderRowAddBtn" class="ui-corner-all ui-btn ui-icon-plus ui-btn-icon-left" onclick="OrderAddArticle();">Aggiungi</a>
-                
+
             </div>
 
 
@@ -508,11 +484,12 @@
                 <h2 style="text-align: right; margin-top: -5px;">Altri Dati</h2>
                 <label for="pageCustomerContatto1">Contatto 1:</label>
                 <input name="pageCustomerContatto1" id="pageCustomerContatto1" value="" type="text" maxlength="50">
+
                 <label for="pageCustomerAnnotazioni">Annotazioni cliente:</label>
-                <textarea name="pageCustomerAnnotazioni" id="pageCustomerAnnotazioni" rows="5" maxlength="255"></textarea>
+                <textarea name="pageCustomerAnnotazioni" id="pageCustomerAnnotazioni" rows="5" maxlength="500"></textarea>
 
                 <label for="pageCustomerAnnotazioni_interna">Annotazioni interne:</label>
-                <textarea name="pageCustomerAnnotazioni_interna" id="pageCustomerAnnotazioni_interna" rows="5" maxlength="255"></textarea>
+                <textarea name="pageCustomerAnnotazioni_interna" id="pageCustomerAnnotazioni_interna" rows="5" maxlength="500"></textarea>
 
                 <label for="pageCustomerEMail">E-Mail:</label>
                 <input name="pageCustomerEMail" id="pageCustomerEMail" value="" type="text" maxlength="255">
@@ -567,8 +544,8 @@
             <h1>Selezione contatti cliente</h1>
         </div>
         <div data-role="content" data-theme="a">
-            <div id="pageElencoContattiClienti_menu" data-role="navbar" data-iconpos="top">
-                <a href="#" data-icon="delete" onclick="pageElencoContattiClienti_EliminaVociSelezionate();">Elimina le voci selezionate</a>
+            <div id="pageElencoContattiClienti_menu" data-role="navbar" data-iconpos="left">
+                <a href="#" data-icon="delete" onclick="pageElencoContattiClienti_EliminaVociSelezionate();" class="ui-btn ui-corner-all">Elimina le mail selezionate</a>
             </div>
             <div id="pageElencoContatti_mainDiv">
             </div>
@@ -599,9 +576,16 @@
             <h1>Sincronizzazione</h1>
         </div>
         <div data-role="content" data-theme="a">
+
+
+            <h2 style="text-align: right; margin-top: -5px;">Mail cliente</h2>
+            <a href="#" class="ui-btn ui-corner-all ui-icon-arrow-u ui-btn-icon-left" onclick="UploadMailClienti_withCheck();">Invia a server</a>
+            <a href="#" class="ui-btn ui-corner-all ui-icon-arrow-d ui-btn-icon-left" onclick="DownloadMailClienti_withCheck();">Ripristina</a>
+            <br />
+            <h2 style="text-align: right; margin-top: -5px;">Dati applicazione</h2>
+
             <a href="#" class="ui-btn ui-corner-all ui-icon-refresh ui-btn-icon-left" onclick="SynchronizeDataSource_withCheck();">Avvia Sincronizzazione</a>
             <div id="pageSyncOrdMissing" class="ui-screen-hidden">
-                <hr />
                 <p id="pageSymcInfo">Sono presenti ordini da scaricare sul server di Quick Trade.</p>
                 <ul id="pageSyncOrdList" data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
             </div>
@@ -612,26 +596,32 @@
         <div data-role="header" data-position="fixed" data-tap-toggle="false">
             <div class="custom-border-radius"><a href="#" onclick="PageChange('#pageMain',true);" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-notext ui-icon-arrow-l"></a></div>
             <h1>Visualizzazione HIT Scelte</h1>
+
+            <!-- /navbar -->
+        </div>
+        <div data-role="content" data-theme="a">
             <div data-role="navbar">
                 <ul>
                     <li><a href="#" id="pageHitScelteLoadCT" data-icon="bullets">Cervotessile</a></li>
                     <li><a href="#" id="pageHitScelteLoad2T" onclick="" data-icon="bullets">Secondo Tempo</a></li>
                 </ul>
             </div>
-            <!-- /navbar -->
-        </div>
-        <div data-role="content" data-theme="a">
             <h2 id="pageHitScelteTitle">LINEA CERVOTESSILE</h2>
-            <table data-role="table" id="pageHitScelteTable" data-mode="table" class="ui-responsive table-stripe">
-                <thead>
-                    <tr>
-                        <th>Articolo</th>
-                        <th>Disegno</th>
-                        <th style="width: 30px;">Quantit&agrave;</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+
+            <div style="overflow: auto;">
+                <table data-role="table" id="pageHitScelteTable" data-mode="table" class="ui-responsive table-stripe">
+                    <thead>
+                        <tr>
+                            <th>Articolo</th>
+                            <th>Disegno</th>
+                            <th style="width: 30px;">Quantit&agrave;</th>
+                            <th>Stagione</th>
+                            <th>Fiera</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
     <!--LISTINI PAGE-->
@@ -655,7 +645,7 @@
                     </div>
                     <ul id="pageListiniListView" data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
                 </div>
-                <div id="pageListiniPrezzi">
+                <div id="pageListiniPrezzi" style="overflow: auto;">
                     <center><h3 id="pageListiniPrezziTitle"></h3></center>
                     <table data-role="table" id="pageListiniTablePrezzi" data-mode="table" class="ui-responsive table-stripe">
                         <thead>
