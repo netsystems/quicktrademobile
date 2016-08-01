@@ -59,7 +59,7 @@ var _rigaOrdineInModifica = null;
 var AppVers_Major = "1";
 var AppVers_Minor = "4";
 var AppVers_Build = "6";
-var AppVers_Revision = "0";
+var AppVers_Revision = "1";
 
 
 function GetAppVersion() {
@@ -285,10 +285,8 @@ function QTDataSourceInitAndVerify(Success) {
             //Datasource letto
             _qtDS.dataSource = _readDS;
 
-            $("#pageMainFairInfo").html(" Fiera " + _qtDS.dataSource.generalInfo.fairSeason + " - " + _qtDS.dataSource.generalInfo.fairDescr);
-            $("#pageMainFairInfo").html(" CERVOTESSILE S.p.A.");
 
-
+            setPageMainFairInfo();
             LoaderHide();
 
 
@@ -349,6 +347,9 @@ function QTOrderListInitAndVerify() {
                         if (!r.Qta) { r.Qta = 1; richiestoSalvataggio = true; }
                         if (!r.OggettoCodice) { r.OggettoCodice = "TP"; richiestoSalvataggio = true; }
                     }
+
+                    if (!o.TipoUtilizzo) { o.TipoUtilizzo = TIPO_UTILIZZO.SEDE_CENTRALE; richiestoSalvataggio = true; }
+
                 }
             }
 
@@ -410,14 +411,24 @@ function ClienteMgrInitAndVerify() {
 
 
 
+function setPageMainFairInfo() {
+    //$("#pageMainFairInfo").html(" Fiera " + _qtDS.dataSource.generalInfo.fairSeason + " - " + _qtDS.dataSource.generalInfo.fairDescr);
+    $("#pageMainFairInfo").html(" CERVOTESSILE S.p.A.");
+    if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.FIERA) { $("#pageMainFairInfo").html("CERVOTESSILE S.p.A. - Fiera"); }
+}
+
 
 
 function OrdersCheckToUploadCount() {
+
+    if (!_qtConfig) { return 0 }
+    if (!_qtConfig.ind_tipo_utilizzo) { return 0 }
+
     var uploadOrders = 0;
     if (_qtOrders) {
         if (_qtOrders.orders) {
             for (var i = 0; i < _qtOrders.orders.length; i++) {
-                if (_qtOrders.orders[i].orderStatus == ORDER_STATUS.COMPLETED)
+                if (_qtOrders.orders[i].orderStatus == ORDER_STATUS.COMPLETED && _qtOrders.orders[i].TipoUtilizzo == _qtConfig.ind_tipo_utilizzo)
                     uploadOrders++;
             }
         }
@@ -516,6 +527,11 @@ function OrdersCheckList_trasferiti(troppiOrdini) {
                 var customerStr_trasf = "NESSUN CLIENTE"
                 if (order_trasf.customerDescr) { customerStr_trasf = order_trasf.customerDescr; }
 
+                var tipoUtil = ""
+                if (order_trasf.TipoUtilizzo) {
+                    if (order_trasf.TipoUtilizzo == TIPO_UTILIZZO.FIERA) { tipoUtil = " - Ordine Fiera"; }
+                }
+
 
                 var msgCodiceTrasferimento = "";
                 if (order_trasf.orderCode_PerCliente) { msgCodiceTrasferimento = " - Ordine di riferimento per il cliente: " + order_trasf.orderCode_PerCliente; }
@@ -524,7 +540,7 @@ function OrdersCheckList_trasferiti(troppiOrdini) {
                 if (order_trasf.CodiceAWB) { msgCodiceAWB = " - Codice AWB: " + order_trasf.LetteraVettura; }
 
                 var listItem = "<li data-theme=\"b\" data-icon=\"eye\">" +
-                                "<a href=\"#\" onclick=\"OrderOpen('" + order_trasf.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + customerStr_trasf + "</h2>" +
+                                "<a href=\"#\" onclick=\"OrderOpen('" + order_trasf.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + customerStr_trasf + tipoUtil + "</h2>" +
                                 "<span class=\"ui-li-count\">" + numRows + ((numRows == 1) ? " Riga" : " Righe") + "</span>" +
                                 "<p>Del " + order_trasf.orderCode.substring(6, 8) + "/" + order_trasf.orderCode.substring(4, 6) + "/" + order_trasf.orderCode.substring(0, 4) + " alle " + order_trasf.orderCode.substring(8, 10) + ":" + order_trasf.orderCode.substring(10, 12) + "</p>" +
                                 "<p><b>Data di trasferimento: " + order_trasf.orderDateTransfer_PerUtente + msgCodiceTrasferimento + msgCodiceAWB + "</b></p>" +
@@ -549,7 +565,7 @@ function OrdersCheckList_trasferiti(troppiOrdini) {
 function OrdersCheckList() {
     try {
 
-
+        //_qtConfig.ind_tipo_utilizzo
 
         if (!_qtOrders) {
             AddClassIfMissing($("#pageMainOrdIncomplete"), "ui-screen-hidden");
@@ -566,7 +582,7 @@ function OrdersCheckList() {
         $("#pageMainOrdList").listview()[0].innerHTML = "";
 
         //mostro gli ordini incompleti
-        var ordini_nuovi = SEARCHJS.matchArray(_qtOrders.orders, { "orderStatus": ORDER_STATUS.NEW });
+        var ordini_nuovi = SEARCHJS.matchArray(_qtOrders.orders, { "orderStatus": ORDER_STATUS.NEW, "TipoUtilizzo": _qtConfig.ind_tipo_utilizzo });
         var listItemDiv = "<li data-role=\"list-divider\">Ordini in lavoro<span class=\"ui-li-count\">" + ordini_nuovi.length.toString() + "</span></li>";
 
         $("#pageMainOrdList").append(listItemDiv);
@@ -581,12 +597,17 @@ function OrdersCheckList() {
                 if (order.rows)
                     numRows = order.rows.length;
 
+                var tipoUtil = ""
+                if (order.TipoUtilizzo) {
+                    if (order.TipoUtilizzo == TIPO_UTILIZZO.FIERA) { tipoUtil = " - Ordine Fiera"; }
+                }
+
                 var customerStr = "NESSUN CLIENTE"
                 if (order.customerDescr)
                     customerStr = order.customerDescr;
 
                 var listItem = "<li data-theme=\"b\" data-icon=\"edit\">" +
-                                    "<a href=\"#\" onclick=\"OrderOpen('" + order.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + customerStr + "</h2>" +
+                                    "<a href=\"#\" onclick=\"OrderOpen('" + order.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + customerStr + tipoUtil + "</h2>" +
                                     "<span class=\"ui-li-count\">" + numRows + ((numRows == 1) ? " Riga" : " Righe") + "</span>" +
                                     "<p>Del " + order.orderCode.substring(6, 8) + "/" + order.orderCode.substring(4, 6) + "/" + order.orderCode.substring(0, 4) + " alle " +
                                     order.orderCode.substring(8, 10) + ":" + order.orderCode.substring(10, 12) + "</p></a></li>";
@@ -598,7 +619,7 @@ function OrdersCheckList() {
 
 
         //mostro gli ordini confermati, ma non inviati
-        var ordini_confermati = SEARCHJS.matchArray(_qtOrders.orders, { "orderStatus": ORDER_STATUS.COMPLETED });
+        var ordini_confermati = SEARCHJS.matchArray(_qtOrders.orders, { "orderStatus": ORDER_STATUS.COMPLETED, "TipoUtilizzo": _qtConfig.ind_tipo_utilizzo });
         var listItemDiv = "<li data-role=\"list-divider\">Ordini da trasferire<span class=\"ui-li-count\">" + ordini_confermati.length.toString() + "</span></li>";
         $("#pageMainOrdList").append(listItemDiv);
 
@@ -617,8 +638,14 @@ function OrdersCheckList() {
                 if (order.customerDescr)
                     customerStr = order.customerDescr;
 
+
+                var tipoUtil = ""
+                if (order.TipoUtilizzo) {
+                    if (order.TipoUtilizzo == TIPO_UTILIZZO.FIERA) { tipoUtil = " - Ordine Fiera"; }
+                }
+
                 var listItem = "<li data-theme=\"b\">" +
-                                    "<a href=\"#\" onclick=\"OrderOpen('" + order.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + customerStr + "</h2>" +
+                                    "<a href=\"#\" onclick=\"OrderOpen('" + order.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + customerStr + tipoUtil + "</h2>" +
                                     "<span class=\"ui-li-count\">" + numRows + ((numRows == 1) ? " Riga" : " Righe") + "</span>" +
                                     "<p>Del " + order.orderCode.substring(6, 8) + "/" + order.orderCode.substring(4, 6) + "/" + order.orderCode.substring(0, 4) + " alle " +
                                     order.orderCode.substring(8, 10) + ":" + order.orderCode.substring(10, 12) + "</p></a></li>";
@@ -1216,7 +1243,7 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
         for (var index = 0; index < _qtOrders.orders.length; index++) {
             if ((uploadOnlyWorkingOrder && _qtOrders.orders[index].orderCode == _qtOrderWorking) ||
                 (!uploadOnlyWorkingOrder)) {
-                if (_qtOrders.orders[index].orderStatus == ORDER_STATUS.COMPLETED) {
+                if (_qtOrders.orders[index].orderStatus == ORDER_STATUS.COMPLETED && _qtOrders.orders[index].TipoUtilizzo == _qtConfig.ind_tipo_utilizzo) {
                     var rows = [];
                     for (var indexR = 0; indexR < _qtOrders.orders[index].rows.length; indexR++) {
                         rows.push(new QTOrderRowUpload(_qtOrders.orders[index].rows[indexR].articleBarcode, _qtOrders.orders[index].rows[indexR].OggettoCodice, _qtOrders.orders[index].rows[indexR].Qta));
@@ -1479,7 +1506,66 @@ function chk_usa_ip_ctrlgr_clickButton_Fiera() {
     _chk_usa_ip_ctrlgrp_voceSelezionata = TIPO_UTILIZZO.FIERA;
 }
 
+
 function pageConfigSaveExecute() {
+
+
+
+
+    var tipo_utilizzo_corrente = _qtConfig.ind_tipo_utilizzo;
+    if (!tipo_utilizzo_corrente) { tipo_utilizzo_corrente = TIPO_UTILIZZO.SEDE_CENTRALE; }
+
+    var tipo_utilizzo_selezionato = _chk_usa_ip_ctrlgrp_voceSelezionata;
+    if (!tipo_utilizzo_selezionato) { tipo_utilizzo_selezionato = TIPO_UTILIZZO.SEDE_CENTRALE; }
+
+    //alert("tipo_utilizzo_corrente " + tipo_utilizzo_corrente)
+    //alert("tipo_utilizzo_selezionato " + tipo_utilizzo_selezionato)
+
+    var cntOrdiniAperti = 0;
+    if (_qtOrders) {
+        if (_qtOrders.orders) {
+            for (var i = 0; i < _qtOrders.orders.length; i++) {
+                if ((_qtOrders.orders[i].orderStatus == ORDER_STATUS.NEW && _qtOrders.orders[i].TipoUtilizzo == tipo_utilizzo_corrente) ||
+                    (_qtOrders.orders[i].orderStatus == ORDER_STATUS.COMPLETED && _qtOrders.orders[i].TipoUtilizzo == tipo_utilizzo_corrente))
+                    cntOrdiniAperti++;
+            }
+        }
+    }
+
+
+    if (cntOrdiniAperti == 0) {
+        //nessun ordine aperto
+        pageConfigSaveExecute_core();
+        return;
+    }
+
+
+    var msgConferma = "";
+
+    if ((tipo_utilizzo_corrente == TIPO_UTILIZZO.SEDE_CENTRALE) && (tipo_utilizzo_selezionato == TIPO_UTILIZZO.FIERA)) {
+        msgConferma = "Stai passando dall'utilizzo in SEDE CENTRALE a l'utilizzo SEDE CENTRALE, ma hai ancora " + cntOrdiniAperti + " ordini aperti.\nProcedere?"
+    }
+
+    if ((tipo_utilizzo_corrente == TIPO_UTILIZZO.FIERA) && (tipo_utilizzo_selezionato == TIPO_UTILIZZO.SEDE_CENTRALE)) {
+        msgConferma = "Stai passando dall'utilizzo in FIERA a l'utilizzo in SEDE CENTRALE, ma hai ancora " + cntOrdiniAperti + " ordini aperti.\nProcedere?"
+    }
+
+
+
+    if (msgConferma != "") {
+        //ordini aperti e sto cambianto il tipo di utilizzo
+        navigator.notification.confirm(msgConferma, function (buttonIndex) { if (buttonIndex == 1) { pageConfigSaveExecute_core(); } }, "Attenzione", "Si,No");
+        return;
+    } else {
+        //ordini aperti, ma NON sto cambianto il tipo di utilizzo
+        pageConfigSaveExecute_core();
+        return;
+    }
+
+}
+
+
+function pageConfigSaveExecute_core() {
     try {
 
         var tipo_utilizzo = _chk_usa_ip_ctrlgrp_voceSelezionata;
@@ -1609,6 +1695,8 @@ function pageConfigSaveExecute() {
             _firstStart = false;
             $("#pageMainContent").css("display", "");
             $("#pageMainHeaderNavBar").css("display", "");
+
+            setPageMainFairInfo();
 
             PageChange("#pageMain", true);
 
@@ -2278,7 +2366,7 @@ function SynchronizeOrdersList() {
         if (_qtOrders) {
             if (_qtOrders.orders) {
                 for (var i = 0; i < _qtOrders.orders.length; i++) {
-                    if (_qtOrders.orders[i].orderStatus == ORDER_STATUS.COMPLETED)
+                    if (_qtOrders.orders[i].orderStatus == ORDER_STATUS.COMPLETED && _qtOrders.orders[i].TipoUtilizzo == _qtConfig.ind_tipo_utilizzo)
                         uploadOrders++;
                 }
             }
@@ -2300,14 +2388,19 @@ function SynchronizeOrdersList() {
             $("#pageSyncOrdList").append(listItemDiv);
 
             for (var index = 0; index < _qtOrders.orders.length; index++) {
-                if (_qtOrders.orders[index].orderStatus == ORDER_STATUS.COMPLETED) {
+                if (_qtOrders.orders[index].orderStatus == ORDER_STATUS.COMPLETED && _qtOrders.orders[index].TipoUtilizzo == _qtConfig.ind_tipo_utilizzo) {
                     var order = _qtOrders.orders[index];
                     var numRows = 0;
                     if (order.rows)
                         numRows = order.rows.length;
 
+                    var tipoUtil = ""
+                    if (order.TipoUtilizzo) {
+                        if (order.TipoUtilizzo == TIPO_UTILIZZO.FIERA) { tipoUtil = " - Ordine Fiera"; }
+                    }
+
                     var listItem = "<li data-theme=\"b\">" +
-                                        "<a href=\"#\" onclick=\"OrderOpen('" + order.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + order.customerDescr + "</h2>" +
+                                        "<a href=\"#\" onclick=\"OrderOpen('" + order.orderCode + "');\" class=\"ui-alt-icon\"><h2>" + order.customerDescr + tipoUtil + "</h2>" +
                                         "<span class=\"ui-li-count\">" + numRows + ((numRows == 1) ? " Riga" : " Righe") + "</span>" +
                                         "<p>Del " + order.orderCode.substring(6, 8) + "/" + order.orderCode.substring(4, 6) + "/" + order.orderCode.substring(0, 4) + " alle " +
                                         order.orderCode.substring(8, 10) + ":" + order.orderCode.substring(10, 12) + "</p></a></li>";
@@ -2527,6 +2620,13 @@ function OrderStartNew() {
         return;
     }
 
+    if (!_qtConfig) {
+        navigator.notification.alert("Per poter effettuare una nuova campionatura \u00e8 necessario compilare la sezione Configurazione.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return;
+    }
+
 
     //Recupero operatore che fa ordine
     var operatoreQT = "";
@@ -2539,6 +2639,7 @@ function OrderStartNew() {
     var order = new QTOrder();
     order.operatorCode = _qtProfile.OperatoreCodice;
     order.operatorPassword = _qtProfile.OperatorePassword;
+    order.TipoUtilizzo = _qtConfig.ind_tipo_utilizzo;
 
     _qtOrderWorking = order.orderCode;
     _qtOrders.orders.push(order);
@@ -2562,99 +2663,6 @@ function OrderStartNew() {
 
 
 
-
-//function pageOrderCancel() {
-
-//    navigator.notification.confirm("Annullare l'inserimento dell'ordine?",
-//                                    function (buttonIndex) {
-//                                        if (buttonIndex == 1) {
-
-//                                            try {
-
-//                                                if (_qtOrders.getOrder(_qtOrderWorking)) {
-//                                                    if ((!_qtOrders.getOrder(_qtOrderWorking).customerCode) && (_qtOrders.getOrder(_qtOrderWorking).rows.length == 0)) {
-//                                                        //non ho scelto nè cliente ne ho righe quindi non propongo di tenere nulla
-//                                                        pageOrderCancelExecute(true);
-//                                                    } else {
-//                                                        navigator.notification.confirm("Mantenere l'ordine attuale?",
-//                                                                                        function (buttonIndex) {
-//                                                                                            var removeOrder = false;
-//                                                                                            if (buttonIndex != 1) {
-//                                                                                                removeOrder = true;
-//                                                                                            }
-//                                                                                            pageOrderCancelExecute(removeOrder);
-//                                                                                        },
-//                                                                                        "Attenzione",
-//                                                                                        "Si,No");
-//                                                    }
-//                                                } else {
-//                                                    //ordine non valido
-//                                                    pageOrderCancelExecute(true);
-//                                                }
-
-//                                            } catch (e) {
-//                                                alert("ERRORE pageOrderCancel: " + e.message);
-//                                            }
-
-
-//                                        }
-//                                    },
-//                                    "Attenzione",
-//                                    "Si,No");
-
-
-
-
-//}
-
-//function pageOrderCancelExecute(removeOrder) {
-//    try {
-
-//        if (removeOrder) {
-//            //rimuovo l'ordine attuale perchè non va mantenuto
-//            var indexDelete = -1;
-//            for (var index = 0; index < _qtOrders.orders.length; index++) {
-//                if (_qtOrders.orders[index].orderCode == _qtOrderWorking)
-//                    indexDelete = index;
-//            }
-//            if (indexDelete >= 0) {
-//                _qtOrders.orders.splice(indexDelete, 1);
-//                //_qtOrders.orders.pop();
-//            }
-//        } else {
-//            //Alessandro Gioachini
-//            //non rimuovo l'ordine, va mantenuto. Però imposto come stato in lavorazione anche se si è tentato un invio. Così l'utente può non solo reinviarlo, ma anche modificarlo nuovamente.
-//            //Daniele Barlocco 12/5/2016
-//            //Re-imposto l'ordine a NUOVO solo se non è stato effettivamente trasferito
-//            if (!_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED) {
-//                _qtOrders.getOrder(_qtOrderWorking).orderStatus = ORDER_STATUS.NEW;
-//            }
-
-//        }
-
-//        _qtOrderWorking = null;
-
-//        try {
-//            //Salvo su file l'ordine che sto compilando (non si sa mai!) Success, Fail
-//            _qtOrders.saveToFile(function () {
-//                //salvataggio temporaneo dell'ordine riuscito.
-//            }, function (err) {
-//                navigator.notification.alert("Errore durante il salvataggio temporaneo dell'ordine.\nDettaglio: " + FileGetErrorMessage(err), function () {
-//                    return;
-
-//                }, "Attenzione", "OK");
-//                return;
-//            });
-//        } catch (e) {
-//            alert("Errore JS save ordine: " + e.message);
-//        }
-
-//        PageChange('#pageMain', true);
-
-//    } catch (e) {
-//        alert("ERRORE pageOrderCancelExecute: " + e.message);
-//    }
-//}
 
 
 
@@ -2821,9 +2829,10 @@ function OrderDeleteAll_PageTrasferiti() {
     OrderDeleteByStatus(ORDER_STATUS.TRASFERITO, OrdersCheckList_trasferiti, [false]);
 }
 
+
 function OrderDeleteByStatus(status, callback, args) {
     try {
-        var ordiniDaEliminare = SEARCHJS.matchArray(_qtOrders.orders, { "orderStatus": status });
+        var ordiniDaEliminare = SEARCHJS.matchArray(_qtOrders.orders, { "orderStatus": status, "TipoUtilizzo": _qtConfig.ind_tipo_utilizzo });
         if (ordiniDaEliminare.length == 0) {
 
             navigator.notification.alert("Nessun ordine da eliminare.", function () {
@@ -2885,7 +2894,8 @@ function OrderDeleteByStatus_core(status) {
         _qtOrderWorking = null;
         for (var index = _qtOrders.orders.length - 1; index >= 0; index--) {
             var o = _qtOrders.orders[index];
-            if (o.orderStatus == status) {
+
+            if (o.orderStatus == status && o.TipoUtilizzo == _qtConfig.ind_tipo_utilizzo) {
                 _qtOrders.orders.splice(index, 1);
             }
         }
@@ -2971,7 +2981,11 @@ function OrderTableRefresh() {
             }
 
 
-            if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED || _qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO) {
+            var TipoUtilizzoOrdine = _qtOrders.getOrder(_qtOrderWorking).TipoUtilizzo
+            if (!TipoUtilizzoOrdine) { TipoUtilizzoOrdine = TIPO_UTILIZZO.SEDE_CENTRALE; }
+
+
+            if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED || _qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO || _qtConfig.ind_tipo_utilizzo != TipoUtilizzoOrdine) {
                 //SOLA LETTURA
                 html = html + "<tr>" +
                     "<td style=\"vertical-align: middle;\">" + rows[i].articleBarcode + "</td>" +
@@ -3718,7 +3732,7 @@ function OrderSave_All() {
     //Daniele BArlocco 9/6/2016 verifico ci siano ordini da trasferire
     var cntordinidatrasferire = 0;
     for (var i = 0; i < _qtOrders.orders.length; i++) {
-        if (_qtOrders.orders[i].orderStatus == ORDER_STATUS.NEW) {
+        if (_qtOrders.orders[i].orderStatus == ORDER_STATUS.NEW && _qtOrders.orders[i].TipoUtilizzo == _qtConfig.ind_tipo_utilizzo) {
             var o = _qtOrders.orders[i];
             if (o.customerCode && o.rows) {
                 if (o.rows.length > 0) {
@@ -3727,6 +3741,9 @@ function OrderSave_All() {
             }
         }
     }
+
+    //alert("cntordinidatrasferire " + cntordinidatrasferire);
+
     if (cntordinidatrasferire == 0) {
         navigator.notification.alert("Non ci sono ordini da trasferire.", function () {
             return;
@@ -3775,7 +3792,7 @@ function OrderSave_All_core() {
 
 
     for (var i = 0; i < _qtOrders.orders.length; i++) {
-        if (_qtOrders.orders[i].orderStatus == ORDER_STATUS.NEW) {
+        if (_qtOrders.orders[i].orderStatus == ORDER_STATUS.NEW && _qtOrders.orders[i].TipoUtilizzo == _qtConfig.ind_tipo_utilizzo) {
             var o = _qtOrders.orders[i];
             if (o.customerCode && o.rows) {
                 if (o.rows.length > 0) {
@@ -3785,7 +3802,7 @@ function OrderSave_All_core() {
         }
     }
 
-
+    //aggiorno visualizzazione
     OrdersCheckList();
 
 
@@ -3962,7 +3979,7 @@ function OrderSendMail_core() {
         //Preparo ordini
         for (var index = 0; index < _qtOrders.orders.length; index++) {
             if (_qtOrders.orders[index].orderCode == _qtOrderWorking) {
-                if (_qtOrders.orders[index].orderStatus == ORDER_STATUS.TRASFERITO) {
+                if (_qtOrders.orders[index].orderStatus == ORDER_STATUS.TRASFERITO && _qtOrders.orders[index].TipoUtilizzo == _qtConfig.ind_tipo_utilizzo) {
                     var rows = [];
                     for (var indexR = 0; indexR < _qtOrders.orders[index].rows.length; indexR++) {
                         rows.push(new QTOrderRowUpload(_qtOrders.orders[index].rows[indexR].articleBarcode, _qtOrders.orders[index].rows[indexR].OggettoCodice, _qtOrders.orders[index].rows[indexR].Qta));
@@ -4275,7 +4292,11 @@ $(document).on("pagebeforeshow", "#pageCustomer", function () {
     //pageCustomerContatto1
     //pageCustomerAnnotazioni
 
-    if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED || _qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO) {
+    var TipoUtilizzoOrdine = _qtOrders.getOrder(_qtOrderWorking).TipoUtilizzo
+    if (!TipoUtilizzoOrdine) { TipoUtilizzoOrdine = TIPO_UTILIZZO.SEDE_CENTRALE; }
+
+
+    if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED || _qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO || _qtConfig.ind_tipo_utilizzo != TipoUtilizzoOrdine) {
         //schermata in sola lettura
         CustomerChangeView(null, 0);
         $("#pageCustomerContatto1").attr("readonly", "readonly");
@@ -4404,11 +4425,14 @@ $('#pageCustomerAnnotazioni').keypress(function (e) {
         return;
     }
 
-    if (keyCode === 13)
+    if (keyCode === 13 || keyCode == 8364)     //invio - simbolo euro
     { }
     else
     {
         var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+
+        //alert(keyCode);
+
         if (CONTATTO_NOTE_ALLOWED_CHARS.toUpperCase().indexOf(key.toUpperCase()) == -1) {
             event.preventDefault();
             return false;
@@ -4446,7 +4470,7 @@ $('#pageCustomerAnnotazioni_interna').keypress(function (e) {
         return;
     }
 
-    if (keyCode === 13)
+    if (keyCode === 13 || keyCode == 8364)     //invio - simbolo euro
     { }
     else
     {
@@ -4608,8 +4632,9 @@ function CustomerChangeView(sender, areaShowIndex) {
             }
         }
 
-
-        if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED || _qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO) {
+        var TipoUtilizzoOrdine = _qtOrders.getOrder(_qtOrderWorking).TipoUtilizzo;
+        if (!TipoUtilizzoOrdine) { TipoUtilizzoOrdine = TIPO_UTILIZZO.SEDE_CENTRALE };
+        if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED || _qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO || _qtConfig.ind_tipo_utilizzo != TipoUtilizzoOrdine) {
             if (areaShowIndex == 1) {
                 return;
             }
@@ -4629,6 +4654,14 @@ function CustomerChangeView(sender, areaShowIndex) {
                 $("#pageCustomerViewRicerca").addClass('ui-btn-active');
                 $("#pageCustomerInfo").hide();
                 $("#pageCustomerRicerca").show();
+
+                if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.SEDE_CENTRALE) {
+                    $("#pageCustomer_NewCustomer").show();
+                } else {
+                    $("#pageCustomer_NewCustomer").hide();
+                }
+
+
                 break;
         }
 
@@ -4867,10 +4900,29 @@ function CustomerSelect(code) {
 
 function CustomerShowDestinations(customerCode) {
 
+    //Se ordine è chiuso o di tipo diverso da quello corrente esco
+    var TipoUtilizzoOrdine = _qtOrders.getOrder(_qtOrderWorking).TipoUtilizzo;
+    if (!TipoUtilizzoOrdine) { TipoUtilizzoOrdine = TIPO_UTILIZZO.SEDE_CENTRALE };
+    if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED || _qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO || _qtConfig.ind_tipo_utilizzo != TipoUtilizzoOrdine) {
+        return;
+    }
+
+
+
     if (FUNZIONAMENTO_OFFLINE == true) {
         CustomerShowDestinations_OffLine(customerCode);
         return;
     }
+
+
+    ServerOnlineVerify(function () {
+        //ONLINE, niente da notificare
+    }, function (textStatus, textError) {
+        //OFFLINE-ERRORE
+        navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non \u00e8 possibile eseguire l'operazione.", function () {
+            return;
+        }, "Attenzione", "OK");
+    });
 
 
 
@@ -5045,6 +5097,13 @@ function OrderCustomerApplyStyle() {
 
     if (_qtOrders.getOrder(_qtOrderWorking)) {
 
+        $("#pageOrderHeader").html("Ordine Cliente");
+        var TipoUtilizzoOrdine = _qtOrders.getOrder(_qtOrderWorking).TipoUtilizzo
+        if (!TipoUtilizzoOrdine) { TipoUtilizzoOrdine = TIPO_UTILIZZO.SEDE_CENTRALE; }
+
+        if (TipoUtilizzoOrdine == TIPO_UTILIZZO.FIERA) { $("#pageOrderHeader").html("Ordine Cliente - Fiera"); }
+
+
         if (_qtOrders.getOrder(_qtOrderWorking).customerCode) {
             $("#pageOrderCliente").buttonMarkup({ theme: 'd' });
 
@@ -5062,7 +5121,13 @@ function OrderCustomerApplyStyle() {
             }
 
 
-            if ((_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO) || (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED)) {
+            if (
+                (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO)
+                ||
+                (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED)
+                ||
+                (_qtConfig.ind_tipo_utilizzo != TipoUtilizzoOrdine)
+                ) {
                 $("#pageOrderCliente").text(_qtOrders.getOrder(_qtOrderWorking).customerDescr + msgInfoListino + "\n\n" + msgInfoTrasferimento);
                 AddClassIfMissing($("#pageOrderCliente_div_TableAddArticolo"), "ui-screen-hidden");
                 $("#pageOrderCliente").css("background-color", "grey");
@@ -5102,6 +5167,13 @@ function OrderCustomerApplyStyle() {
             $('#pageOrder_Panel_listView_Conferma').hide();
             $('#pageOrder_Panel_listView_Trasferisci').hide();
         }
+
+        if (_qtConfig.ind_tipo_utilizzo != TipoUtilizzoOrdine) {
+            $('#pageOrder_Panel_listView_Riapri').hide();
+            $('#pageOrder_Panel_listView_Conferma').hide();
+            $('#pageOrder_Panel_listView_Trasferisci').hide();
+        }
+
 
     }
 
@@ -5152,9 +5224,9 @@ function StatLoadHitScelte(LineaToLoad) {
                         }, "Attenzione", "OK");
                         return;
                     }
-
+                    
                     $("#pageHitScelteTitle").html(objResp.statDescr);
-
+                    LoaderShow("Caricamento...");
                     var rows = objResp.result;
                     var html = "";
                     for (var i = 0; i < rows.length; i++) {

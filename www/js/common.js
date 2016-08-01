@@ -295,6 +295,9 @@ function QTOrder() {
     //codice AWB post trasferimento a sede centrele ed elaborazione back-office, viene letto dalla tabella DispositiviOrdiniTestata in fase di sincronizzazione
     this.LetteraVettura = null;
 
+
+    this.TipoUtilizzo = null;
+
     function GetOrderCode() {
         var dt = new Date();
         var yyyy = dt.getFullYear().toString();
