@@ -1543,7 +1543,7 @@ function pageConfigSaveExecute() {
     var msgConferma = "";
 
     if ((tipo_utilizzo_corrente == TIPO_UTILIZZO.SEDE_CENTRALE) && (tipo_utilizzo_selezionato == TIPO_UTILIZZO.FIERA)) {
-        msgConferma = "Stai passando dall'utilizzo in SEDE CENTRALE a l'utilizzo SEDE CENTRALE, ma hai ancora " + cntOrdiniAperti + " ordini aperti.\nProcedere?"
+        msgConferma = "Stai passando dall'utilizzo in SEDE CENTRALE a l'utilizzo FIERA, ma hai ancora " + cntOrdiniAperti + " ordini aperti.\nProcedere?"
     }
 
     if ((tipo_utilizzo_corrente == TIPO_UTILIZZO.FIERA) && (tipo_utilizzo_selezionato == TIPO_UTILIZZO.SEDE_CENTRALE)) {
