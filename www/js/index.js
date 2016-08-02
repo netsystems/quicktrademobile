@@ -7,6 +7,9 @@ var FUNZIONAMENTO_OFFLINE = true;
 
 var PSW_RESET_APPLICAZIONE = "QT16RESET!"
 
+var PSW_ELIMINAZIONE_ORDINI_SoloAperti = "QT16OPEN";
+var PSW_ELIMINAZIONE_ORDINI_Tutti = "QT16ALL";
+
 
 var AddArticolo_BeepSuErrore = false;
 var AddArticolo_BeepSuBuonFine = true;
@@ -1762,6 +1765,8 @@ $(document).on("pagebeforeshow", "#pageOptions", function () {
         //$("#pageOptionsTxtQtUser").val(_qtConfig.OperatoreCodiceQT);
     }
     $("#pageOptionsDeleteAll_psw").val("");
+    $("#pop_up_EliminaOrdiniTutti_psw").val("");
+    $("#pop_up_EliminaOrdiniInlavoro_psw").val("");
 });
 
 $("#pageOptionsSave").click(function () {
@@ -2457,8 +2462,6 @@ $(document).on("pagebeforeshow", "#pageOrder", function () {
 
 $(document).on("pageshow", "#pageOrder", function () {
 
-
-
     if (!_artSelezGuidata) { return; }
     if (!_artSelezGuidata.ArticoloCodice) { return; }
     if (_artSelezGuidata.ArticoloCodice == "") { return; }
@@ -2829,15 +2832,77 @@ function OrderDeleteAll_PageTrasferiti() {
     OrderDeleteByStatus(ORDER_STATUS.TRASFERITO, OrdersCheckList_trasferiti, [false]);
 }
 
+function OrderDeleteAll_SoloNuovi_pageOptions() {
+    var psw = $("#pop_up_EliminaOrdiniInlavoro_psw").val();
+    $("#pop_up_EliminaOrdiniInlavoro_psw").val("");
+    if (!psw) {
+        navigator.notification.alert("Password non valida.", function () { return; }, "Attenzione", "OK");
+        return;
+    }
+    if (psw.toUpperCase() != PSW_ELIMINAZIONE_ORDINI_SoloAperti) {
+        navigator.notification.alert("Password non valida.", function () { return; }, "Attenzione", "OK");
+        return;
+    }
+
+    OrderDeleteByStatus(ORDER_STATUS.NEW, OrdersCheckList);
+
+
+    $("#pop_up_richiesta_psw_eliminazioneOrdini_inLavoro").popup("close")
+
+}
+
+function OrderDeleteAll_tutti_pageOptions() {
+
+    var psw = $("#pop_up_EliminaOrdiniTutti_psw").val();
+    $("#pop_up_EliminaOrdiniTutti_psw").val("");
+    if (!psw) {
+        navigator.notification.alert("Password non valida.", function () { return; }, "Attenzione", "OK");
+        return;
+    }
+    if (psw.toUpperCase() != PSW_ELIMINAZIONE_ORDINI_Tutti) {
+        navigator.notification.alert("Password non valida.", function () { return; }, "Attenzione", "OK");
+        return;
+    }
+
+
+    OrderDeleteByStatus(ORDER_STATUS.NEW, null);
+    OrderDeleteByStatus(ORDER_STATUS.COMPLETED, null);
+    OrderDeleteByStatus(ORDER_STATUS.TRASFERITO, null);
+
+    $("#pop_up_richiesta_psw_eliminazioneOrdini_tutti").popup("close")
+}
+
+
+
+
 
 function OrderDeleteByStatus(status, callback, args) {
     try {
         var ordiniDaEliminare = SEARCHJS.matchArray(_qtOrders.orders, { "orderStatus": status, "TipoUtilizzo": _qtConfig.ind_tipo_utilizzo });
-        if (ordiniDaEliminare.length == 0) {
 
-            navigator.notification.alert("Nessun ordine da eliminare.", function () {
+
+        var TitoloRichiesta = "Attenzione"
+
+        if (status == ORDER_STATUS.NEW) { TitoloRichiesta = "Ordini NUOVI"; }
+        else if (status == ORDER_STATUS.COMPLETED) { TitoloRichiesta = "Ordini COMPLETI"; }
+        else if (status == ORDER_STATUS.TRASFERITO) { TitoloRichiesta = "Ordini TRASFERITI"; }
+
+        if (ordiniDaEliminare.length == 0) {
+            var NessunOrdine = "Nessun ordine da eliminare.";
+
+            if (status == ORDER_STATUS.NEW) {
+                NessunOrdine = "Nessun ordine in lavoro da eliminare.";
+            } else if (status == ORDER_STATUS.COMPLETED) {
+                NessunOrdine = "Nessun ordine completato da eliminare.";
+            }
+            else if (status == ORDER_STATUS.TRASFERITO) {
+                NessunOrdine = "Nessun ordine trasferito da eliminare.";
+            }
+
+
+            navigator.notification.alert(NessunOrdine, function () {
                 return;
-            }, "Attenzione", "OK");
+            }, TitoloRichiesta, "OK");
 
             return;
         }
@@ -2868,17 +2933,17 @@ function OrderDeleteByStatus(status, callback, args) {
 
                                                                                             OrderDeleteByStatus_core(status);
 
-                                                                                            callback.apply(this, args);
+                                                                                            if (callback) { callback.apply(this, args); }
 
 
 
                                                                                         }
-                                                                                    }, "Attenzione", "Si,No");
+                                                                                    }, TitoloRichiesta, "Si,No");
                                                 } catch (e) {
                                                     alert("ERRORE OrderDeleteByStatus: " + e.message);
                                                 }
                                             }
-                                        }, "Attenzione", "Si,No");
+                                        }, TitoloRichiesta, "Si,No");
 
 
     } catch (e) {
@@ -2900,6 +2965,7 @@ function OrderDeleteByStatus_core(status) {
             }
         }
 
+     
 
         //salvataggio su file        
         try {
@@ -3562,6 +3628,12 @@ function OrderConfirm() {
     if (!_qtOrders.getOrder(_qtOrderWorking).orderEMail_interna) { mailMancante_interna = true; }
     if (_qtOrders.getOrder(_qtOrderWorking).orderEMail_interna == "") { mailMancante_interna = true; }
 
+
+    if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.FIERA) {
+        mailMancante_cliente = false;
+        mailMancante_interna = false;
+    }
+
     var msgConferma = "Confermare l'ordine?"
     if (mailMancante_interna == true && mailMancante_cliente == true) {
         msgConferma = "ATTENZIONE: non \u00e8 stata specificata alcuna mail di destinazione per l'ordine in esame.\nConfermare l'ordine?";
@@ -3615,6 +3687,14 @@ function OrderSave() {
     var mailMancante_interna = false;
     if (!_qtOrders.getOrder(_qtOrderWorking).orderEMail_interna) { mailMancante_interna = true; }
     if (_qtOrders.getOrder(_qtOrderWorking).orderEMail_interna == "") { mailMancante_interna = true; }
+
+
+    if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.FIERA) {
+        mailMancante_cliente = false;
+        mailMancante_interna = false;
+    }
+
+
 
     var msgConferma = "Trasferire l'ordine?"
     if (mailMancante_interna == true && mailMancante_cliente == true) {
@@ -4240,6 +4320,14 @@ function CancellaTutto() {
     }
 }
 
+$("#pop_up_richiesta_psw_eliminazioneOrdini_inLavoro_Annulla").click(function () {
+    $("#pop_up_EliminaOrdiniInlavoro_psw").val("");
+});
+
+
+$("#pop_up_richiesta_psw_eliminazioneOrdini_tutti_Annulla").click(function () {
+    $("#pop_up_EliminaOrdiniTutti_psw").val("");
+});
 
 $("#pop_up_richiesta_psw_reset_Annulla").click(function () {
     //CancellaTutto();
@@ -4247,7 +4335,6 @@ $("#pop_up_richiesta_psw_reset_Annulla").click(function () {
 });
 
 $("#pageOptionsDeleteAll").click(function () {
-    //CancellaTutto();
 });
 
 $("#pageOrderRowAdd").keypress(function (event) {
@@ -4579,11 +4666,18 @@ function CustomerInfoFill() {
         //Cliente scelto
         var strInfo = "";
 
+        var msgInfoListino = "Nessuno";
+        if (_qtOrders.getOrder(_qtOrderWorking).customerData) {
+            if (_qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice) {
+                msgInfoListino = _qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice;
+            }
+        }
+
 
         if (_qtOrders.getOrder(_qtOrderWorking).customerData) {
             strInfo += "<h2>" + _qtOrders.getOrder(_qtOrderWorking).customerData.RagioneSociale + "</h2><p>";
             strInfo += CustomerDestinationGetInfo(_qtOrders.getOrder(_qtOrderWorking).customerData);
-            strInfo += "<br/><br/>Listino: <b>" + _qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice + "</b>";
+            strInfo += "<br/><br/>Listino: <b> " + msgInfoListino + "</b>";
             strInfo += "</p>";
         }
         else {
@@ -4886,8 +4980,12 @@ function CustomerSelect(code) {
         }
 
         if (cntDestinazioni == 0) {
-            alert("NESSUNA DESTINAZIONE");
+            if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.SEDE_CENTRALE) {
+                navigator.notification.alert("Il cliente selezionato non ha alcuna destinazione.", function () { }, "Attenzione", "OK");
+            }
+
             CustomerSelectWithDestination(code, null);
+
         } else {
             CustomerShowDestinations(code);
         }
@@ -5034,6 +5132,7 @@ function CustomerShowDestinations_OffLine(customerCode) {
 function CustomerSelectWithDestination(customerCode, destinationCode) {
     try {
 
+
         LoaderShow("Selezione Cliente...");
 
         if (_CustomerList) {
@@ -5045,6 +5144,7 @@ function CustomerSelectWithDestination(customerCode, destinationCode) {
             customers = null;
         }
 
+
         if (destinationCode == null) {
             _qtOrders.getOrder(_qtOrderWorking).customerDestData = null;
         } else {
@@ -5053,10 +5153,9 @@ function CustomerSelectWithDestination(customerCode, destinationCode) {
             destinations = null;
         }
 
-        //$("#pageCustomerPopupDest").popup("close");
 
-        //PageChange("#pageOrder", true);
-        PageChange("#pageCustomer", true);
+
+        PageChange("#pageOrder", true);
 
         _CustomerList = null;
         _CustomerDestinationList = null;
@@ -5082,7 +5181,7 @@ function CustomerSelectWithDestination(customerCode, destinationCode) {
 
     } catch (e) {
         LoaderHide();
-        alert("Errore CustomerSelectWithDestination: " + e.message);
+        alert("Errore in CustomerSelectWithDestination: " + e.message);
     }
 }
 
@@ -5115,11 +5214,12 @@ function OrderCustomerApplyStyle() {
 
 
 
-            var msgInfoListino = "";
+            var msgInfoListino = "\n\nNessun listino";
             if (_qtOrders.getOrder(_qtOrderWorking).customerData) {
-                msgInfoListino = "\n\nListino " + _qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice.toString()
+                if (_qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice) {
+                    msgInfoListino = "\n\nListino " + _qtOrders.getOrder(_qtOrderWorking).customerData.ListinoCodice;
+                }
             }
-
 
             if (
                 (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO)
@@ -5224,7 +5324,7 @@ function StatLoadHitScelte(LineaToLoad) {
                         }, "Attenzione", "OK");
                         return;
                     }
-                    
+
                     $("#pageHitScelteTitle").html(objResp.statDescr);
                     LoaderShow("Caricamento...");
                     var rows = objResp.result;
