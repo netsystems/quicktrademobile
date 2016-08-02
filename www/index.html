@@ -152,7 +152,7 @@
                 <div id="chk_usa_ip_ctrlgrp" data-role="navbar">
                     <br />
                     <ul>
-                        <li><a href="#" id="chk_usa_ip_sede_centrale" onclick="chk_usa_ip_ctrlgr_clickButton_SedeCentrale()" >Sede Centrale</a></li>
+                        <li><a href="#" id="chk_usa_ip_sede_centrale" onclick="chk_usa_ip_ctrlgr_clickButton_SedeCentrale()">Sede Centrale</a></li>
                         <li><a href="#" id="chk_usa_ip_fiera" onclick="chk_usa_ip_ctrlgr_clickButton_Fiera()">Fiera</a></li>
                         <!--<li><a href="#" id="pageOrder_TipoArticolo_TG" onclick="pageOrder_SelezionatoTipoArticolo('TG');">Taglio<br />(TG)</a></li>-->
                     </ul>
@@ -188,19 +188,47 @@
             <br />
             <br />
             <div id="pageOptionsDeleteAllDiv" style="display: none;">
+                <h2 style="text-align: right;">Eliminazione ordini</h2>
+                <a id="pageOptionsDeleteOrdini_SoloInLavoro" href="#pop_up_richiesta_psw_eliminazioneOrdini_inLavoro" data-rel="popup" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-position-to="window">Solo ordini in lavoro</a>
+                <a id="pageOptionsDeleteOrdini_tutti" href="#pop_up_richiesta_psw_eliminazioneOrdini_tutti" data-rel="popup" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-position-to="window">Tutti gli ordini</a>
+                <br />
                 <h2 style="text-align: right;">Reset applicazione</h2>
                 <a id="pageOptionsDeleteAll" href="#pop_up_richiesta_psw_reset" data-rel="popup" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-position-to="window">Esegui reset</a>
             </div>
         </div>
 
-    <div data-role="popup" id="pop_up_richiesta_psw_reset" data-theme="a" class="ui-corner-all ui-content" data-overlay-theme="b" style="width: 265px;" data-dismissible="false">
-        <div style="padding: 10px 20px;">
-            <label for="pageOptionsDeleteAll_psw">Password per formattazione:</label>
-            <input type="password" name="pageOptionsDeleteAll_psw" id="pageOptionsDeleteAll_psw" value="" />
-            <a id="pop_up_richiesta_psw_reset_OK" onclick="CancellaTutto();" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check">OK</a>
-            <a id="pop_up_richiesta_psw_reset_Annulla" data-rel="back" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-delete">Annulla</a>
+
+
+        <div data-role="popup" id="pop_up_richiesta_psw_eliminazioneOrdini_inLavoro" data-theme="a" class="ui-corner-all ui-content" data-overlay-theme="b" style="width: 265px;" data-dismissible="false">
+            <div style="padding: 10px 20px;">
+                <label for="pop_up_EliminaOrdiniInlavoro_psw">Password eliminazione ordini in lavoro:</label>
+                <input type="password" name="pop_up_EliminaOrdiniInlavoro_psw" id="pop_up_EliminaOrdiniInlavoro_psw" value="" />
+                <a id="pop_up_richiesta_psw_eliminazioneOrdini_inLavoro_OK" onclick="OrderDeleteAll_SoloNuovi_pageOptions();" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check">OK</a>
+                <a id="pop_up_richiesta_psw_eliminazioneOrdini_inLavoro_Annulla" data-rel="back" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-delete">Annulla</a>
+            </div>
         </div>
-    </div>
+
+
+        <div data-role="popup" id="pop_up_richiesta_psw_eliminazioneOrdini_tutti" data-theme="a" class="ui-corner-all ui-content" data-overlay-theme="b" style="width: 265px;" data-dismissible="false">
+            <div style="padding: 10px 20px;">
+                <label for="pop_up_EliminaOrdiniTutti_psw">Password eliminazione TUTTI gli ordini:</label>
+                <input type="password" name="pop_up_EliminaOrdiniTutti_psw" id="pop_up_EliminaOrdiniTutti_psw" value="" />
+                <a id="pop_up_richiesta_psw_eliminazioneOrdini_tutti_OK" onclick="OrderDeleteAll_tutti_pageOptions();" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check">OK</a>
+                <a id="pop_up_richiesta_psw_eliminazioneOrdini_tutti_Annulla" data-rel="back" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-delete">Annulla</a>
+            </div>
+        </div>
+
+
+        <div data-role="popup" id="pop_up_richiesta_psw_reset" data-theme="a" class="ui-corner-all ui-content" data-overlay-theme="b" style="width: 265px;" data-dismissible="false">
+            <div style="padding: 10px 20px;">
+                <label for="pageOptionsDeleteAll_psw">Password per formattazione:</label>
+                <input type="password" name="pageOptionsDeleteAll_psw" id="pageOptionsDeleteAll_psw" value="" />
+                <a id="pop_up_richiesta_psw_reset_OK" onclick="CancellaTutto();" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check">OK</a>
+                <a id="pop_up_richiesta_psw_reset_Annulla" data-rel="back" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-delete">Annulla</a>
+            </div>
+        </div>
+
+
 
     </div>
     <!--PROFILE PAGE-->
@@ -577,18 +605,22 @@
         </div>
         <div data-role="content" data-theme="a">
 
-
-            <h2 style="text-align: right; margin-top: -5px;">Mail cliente</h2>
-            <a href="#" class="ui-btn ui-corner-all ui-icon-arrow-u ui-btn-icon-left" onclick="UploadMailClienti_withCheck();">Invia a server</a>
-            <a href="#" class="ui-btn ui-corner-all ui-icon-arrow-d ui-btn-icon-left" onclick="DownloadMailClienti_withCheck();">Ripristina</a>
-            <br />
             <h2 style="text-align: right; margin-top: -5px;">Dati applicazione</h2>
-
             <a href="#" class="ui-btn ui-corner-all ui-icon-refresh ui-btn-icon-left" onclick="SynchronizeDataSource_withCheck();">Avvia Sincronizzazione</a>
             <div id="pageSyncOrdMissing" class="ui-screen-hidden">
                 <p id="pageSymcInfo">Sono presenti ordini da scaricare sul server di Quick Trade.</p>
                 <ul id="pageSyncOrdList" data-role="listview" data-filter="false" data-inset="true" data-divider-theme="b" data-count-theme="a"></ul>
             </div>
+
+            <br />
+
+            <h2 style="text-align: right; margin-top: -5px;">Mail cliente</h2>
+            <a href="#" class="ui-btn ui-corner-all ui-icon-arrow-u ui-btn-icon-left" onclick="UploadMailClienti_withCheck();">Invia a server</a>
+            <a href="#" class="ui-btn ui-corner-all ui-icon-arrow-d ui-btn-icon-left" onclick="DownloadMailClienti_withCheck();">Ripristina</a>
+
+
+
+
         </div>
     </div>
     <!-- HIT SCELTE PAGE -->
