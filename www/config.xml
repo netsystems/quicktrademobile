@@ -40,7 +40,7 @@
   <!--  <plugin name="org.apache.cordova.device-orientation"/> -->
   <!--  <plugin name="org.apache.cordova.dialogs"/> -->
  
-  <!--   <plugin name="org.apache.cordova.file"/> -->
+  <   <plugin name="org.apache.cordova.file"/>
   <!--  <plugin name="org.apache.cordova.file-transfer"/> -->
   <!--  <plugin name="org.apache.cordova.geolocation"/> -->
   <!--  <plugin name="org.apache.cordova.globalization"/> --> -->
