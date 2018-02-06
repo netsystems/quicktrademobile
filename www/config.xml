@@ -34,7 +34,7 @@
   <!--  <plugin name="org.apache.cordova.media-capture"/> -->
   <!--  <plugin name="org.apache.cordova.console"/> -->
   <!--  <plugin name="org.apache.cordova.contacts"/> -->
-   <plugin name="org.apache.cordova.device" spec="2.0.1"/>
+   <plugin name="org.apache.cordova.device" spec="0.2.3" source="pgb"/>
   <!--  <plugin name="org.apache.cordova.device-motion"/> -->
   <!--  <plugin name="org.apache.cordova.device-orientation"/> -->
   <!--  <plugin name="org.apache.cordova.dialogs"/> -->
