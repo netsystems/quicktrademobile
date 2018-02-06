@@ -4,7 +4,7 @@
   <author href="http://www.netsystems.it" email="info@netsystems.it">Net Systems Team</author>
   <content src="index.html"/>
   <!-- MultiPlatform-->
-  <preference name="phonegap-version" value="cli-6.0.0"/>
+  <preference name="phonegap-version" value="cli-5.7.0"/>
   <preference name="orientation" value="default"/>
   <preference name="fullscreen" value="false"/>
   <!-- iOS -->
@@ -33,9 +33,8 @@
   <!--  <plugin name="org.apache.cordova.camera" spec="4.0.2" source="pgb"/> -->
   <!--  <plugin name="org.apache.cordova.media-capture"/> -->
   <!--  <plugin name="org.apache.cordova.console"/> -->
-  <!--  <plugin name="org.apache.cordova.contacts"/> -->
-  <gap:plugin name="cordova-plugin-device" />
-  <!-- <plugin name="cordova-plugin-device" spec="~2.0.1" /> -->
+
+  <plugin name="cordova-plugin-device" spec="~2.0.1" /> 
   <!--  <plugin name="org.apache.cordova.device-motion"/> -->
   <!--  <plugin name="org.apache.cordova.device-orientation"/> -->
   <!--  <plugin name="org.apache.cordova.dialogs"/> -->
