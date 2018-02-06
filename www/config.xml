@@ -30,7 +30,7 @@
   <preference name="ShowSplashScreenSpinner" value="false"/>
 
   <!--  <plugin name="org.apache.cordova.battery-status"/> -->
-  <plugin name="org.apache.cordova.camera"/>
+  <plugin name="org.apache.cordova.camera" spec="4.0.2" source="pgb"/>
   <plugin name="org.apache.cordova.media-capture"/>
   <plugin name="org.apache.cordova.console"/>
   <plugin name="org.apache.cordova.contacts"/>
