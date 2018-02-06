@@ -1,7 +1,7 @@
 //25/5/2016 releaseversione
 
 //DANIELE BARLOCCO 29/4/2016
-//Variabile per retrocompatibilità listini ONLINE/OFFLINE
+//Variabile per retrocompatibilitÃ  listini ONLINE/OFFLINE
 
 var FUNZIONAMENTO_OFFLINE = true;
 
@@ -49,7 +49,7 @@ var _ListinoViewed = null;
 var _ListinoBarcodeToShow = null;
 var _ListinoShowListinoCodice = null;
 
-var CONTATTO_NOTE_ALLOWED_CHARS = " 0123456789abcdefghijklmnopqrstuvwxyz.:,;!()òèéà@ù-_+$/";
+var CONTATTO_NOTE_ALLOWED_CHARS = " 0123456789abcdefghijklmnopqrstuvwxyz.:,;!()Ã²Ã¨Ã©Ã @Ã¹-_+$/";
 
 var _MailClienteMgr = null;
 
@@ -62,7 +62,7 @@ var _rigaOrdineInModifica = null;
 var AppVers_Major = "1";
 var AppVers_Minor = "4";
 var AppVers_Build = "6";
-var AppVers_Revision = "1";
+var AppVers_Revision = "2";
 
 
 function GetAppVersion() {
@@ -1362,10 +1362,10 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
 
                 if (result.success) {
 
-                    //Rimuovo gli ordini che ho già caricato su server (in ordine inverso per evitare che si modifichino gli index).
+                    //Rimuovo gli ordini che ho giÃ  caricato su server (in ordine inverso per evitare che si modifichino gli index).
 
                     //DANIELE BARLOCCO 12/5/2016 
-                    //NON RIMUOVO PIù GLI ORDINI, MA LI IMPOSTO COME TRASFERITI
+                    //NON RIMUOVO PIÃ¹ GLI ORDINI, MA LI IMPOSTO COME TRASFERITI
                     /*
                     for (var index = _qtOrdersUpload.orders.length - 1; index >= 0; index--) {
                         _qtOrders.orders.splice(_qtOrdersUpload.orders[index].orderIndex, 1);
@@ -1395,7 +1395,7 @@ function OrderUploadAll(SuccessCallback, FailCallback, uploadOnlyWorkingOrder) {
 
                     _qtOrdersUpload = null;
                     try {
-                        //Salvo su file gli ordini già scaricati su server
+                        //Salvo su file gli ordini giÃ  scaricati su server
                         _qtOrders.saveToFile(function () {
                             //salvataggio temporaneo dell'ordine riuscito.
                             SuccessCallback();
@@ -1686,7 +1686,7 @@ function pageConfigSaveExecute_core() {
         //Salvo
         _qtConfig.saveToFile(function () {
             if (_firstStart) {
-                //Al salvataggio della configurazione, se è il primo avvio reinizializzo tutto.
+                //Al salvataggio della configurazione, se Ã¨ il primo avvio reinizializzo tutto.
                 //Inizializzo la configurazione
                 QTConfigInitAndVerify();
                 //Leggo anche datasource
@@ -1969,7 +1969,7 @@ function SynchronizeDataSourceStart() {
                     //Dopo aver scritto reinizializzo il datasource
                     QTDataSourceInitAndVerify(function () {
                         //Successo
-                        //LoaderHide(); << Già richiamato
+                        //LoaderHide(); << GiÃ  richiamato
 
                         applicaCodiciAWBAgliOrdini()
 
@@ -2727,7 +2727,7 @@ function pageOrderCloseIfEmpty() {
     if (_qtOrders.getOrder(_qtOrderWorking)) {
         if ((!_qtOrders.getOrder(_qtOrderWorking).customerCode) && (_qtOrders.getOrder(_qtOrderWorking).rows.length == 0)) {
 
-            //non ho scelto nè cliente ne ho righe quindi non propongo di tenere nulla
+            //non ho scelto nÃ¨ cliente ne ho righe quindi non propongo di tenere nulla
             pageOrderDeleteExecute();
             ordineEliminato = true
         }
@@ -2788,7 +2788,7 @@ function pageOrderDeleteExecute() {
     try {
 
 
-        //rimuovo l'ordine attuale perchè non va mantenuto
+        //rimuovo l'ordine attuale perchÃ¨ non va mantenuto
         var indexDelete = -1;
         for (var index = 0; index < _qtOrders.orders.length; index++) {
             if (_qtOrders.orders[index].orderCode == _qtOrderWorking)
@@ -2995,7 +2995,7 @@ function OrderTableRefresh() {
     _rigaOrdineInModifica = null;
 
     /*
-    Daniele BArlocco 30/5/2016 a volte entra qua dentro automaticamente (come se ci fosse un timer, ma non c'è!) ed esce il seguente errore
+    Daniele BArlocco 30/5/2016 a volte entra qua dentro automaticamente (come se ci fosse un timer, ma non c'Ã¨!) ed esce il seguente errore
     null is not an object (evaluating '_qtOrders.getOrder')
     */
 
@@ -3014,7 +3014,7 @@ function OrderTableRefresh() {
         var rows = _qtOrders.getOrder(_qtOrderWorking).rows;
         var html = "";
 
-        //A.Gioachini 05/02/2016 - vado a mostrare se è una campionatura 2T o Cervo
+        //A.Gioachini 05/02/2016 - vado a mostrare se Ã¨ una campionatura 2T o Cervo
         var tipoOrdine = "";
         if (_qtOrders.getOrder(_qtOrderWorking).rows.length > 0) {
             var firstRow = _qtOrders.getOrder(_qtOrderWorking).rows[0];
@@ -3301,7 +3301,7 @@ function OrderAddArticle_Check_core(code) {
             return false;
         }
 
-        //se il valore letto è di lunghezza inferiore al codice standard cervotessile (19 char) svuoto il campo 
+        //se il valore letto Ã¨ di lunghezza inferiore al codice standard cervotessile (19 char) svuoto il campo 
         if (code.length < 19) {
 
             OrderAddArticle_Check_showError("Il campo [Codice] non ha un formato valido.")
@@ -3347,7 +3347,7 @@ function OrderAddArticle_Check_core(code) {
         }
 
         if (matches.length > 1) {
-            //più risultati
+            //piÃ¹ risultati
 
             OrderAddArticle_Check_showError("Il Codice \u00e8 stato trovato, ma risultano " + matches.length.toString() + " corrispondenze.")
 
@@ -3367,7 +3367,7 @@ function OrderAddArticle_Check_core(code) {
 
             var alreadyExists = null;
 
-            //Verifico che non sia già stato letto il codice (solo se sto inserendo un "TP"
+            //Verifico che non sia giÃ  stato letto il codice (solo se sto inserendo un "TP"
             if (_pageOrder_TipoArticoloSelezionato == 'TP') {
                 var alreadyExists = SEARCHJS.matchArray(_qtOrders.getOrder(_qtOrderWorking).rows, { "articleBarcode": code, "OggettoCodice": "TP" });
 
@@ -3414,7 +3414,7 @@ function OrderAddArticle_Check_core(code) {
 
             //A.Gioachini 05/02/2016 - controllo che non mischino le letture 2T e Cervo
             if (_qtOrders.getOrder(_qtOrderWorking).rows.length > 0) {
-                //ho già letto il primo articolo, verifico se la campionatura è di Cervotessile o 2T
+                //ho giÃ  letto il primo articolo, verifico se la campionatura Ã¨ di Cervotessile o 2T
                 var firstRow = _qtOrders.getOrder(_qtOrderWorking).rows[0];
                 var firstRowFirstChar = firstRow.baseObj.BaseCodice.substring(0, 1);
                 var firstCharArtLetto = matches[0].BaseCodice.substring(0, 1);
@@ -4182,7 +4182,7 @@ function OrderSendMail_core() {
                     }
 
 
-                    //salvo ordine, in quanto è cambiata la property MailErrorDescription
+                    //salvo ordine, in quanto Ã¨ cambiata la property MailErrorDescription
                     try {
                         _qtOrders.saveToFile(function () {
                             //salvataggio temporaneo dell'ordine riuscito.
@@ -4719,7 +4719,7 @@ function CustomerInfoFill() {
 
 function CustomerChangeView(sender, areaShowIndex) {
     try {
-        //se sender è disabilitato non faccio il click
+        //se sender Ã¨ disabilitato non faccio il click
         if (sender) {
             if ($(sender).hasClass("ui-disabled")) {
                 return;
@@ -4802,7 +4802,7 @@ function CustomersFilter(filterStringValue) {
         return;
     }
 
-    //A.Gioachini 05/02/2016 - Se leggo un cliente da suo barcode stampato in accettazione non faccio la richiesta web finchè non ho il barcode intero (7 caratteri, compreso il $)
+    //A.Gioachini 05/02/2016 - Se leggo un cliente da suo barcode stampato in accettazione non faccio la richiesta web finchÃ¨ non ho il barcode intero (7 caratteri, compreso il $)
     if (($.trim(filterStringValue).substring(0, 1) == "$") && ($.trim(filterStringValue).length < 7)) {
         return;
     }
@@ -4883,7 +4883,7 @@ function CustomersFilter_OffLine(filterStringValue) {
     //alert("filterStringValue" + filterStringValue)
     try {
 
-        //A.Gioachini 05/02/2016 - Se leggo un cliente da suo barcode stampato in accettazione non faccio la richiesta web finchè non ho il barcode intero (7 caratteri, compreso il $)
+        //A.Gioachini 05/02/2016 - Se leggo un cliente da suo barcode stampato in accettazione non faccio la richiesta web finchÃ¨ non ho il barcode intero (7 caratteri, compreso il $)
         if (($.trim(filterStringValue).substring(0, 1) == "$") && ($.trim(filterStringValue).length < 7)) {
             return;
         }
@@ -4998,7 +4998,7 @@ function CustomerSelect(code) {
 
 function CustomerShowDestinations(customerCode) {
 
-    //Se ordine è chiuso o di tipo diverso da quello corrente esco
+    //Se ordine Ã¨ chiuso o di tipo diverso da quello corrente esco
     var TipoUtilizzoOrdine = _qtOrders.getOrder(_qtOrderWorking).TipoUtilizzo;
     if (!TipoUtilizzoOrdine) { TipoUtilizzoOrdine = TIPO_UTILIZZO.SEDE_CENTRALE };
     if (_qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.COMPLETED || _qtOrders.getOrder(_qtOrderWorking).orderStatus == ORDER_STATUS.TRASFERITO || _qtConfig.ind_tipo_utilizzo != TipoUtilizzoOrdine) {
@@ -5249,7 +5249,7 @@ function OrderCustomerApplyStyle() {
         $('#pageOrder_Panel_listView_Trasferisci').show();
         $('#pageOrder_Panel_listView_InviaMail').show();
 
-        //in fiera non si inviano le mail perchè non c'è internet
+        //in fiera non si inviano le mail perchÃ¨ non c'Ã¨ internet
         if (_qtConfig.ind_tipo_utilizzo == TIPO_UTILIZZO.FIERA) {
             $('#pageOrder_Panel_listView_InviaMail').hide();
         }
@@ -6052,7 +6052,7 @@ function ListiniDrawDatas() {
         }
 
         var showGruppo = false;
-        //Mostro il bottone "Cambia Gruppo" solo quando ho più di un gruppo.        
+        //Mostro il bottone "Cambia Gruppo" solo quando ho piÃ¹ di un gruppo.        
         if (_ListinoViewed.gruppo) {
             if (_ListinoViewed.objGruppi) {
                 if (_ListinoViewed.objGruppi.length > 1) {
@@ -6117,7 +6117,7 @@ function ListiniLoadListView() {
     }
     */
     try {
-        ////se ho sia base che gruppo devo mostrare gli articoli del gruppo (già scaricati), evito di proseguire nella function
+        ////se ho sia base che gruppo devo mostrare gli articoli del gruppo (giÃ  scaricati), evito di proseguire nella function
         //if (_ListinoViewed.baseCodice && _ListinoViewed.gruppo) {
         //    ListiniLoadArticoliGruppo();
         //    return;
@@ -6263,7 +6263,7 @@ function ListiniLoadListView() {
 
                         } else {
 
-                            //se ho sia base che gruppo devo mostrare gli articoli del gruppo (già scaricati), evito di proseguire nella function
+                            //se ho sia base che gruppo devo mostrare gli articoli del gruppo (giÃ  scaricati), evito di proseguire nella function
                             if (_ListinoViewed.baseCodice && _ListinoViewed.gruppo) {
                                 ListiniLoadArticoliGruppo();
                                 return;
@@ -6303,7 +6303,7 @@ function ListiniLoadListView_OffLine() {
     alert("ListiniLoadListView OFFLINE");
 
     try {
-        ////se ho sia base che gruppo devo mostrare gli articoli del gruppo (già scaricati), evito di proseguire nella function
+        ////se ho sia base che gruppo devo mostrare gli articoli del gruppo (giÃ  scaricati), evito di proseguire nella function
         //if (_ListinoViewed.baseCodice && _ListinoViewed.gruppo) {
         //    ListiniLoadArticoliGruppo();
         //    return;
@@ -6428,7 +6428,7 @@ function ListiniLoadListView_OffLine() {
             
                         } else {
             
-                            //se ho sia base che gruppo devo mostrare gli articoli del gruppo (già scaricati), evito di proseguire nella function
+                            //se ho sia base che gruppo devo mostrare gli articoli del gruppo (giÃ  scaricati), evito di proseguire nella function
                             if (_ListinoViewed.baseCodice && _ListinoViewed.gruppo) {
                                 ListiniLoadArticoliGruppo();
                                 return;
@@ -6836,7 +6836,7 @@ function ListiniSetListino(ListinoCodice) {
 
 $("#pageListiniListino").change(function () {
     try {
-        //imposto il listino selezionato e forzo il ricalcolo dei prezzi (se è necessario)
+        //imposto il listino selezionato e forzo il ricalcolo dei prezzi (se Ã¨ necessario)
         ListiniSetListino($("#pageListiniListino").val());
         ListiniDrawDatas();
     } catch (e) {
@@ -6926,28 +6926,28 @@ function pageCustomerEMail_ElencoContatti_clickCheck_core(testo, cb) {
 
     if (!testo) { testo = ""; }
 
-    testo = testo.replace(new RegExp(";", "g"), "§");
-    testo = testo.replace(new RegExp(",", "g"), "§");
+    testo = testo.replace(new RegExp(";", "g"), "Â§");
+    testo = testo.replace(new RegExp(",", "g"), "Â§");
     testo = testo.replace(new RegExp(" ", "g"), "");
     testo = testo.trim();
 
     if (testo != "") {
         var lastChar = testo.substr(testo.length - 1);
-        if (lastChar != "§") { testo = testo + "§"; }
+        if (lastChar != "Â§") { testo = testo + "Â§"; }
     }
 
 
     if (cb.checked == true) {
         //aggiungo
         if (!testo.indexOf(mail) > -1) {
-            testo = testo + mail + "§";
+            testo = testo + mail + "Â§";
         }
     }
     else {
         //rimuovo
-        testo = testo.replace(new RegExp(mail + "§", "g"), "");
+        testo = testo.replace(new RegExp(mail + "Â§", "g"), "");
     }
-    testo = testo.replace(new RegExp("§", "g"), "; ")
+    testo = testo.replace(new RegExp("Â§", "g"), "; ")
     testo = testo.trim();
     return testo;
 }
@@ -7103,13 +7103,13 @@ function pageElencoContattiClienti_EliminaVociSelezionate_core(names) {
 
     var testo = _qtOrders.getOrder(_qtOrderWorking).orderEMail;
     if (!testo) { testo = ""; }
-    testo = testo.replace(new RegExp(";", "g"), "§");
-    testo = testo.replace(new RegExp(",", "g"), "§");
+    testo = testo.replace(new RegExp(";", "g"), "Â§");
+    testo = testo.replace(new RegExp(",", "g"), "Â§");
     testo = testo.replace(new RegExp(" ", "g"), "");
     testo = testo.trim();
     if (testo != "") {
         var lastChar = testo.substr(testo.length - 1);
-        if (lastChar != "§") { testo = testo + "§"; }
+        if (lastChar != "Â§") { testo = testo + "Â§"; }
     }
 
 
@@ -7120,14 +7120,14 @@ function pageElencoContattiClienti_EliminaVociSelezionate_core(names) {
                 mgrCliente.Mail.splice(i, 1);
                 mgrCliente.DataOraUltimaModifica = GetDataAttuale();
 
-                testo = testo.replace(new RegExp(m + "§", "g"), "");
+                testo = testo.replace(new RegExp(m + "Â§", "g"), "");
                 break;
             }
         }
     }
 
 
-    testo = testo.replace(new RegExp("§", "g"), "; ")
+    testo = testo.replace(new RegExp("Â§", "g"), "; ")
     testo = testo.trim();
 
     _qtOrders.getOrder(_qtOrderWorking).orderEMail = testo;
