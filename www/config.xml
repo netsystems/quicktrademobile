@@ -34,11 +34,13 @@
   <!--  <plugin name="org.apache.cordova.media-capture"/> -->
   <!--  <plugin name="org.apache.cordova.console"/> -->
   <plugin name="cordova-plugin-statusbar"/>
-  <plugin name="cordova-plugin-device" spec="~2.0.1" /> 
+
+  <!--   <plugin name="cordova-plugin-device" spec="~2.0.1" /> 
   <!--  <plugin name="org.apache.cordova.device-motion"/> -->
   <!--  <plugin name="org.apache.cordova.device-orientation"/> -->
   <!--  <plugin name="org.apache.cordova.dialogs"/> -->
-   <plugin name="org.apache.cordova.file"/> 
+ 
+  <!--   <plugin name="org.apache.cordova.file"/> -->
   <!--  <plugin name="org.apache.cordova.file-transfer"/> -->
   <!--  <plugin name="org.apache.cordova.geolocation"/> -->
   <!--  <plugin name="org.apache.cordova.globalization"/> --> -->
