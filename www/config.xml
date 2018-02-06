@@ -29,7 +29,7 @@
   <preference name="disable-cursor" value="true"/>
   <preference name="ShowSplashScreenSpinner" value="false"/>
 
-  <plugin name="org.apache.cordova.battery-status"/>
+  <!--  <plugin name="org.apache.cordova.battery-status"/> -->
   <plugin name="org.apache.cordova.camera"/>
   <plugin name="org.apache.cordova.media-capture"/>
   <plugin name="org.apache.cordova.console"/>
