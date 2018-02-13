@@ -62,7 +62,7 @@ var _rigaOrdineInModifica = null;
 var AppVers_Major = "1";
 var AppVers_Minor = "4";
 var AppVers_Build = "6";
-var AppVers_Revision = "2";
+var AppVers_Revision = "3";
 
 
 function GetAppVersion() {
