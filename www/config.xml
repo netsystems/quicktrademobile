@@ -36,8 +36,9 @@
   <plugin name="cordova-plugin-statusbar"/>
  <plugin name="cordova-plugin-file"/>
      <plugin name="cordova-plugin-device" spec="~2.0.1" />
-  cordova-plugin-dialogs
+ 
   <plugin name="cordova-plugin-dialogs"/>
+   <plugin name="cordova-plugin-vibration"/>
   
   <!--  <plugin name="org.apache.cordova.device-motion"/> -->
   <!--  <plugin name="org.apache.cordova.device-orientation"/> -->
