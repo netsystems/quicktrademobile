@@ -41,7 +41,7 @@
   <!--  <plugin name="org.apache.cordova.dialogs"/> -->
  
     <plugin name="cordova-plugin-file"/>
-  <plugin name="org.apache.cordova.file-transfer"/>
+ <!-- <plugin name="org.apache.cordova.file-transfer"/> -->
   <!--  <plugin name="org.apache.cordova.geolocation"/> -->
   <!--  <plugin name="org.apache.cordova.globalization"/> --> -->
   <!--  <plugin name="org.apache.cordova.inappbrowser"/> -->
