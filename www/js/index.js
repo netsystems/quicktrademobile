@@ -54,14 +54,14 @@ var CONTATTO_NOTE_ALLOWED_CHARS = " 0123456789abcdefghijklmnopqrstuvwxyz.:,;!()Ã
 var _MailClienteMgr = null;
 
 //VERSIONE VISUALIZZATA A SCHERMO
-//var APP_VERSION = "1.4.0.0";
+//var APP_VERSION = "1.4.7.0";
 
 
 var _rigaOrdineInModifica = null;
 
 var AppVers_Major = "1";
 var AppVers_Minor = "4";
-var AppVers_Build = "6";
+var AppVers_Build = "7";
 var AppVers_Revision = "3";
 
 
