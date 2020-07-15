@@ -7,7 +7,7 @@
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-plugin-file": {  },  },  },cordova-plugin-file@^4.0.0"  },  },  },  },
+    "cordova-plugin-file": {  },  },  },cordova-plugin-file@^6.3.0"  },  },  },  },
   "cordova-plugin-device": {    "source": {      "type": "registry",      "id": "cordova-plugin-device@~1.1.6"    },    "is_top_level": true,    "variables": {}  }
     
     
