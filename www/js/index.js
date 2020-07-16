@@ -61,7 +61,7 @@ var _rigaOrdineInModifica = null;
 
 var AppVers_Major = "1";
 var AppVers_Minor = "X";
-var AppVers_Build = "2";
+var AppVers_Build = "3";
 var AppVers_Revision = "0";
 
 
