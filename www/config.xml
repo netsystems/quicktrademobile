@@ -16,7 +16,7 @@
   <!-- Android -->
   <preference name="android-minSdkVersion" value="14"/>
   <preference name="android-installLocation" value="auto"/>
- 
+  <preference name="AndroidPersistentFileLocation" value="Compatibility" />
   <preference name="permissions" value="none"/>
   <preference name="webviewbounce" value="false"/>
   <preference name="stay-in-webview" value="false"/>
@@ -28,7 +28,7 @@
   <preference name="SplashScreenDelay" value="3000" />
   <preference name="disable-cursor" value="true"/>
   <preference name="ShowSplashScreenSpinner" value="false"/>
-  <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+  
   <!--  <plugin name="org.apache.cordova.battery-status"/> -->
   <!--  <plugin name="org.apache.cordova.camera" spec="4.0.2" source="pgb"/> -->
   <!--  <plugin name="org.apache.cordova.media-capture"/> -->
