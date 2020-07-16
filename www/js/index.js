@@ -5434,11 +5434,6 @@ function ProfileOperatorsVerify(OperatorCode, OperatorPsw, SerialNumber) {
       //  return false;
     //});
 
-   function (textStatus, textError) {
-        //OFFLINE-ERRORE
-        navigator.notification.alert(TEST", function () {
-            return;
-        }, "Attenzione", "OK");
 
     _ProfileInfo = null;
 
