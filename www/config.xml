@@ -34,7 +34,7 @@
   <!--  <plugin name="org.apache.cordova.media-capture"/> -->
   <!--  <plugin name="org.apache.cordova.console"/> -->
   <plugin name="cordova-plugin-statusbar"/>
- <plugin name="cordova-plugin-file" spec="~6.0.2" >
+ <plugin name="cordova-plugin-file" spec="~6.0.3" >
 	 <preference name="AndroidPersistentFileLocation" value="Compatibility" />
   </plugin>
   
