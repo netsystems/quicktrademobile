@@ -28,16 +28,14 @@
   <preference name="SplashScreenDelay" value="3000" />
   <preference name="disable-cursor" value="true"/>
   <preference name="ShowSplashScreenSpinner" value="false"/>
-
+  <preference name="AndroidPersistentFileLocation" value="Compatibility" />
   <!--  <plugin name="org.apache.cordova.battery-status"/> -->
   <!--  <plugin name="org.apache.cordova.camera" spec="4.0.2" source="pgb"/> -->
   <!--  <plugin name="org.apache.cordova.media-capture"/> -->
   <!--  <plugin name="org.apache.cordova.console"/> -->
   <plugin name="cordova-plugin-statusbar"/>
- <plugin name="cordova-plugin-file"  spec="~6.0.2" >
-	 <preference name="AndroidPersistentFileLocation" value="Compatibility" />
-  </plugin>
-  
+ <plugin name="cordova-plugin-file"   />
+	
   <plugin name="cordova-plugin-device" spec="~2.0.1" />
  
   <plugin name="cordova-plugin-dialogs"/>
