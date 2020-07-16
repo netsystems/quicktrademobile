@@ -35,7 +35,7 @@
   <!--  <plugin name="org.apache.cordova.console"/> -->
   <plugin name="cordova-plugin-statusbar"/>
  <plugin name="cordova-plugin-file" spec="~6.0.2" >
-	<!--   <preference name="AndroidPersistentFileLocation" value="Compatibility" />-->
+	 <preference name="AndroidPersistentFileLocation" value="Compatibility" />
   </plugin>
   
   <plugin name="cordova-plugin-device" spec="~2.0.1" />
