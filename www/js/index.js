@@ -60,8 +60,8 @@ var _MailClienteMgr = null;
 var _rigaOrdineInModifica = null;
 
 var AppVers_Major = "1";
-var AppVers_Minor = "5";
-var AppVers_Build = "0";
+var AppVers_Minor = "X";
+var AppVers_Build = "1";
 var AppVers_Revision = "0";
 
 
@@ -1883,7 +1883,7 @@ function SynchronizeDataSource() {
                                                 }, function (textStatus, textError) {
                                                     //OFFLINE-ERRORE
                                                     LoaderHide();
-                                                    navigator.notification.alert("Il server non \u00e8 raggiungibile, non \u00e8 possibile scaricare i dati.", function () {
+                                                    navigator.notification.alert("Il server non " + _qtConfig.ServerIP + ":" + _qtConfig.ServerPortNumber + " \u00e8 raggiungibile, non \u00e8 possibile scaricare i dati.", function () {
                                                         return;
                                                     }, "Attenzione", "OK");
                                                 });
@@ -3820,6 +3820,8 @@ function OrderSave_All() {
                 }
             }
         }
+		
+		
     }
 
     //alert("cntordinidatrasferire " + cntordinidatrasferire);
@@ -5426,7 +5428,7 @@ function ProfileOperatorsVerify(OperatorCode, OperatorPsw, SerialNumber) {
         //ONLINE, niente da notificare
     }, function (textStatus, textError) {
         //OFFLINE-ERRORE
-        navigator.notification.alert("Il server Quick Trade non \u00e8 raggiungibile, non \u00e8 possibile verificare il profilo.", function () {
+        navigator.notification.alert("Il server Quick Trade  " + _qtConfig.ServerIP + ":" + _qtConfig.ServerPortNumber + "  non \u00e8 raggiungibile, non \u00e8 possibile verificare il profilo.", function () {
             return;
         }, "Attenzione", "OK");
         return false;
