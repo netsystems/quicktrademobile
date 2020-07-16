@@ -61,7 +61,7 @@ var _rigaOrdineInModifica = null;
 
 var AppVers_Major = "1";
 var AppVers_Minor = "X";
-var AppVers_Build = "5";
+var AppVers_Build = "6";
 var AppVers_Revision = "0";
 
 
@@ -5687,8 +5687,8 @@ function ServerOnlineVerify(IsOnline, IsOffline) {
     */
 
     $.ajax({
-      //  url: GetServerURL("checksystem"),
-		url: "http://www.libero.it/"
+        url: GetServerURL("checksystem"),
+		
         method: "GET",
         dataType: "jsonp",
         timeout: 5000,
