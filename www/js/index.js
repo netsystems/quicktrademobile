@@ -5424,15 +5424,21 @@ function ProfileOperatorsVerify(OperatorCode, OperatorPsw, SerialNumber) {
 
 
 
-    ServerOnlineVerify(function () {
-        //ONLINE, niente da notificare
-    }, function (textStatus, textError) {
+    //ServerOnlineVerify(function () {
+     //   //ONLINE, niente da notificare
+    //}, function (textStatus, textError) {
+     //   //OFFLINE-ERRORE
+      //  navigator.notification.alert("Il server Quick Trade  " + _qtConfig.ServerIP + ":" + _qtConfig.ServerPortNumber + "  non \u00e8 raggiungibile, non \u00e8 possibile verificare il profilo.", function () {
+      //      return;
+      //  }, "Attenzione", "OK");
+      //  return false;
+    //});
+
+   function (textStatus, textError) {
         //OFFLINE-ERRORE
-        navigator.notification.alert("Il server Quick Trade  " + _qtConfig.ServerIP + ":" + _qtConfig.ServerPortNumber + "  non \u00e8 raggiungibile, non \u00e8 possibile verificare il profilo.", function () {
+        navigator.notification.alert(TEST", function () {
             return;
         }, "Attenzione", "OK");
-        return false;
-    });
 
     _ProfileInfo = null;
 
