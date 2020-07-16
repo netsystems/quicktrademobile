@@ -61,7 +61,7 @@ var _rigaOrdineInModifica = null;
 
 var AppVers_Major = "1";
 var AppVers_Minor = "X";
-var AppVers_Build = "6";
+var AppVers_Build = "7";
 var AppVers_Revision = "0";
 
 
@@ -5424,15 +5424,15 @@ function ProfileOperatorsVerify(OperatorCode, OperatorPsw, SerialNumber) {
 
 
 
-    //ServerOnlineVerify(function () {
-     //   //ONLINE, niente da notificare
-    //}, function (textStatus, textError) {
-     //   //OFFLINE-ERRORE
-      //  navigator.notification.alert("Il server Quick Trade  " + _qtConfig.ServerIP + ":" + _qtConfig.ServerPortNumber + "  non \u00e8 raggiungibile, non \u00e8 possibile verificare il profilo.", function () {
-      //      return;
-      //  }, "Attenzione", "OK");
-      //  return false;
-    //});
+    ServerOnlineVerify(function () {
+       //ONLINE, niente da notificare
+    }, function (textStatus, textError) {
+       //OFFLINE-ERRORE
+      navigator.notification.alert("Il server Quick Trade  " + _qtConfig.ServerIP + ":" + _qtConfig.ServerPortNumber + "  non \u00e8 raggiungibile, non \u00e8 possibile verificare il profilo.", function () {
+            return;
+        }, "Attenzione", "OK");
+        return false;
+    });
 
 
     _ProfileInfo = null;
