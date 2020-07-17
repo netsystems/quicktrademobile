@@ -61,7 +61,7 @@ var _rigaOrdineInModifica = null;
 
 var AppVers_Major = "1";
 var AppVers_Minor = "X";
-var AppVers_Build = "7";
+var AppVers_Build = "8";
 var AppVers_Revision = "0";
 
 
@@ -5691,7 +5691,7 @@ function ServerOnlineVerify(IsOnline, IsOffline) {
         url: GetServerURL("checksystem"),
 		
         method: "GET",
-        dataType: "json",
+        dataType: "jsonp",
         timeout: 5000,
         async: true,
         success: function (result) {
