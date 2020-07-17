@@ -5691,7 +5691,7 @@ function ServerOnlineVerify(IsOnline, IsOffline) {
         url: GetServerURL("checksystem"),
 		
         method: "GET",
-        dataType: "jsonp",
+        dataType: "json",
         timeout: 5000,
         async: true,
         success: function (result) {
