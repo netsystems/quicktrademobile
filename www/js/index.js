@@ -60,8 +60,8 @@ var _MailClienteMgr = null;
 var _rigaOrdineInModifica = null;
 
 var AppVers_Major = "1";
-var AppVers_Minor = "X";
-var AppVers_Build = "10";
+var AppVers_Minor = "5";
+var AppVers_Build = "0";
 var AppVers_Revision = "0";
 
 
@@ -5644,7 +5644,7 @@ function ProfileOperatorsLogout() {
                             }, "Errore", "OK");
                         });
 
-                        navigator.notification.alert("Logout dell'operatore completata con successo!" + OperatorCode + " " + OperatorPsw + " " + SerialNumber, function () { }, "Operazione completata", "OK");
+                        navigator.notification.alert("Logout dell'operatore completata con successo!", function () { }, "Operazione completata", "OK");
 
 
 
@@ -5740,7 +5740,7 @@ function ServerCheckAppVersionForOperation_core(Operation, SuccessFunction) {
 
                 //navigator.notification.alert(result.errors.toString(), function () { }, "Operazione non consentita", "OK");
 
-                navigator.notification.confirm(result.errors.toString() + "\nAggiornare il software?" + "|00|" + Operation + " " + SuccessFunction ,
+                navigator.notification.confirm(result.errors.toString() + "\nAggiornare il software?" + "|00|" + Operation + "|01!" + versione ,
                         function (buttonIndex) { if (buttonIndex == 1) { gotoUpdatePage(); } },
                         "Operazione non consentita",
                         "Si,No");
