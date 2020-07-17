@@ -122,7 +122,7 @@
     </dict>
   </gap:config-file>
 
-  <plugin name="Storage" value="org.apache.cordova.Storage" />
+  <!--<plugin name="Storage" value="org.apache.cordova.Storage" />-->
   <gap:plugin name="cordova-plugin-whitelist" source="npm" />
   <!--<gap:config-file platform="android" parent="/manifest">
     <supports-screens android:xlargeScreens="false" android:largeScreens="false" android:smallScreens="false" />
