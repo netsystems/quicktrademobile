@@ -61,7 +61,7 @@ var _rigaOrdineInModifica = null;
 
 var AppVers_Major = "1";
 var AppVers_Minor = "X";
-var AppVers_Build = "9";
+var AppVers_Build = "10";
 var AppVers_Revision = "0";
 
 
@@ -5740,7 +5740,7 @@ function ServerCheckAppVersionForOperation_core(Operation, SuccessFunction) {
 
                 //navigator.notification.alert(result.errors.toString(), function () { }, "Operazione non consentita", "OK");
 
-                navigator.notification.confirm(result.errors.toString() + "\nAggiornare il software?",
+                navigator.notification.confirm(result.errors.toString() + "\nAggiornare il software?" + Operation + " " + SuccessFunction ,
                         function (buttonIndex) { if (buttonIndex == 1) { gotoUpdatePage(); } },
                         "Operazione non consentita",
                         "Si,No");
