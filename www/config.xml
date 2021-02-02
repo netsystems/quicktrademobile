@@ -5,7 +5,7 @@
   <content src="index.html"/>
   <!-- MultiPlatform-->
 
-  <preference name="phonegap-version" value="cli-7.0.1"/>
+  <preference name="phonegap-version" value="cli-6.5.0"/>
 
 
   <preference name="orientation" value="default"/>
@@ -126,7 +126,7 @@
   </gap:config-file>
 
   <!--<plugin name="Storage" value="org.apache.cordova.Storage" />-->
-  <gap:plugin name="cordova-plugin-whitelist" source="npm" />
+  <!-- <gap:plugin name="cordova-plugin-whitelist" source="npm" />      -->
   <!--<gap:config-file platform="android" parent="/manifest">
     <supports-screens android:xlargeScreens="false" android:largeScreens="false" android:smallScreens="false" />
     <application android:theme="@android:style/Theme.NoTitleBar">
