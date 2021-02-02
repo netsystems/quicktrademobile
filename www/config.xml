@@ -110,12 +110,12 @@
   <splash src="res/screen/windows-phone/screen-portrait.jpg" platform="winphone"/>
 
 
-  <access origin="*"/>  
-  <access uri="*" subdomains="true" />
-  <access origin="*" launch-external="yes" />
-  <allow-navigation href="*" />
-  <allow-intent href="*" />
-  <access origin="*" />
+  <access origin=*/>  
+  <access uri=* subdomains="true" />
+  <access origin=* launch-external="yes" />
+  <allow-navigation href=* />
+  <allow-intent href=* />
+  <access origin=* />
 
 
 
