@@ -60,7 +60,7 @@ var _MailClienteMgr = null;
 var _rigaOrdineInModifica = null;
 
 var AppVers_Major = "1";
-var AppVers_Minor = "5";
+var AppVers_Minor = "6";
 var AppVers_Build = "0";
 var AppVers_Revision = "0";
 
