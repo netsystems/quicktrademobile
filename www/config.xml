@@ -4,7 +4,10 @@
   <author href="http://www.netsystems.it" email="info@netsystems.it">Net Systems Team</author>
   <content src="index.html"/>
   <!-- MultiPlatform-->
-  <preference name="phonegap-version" value="cli-9.0.0"/>
+
+  <preference name="phonegap-version" value="cli-6.5.0"/>
+
+
   <preference name="orientation" value="default"/>
   <preference name="fullscreen" value="false"/>
   <!-- iOS -->
@@ -85,7 +88,7 @@
  
 
 
-<!--
+
  <icon src="www/res/icon/blackberry/icon-80.png"    platform="blackberry" gap:state="hover"/>
   <icon src="res/icon/ios/icon-57.png"           platform="ios" width="57" height="57"/>
   <icon src="res/icon/ios/icon-72.png"           platform="ios" width="72" height="72"/>
@@ -105,7 +108,7 @@
   <splash src="res/screen/ios/screen-ipad-portrait.png" platform="ios" width="768" height="1024"/>
   <splash src="res/screen/ios/screen-ipad-landscape.png" platform="ios" width="1024" height="768"/>
   <splash src="res/screen/windows-phone/screen-portrait.jpg" platform="winphone"/>
-  -->
+
 
   <access origin="*"/>
   <access uri="*" subdomains="true" />-->
