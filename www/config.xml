@@ -109,13 +109,15 @@
   <splash src="res/screen/ios/screen-ipad-landscape.png" platform="ios" width="1024" height="768"/>
   <splash src="res/screen/windows-phone/screen-portrait.jpg" platform="winphone"/>
 
+<!--
+  <access origin="*"/>
+  <access uri="*" subdomains="true" />
+  <access origin="*" launch-external="yes" />
+  <allow-navigation href="*" />
+  <allow-intent href="*" />
+  <access origin="*" />
+-->
 
-  <access origin="'*'"/>
-  <access uri="'*'" subdomains="true" />-->
-  <access origin="'*'" launch-external="yes" />-->
-  <allow-navigation href="'*'" />
-  <allow-intent href="'*'" />
-  <access origin="'*'" />
 
   <gap:config-file target="*-Info.plist" parent="CFBundleURLTypes" platform="ios" >
     <key>NSAppTransportSecurity</key>
