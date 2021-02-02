@@ -34,10 +34,7 @@
   <!--  <plugin name="org.apache.cordova.media-capture"/> -->
   <!--  <plugin name="org.apache.cordova.console"/> -->
   <plugin name="cordova-plugin-statusbar"/>
-<!-- <plugin name="cordova-plugin-file"   />                  PER ANDROID							  -->
 	<plugin name="cordova-plugin-file"     />  
-	
-	
   <plugin name="cordova-plugin-device" spec="~2.0.1" />
  
   <plugin name="cordova-plugin-dialogs"/>
@@ -82,25 +79,23 @@
     <icon src="res/icon/ios/icon-120.png"           platform="ios" width="120" height="120"/> 
     <icon src="res/icon/ios/icon-152.png"        platform="ios" width="152" height="152"/>
    <icon src="res/icon/ios/icon-180.png"        platform="ios" width="180" height="180"/> 
+  <icon src="res/icon/webos/icon-64.png"         platform="webos"/>
+  <icon src="res/icon/windows-phone/icon-48.png" platform="winphone"/>
+  <icon src="res/icon/windows-phone/icon-173-tile.png" platform="winphone" role="background"/>
+
   <!--<gap:splash src="www/res/screen/blackberry/screen-225.png" gap:platform="blackberry"/>-->
 
+
+<!-- <icon src="www/res/icon/blackberry/icon-80.png"    platform="blackberry" gap:state="hover"/>   -->
+  
+
+  <splash src="res/screen/screen-portrait.png"/>
 
 
   <splash src="res/screen/android/screen-ldpi-portrait.png" platform="android" qualifier="port-ldpi"/>
   <splash src="res/screen/android/screen-mdpi-portrait.png" platform="android" qualifier="port-mdpi"/>
   <splash src="res/screen/android/screen-hdpi-portrait.png" platform="android" qualifier="port-hdpi"/>
   <splash src="res/screen/android/screen-xhdpi-portrait.png" platform="android" qualifier="port-xhdpi"/>
- 
-
-
-
- <icon src="www/res/icon/blackberry/icon-80.png"    platform="blackberry" gap:state="hover"/>
-  
-  <icon src="res/icon/webos/icon-64.png"         platform="webos"/>
-  <icon src="res/icon/windows-phone/icon-48.png" platform="winphone"/>
-  <icon src="res/icon/windows-phone/icon-173-tile.png" platform="winphone" role="background"/>
-
-  <splash src="res/screen/screen-portrait.png"/>
 
   
   
@@ -128,7 +123,7 @@
   </gap:config-file>
 
   <!--<plugin name="Storage" value="org.apache.cordova.Storage" />-->
-  <!-- <gap:plugin name="cordova-plugin-whitelist" source="npm" />    -->
+  <gap:plugin name="cordova-plugin-whitelist" source="npm" />  
   <!--<gap:config-file platform="android" parent="/manifest">
     <supports-screens android:xlargeScreens="false" android:largeScreens="false" android:smallScreens="false" />
     <application android:theme="@android:style/Theme.NoTitleBar">
