@@ -112,11 +112,11 @@
 
 
   <access origin="*"/>  
-  <access uri="*" subdomains="true" />
+ <!-- <access uri="*" subdomains="true" />  -->
   <access origin="*" launch-external="yes" />
   <allow-navigation href="*" />
   <allow-intent href="*" />
-  <access origin="*" />
+ <!-- <access origin="*" /> -->
 
 
 
@@ -129,7 +129,7 @@
   </gap:config-file>
 
   <!--<plugin name="Storage" value="org.apache.cordova.Storage" />-->
-  <!-- <gap:plugin name="cordova-plugin-whitelist" source="npm" />      -->
+   <gap:plugin name="cordova-plugin-whitelist" source="npm" />     
   <!--<gap:config-file platform="android" parent="/manifest">
     <supports-screens android:xlargeScreens="false" android:largeScreens="false" android:smallScreens="false" />
     <application android:theme="@android:style/Theme.NoTitleBar">
