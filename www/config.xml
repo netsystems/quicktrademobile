@@ -60,8 +60,8 @@
   
   <!--  <plugin name="cordova-plugin-whitelist" /> -->
 
+<!--  
   
-  <!--  <icon src="www/res/icon/blackberry/icon-80.png"    platform="blackberry"/> -->
      <icon src="res/icon/ios/icon-29.png"           platform="ios" width="29" height="29"/> 
    <icon src="res/icon/ios/icon-40.png"           platform="ios" width="40" height="40"/> 
    <icon src="res/icon/ios/icon-50.png"           platform="ios" width="50" height="50"/> 
@@ -73,6 +73,13 @@
     <icon src="res/icon/ios/icon-120.png"           platform="ios" width="120" height="120"/> 
     <icon src="res/icon/ios/icon-152.png"        platform="ios" width="152" height="152"/>
    <icon src="res/icon/ios/icon-180.png"        platform="ios" width="180" height="180"/> 
+  
+  <icon src="res/icon/webos/icon-64.png"         platform="webos"/>
+  <icon src="res/icon/windows-phone/icon-48.png" platform="winphone"/>
+  <icon src="res/icon/windows-phone/icon-173-tile.png" platform="winphone" role="background"/>
+	<icon src="www/res/icon/blackberry/icon-80.png"    platform="blackberry" gap:state="hover"/>
+-->
+<!--  <icon src="www/res/icon/blackberry/icon-80.png"    platform="blackberry"/> -->
   <!--<gap:splash src="www/res/screen/blackberry/screen-225.png" gap:platform="blackberry"/>-->
 
 
@@ -89,14 +96,14 @@
 
 
 
- <icon src="www/res/icon/blackberry/icon-80.png"    platform="blackberry" gap:state="hover"/>
+ 
   <icon src="res/icon/ios/icon-57.png"           platform="ios" width="57" height="57"/>
   <icon src="res/icon/ios/icon-72.png"           platform="ios" width="72" height="72"/>
   <icon src="res/icon/ios/icon-57-2x.png"        platform="ios" width="114" height="114"/>
   <icon src="res/icon/ios/icon-72-2x.png"        platform="ios" width="144" height="144"/>
-  <icon src="res/icon/webos/icon-64.png"         platform="webos"/>
-  <icon src="res/icon/windows-phone/icon-48.png" platform="winphone"/>
-  <icon src="res/icon/windows-phone/icon-173-tile.png" platform="winphone" role="background"/>
+  
+  
+  
 
   <splash src="res/screen/screen-portrait.png"/>
 
