@@ -73,6 +73,8 @@ function setTitolo() {
 
     $("#pageMainHeader").html("Quick Trade Mobile");
 
+	navigator.notification.alert("#001", null, "QuickTrade", "OK");
+
     if (!_qtProfile) { return; }
     if (!_qtProfile.OperatoreDescrizione) { return; }
     if (_qtProfile.OperatoreDescrizione != "") {
@@ -104,7 +106,7 @@ function setTitolo() {
 var _initialized = false;
 
 var app = {
-
+    navigator.notification.alert("#002", null, "QuickTrade", "OK");
     // Application Constructor
     initialize: function () {
 
