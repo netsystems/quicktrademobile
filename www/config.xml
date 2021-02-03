@@ -39,7 +39,7 @@
   <plugin name="cordova-plugin-statusbar"/>
  <plugin name="cordova-plugin-file"   />
 	
-  <!--   <plugin name="cordova-plugin-device" spec="~2.0.1" />    ->
+  <!--   <plugin name="cordova-plugin-device" spec="~2.0.1" />    -->
   <plugin name="cordova-plugin-device" />
  
   <plugin name="cordova-plugin-dialogs"/>
