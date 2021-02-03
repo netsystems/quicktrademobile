@@ -101,14 +101,14 @@
   <splash src="res/screen/screen-portrait.png"/>
 
   
-  
+  <!--
   <splash src="res/screen/ios/screen-iphone-portrait.png" platform="ios" width="320" height="480"/>
   <splash src="res/screen/ios/screen-iphone-portrait-2x.png" platform="ios" width="640" height="960"/>
   <splash src="res/screen/ios/screen-iphone-portrait-568h-2x.png" platform="ios" width="640" height="1136"/>
   <splash src="res/screen/ios/screen-ipad-portrait.png" platform="ios" width="768" height="1024"/>
   <splash src="res/screen/ios/screen-ipad-landscape.png" platform="ios" width="1024" height="768"/>
   <splash src="res/screen/windows-phone/screen-portrait.jpg" platform="winphone"/>
-
+-->
 
   <access origin="*"/>  
   <!-- <access uri="*" subdomains="true" /> -->
