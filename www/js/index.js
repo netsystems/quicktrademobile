@@ -203,7 +203,10 @@ function gotoUpdatePage() {
 
 
 $(document).ready(function () {
-    LoaderShow("Benvenuto!");
+     navigator.notification.alert("00001", function () {
+                return;
+            }, "Attenzione", "OK");
+	LoaderShow("Benvenuto!");
 });
 
 function QTConfigInitAndVerify() {
