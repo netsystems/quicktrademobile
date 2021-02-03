@@ -39,7 +39,8 @@
   <plugin name="cordova-plugin-statusbar"/>
  <plugin name="cordova-plugin-file"   />
 	
-  <plugin name="cordova-plugin-device" spec="~2.0.1" />
+  <!--   <plugin name="cordova-plugin-device" spec="~2.0.1" />    ->
+  <plugin name="cordova-plugin-device" />
  
   <plugin name="cordova-plugin-dialogs"/>
    <plugin name="cordova-plugin-vibration"/>
@@ -110,12 +111,12 @@
   <splash src="res/screen/windows-phone/screen-portrait.jpg" platform="winphone"/>
 
 
-  <access origin='*'/>  
-  <access uri='*' subdomains="true" />
-  <access origin='*' launch-external="yes" />
-  <allow-navigation href='*' />
-  <allow-intent href='*' />
-  <access origin='*' />
+  <access origin="*"/>  
+  <access uri="*" subdomains="true" />
+  <access origin="*" launch-external="yes" />
+  <allow-navigation href="*" />
+  <allow-intent href="*" />
+  <access origin="*" />
 
 
 
