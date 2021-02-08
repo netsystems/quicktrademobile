@@ -73,8 +73,6 @@ function setTitolo() {
 
     $("#pageMainHeader").html("Quick Trade Mobile");
 
-	//navigator.notification.alert("#001", null, "QuickTrade", "OK");
-
     if (!_qtProfile) { return; }
     if (!_qtProfile.OperatoreDescrizione) { return; }
     if (_qtProfile.OperatoreDescrizione != "") {
@@ -106,7 +104,7 @@ function setTitolo() {
 var _initialized = false;
 
 var app = {
-    //navigator.notification.alert("#002", null, "QuickTrade", "OK");
+
     // Application Constructor
     initialize: function () {
 
@@ -203,10 +201,7 @@ function gotoUpdatePage() {
 
 
 $(document).ready(function () {
-     navigator.notification.alert("00001", function () {
-                return;
-            }, "Attenzione", "OK");
-	LoaderShow("Benvenuto!");
+    LoaderShow("Benvenuto!");
 });
 
 function QTConfigInitAndVerify() {
