@@ -1,13 +1,3 @@
-{
-        "cordova-plugin-name": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-name"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
-
 	
 	
 	"cordova-plugin-statusbar": {
