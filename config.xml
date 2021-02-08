@@ -84,7 +84,7 @@
   <!--<gap:splash src="www/res/screen/blackberry/screen-225.png" gap:platform="blackberry"/>-->
 
 
-<<<<<<< HEAD
+
 
   <icon src="www/icon.png" role="default"/>
   
@@ -142,7 +142,7 @@
   <allow-intent href="*" />
 
   <!-- <access uri="*" subdomains="true" /> -->
-=======
+
 
   <!-- <access uri="*" subdomains="true" /> 
 >>>>>>> parent of 46c212e... Update config.xml
