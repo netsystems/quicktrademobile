@@ -59,7 +59,7 @@
   <!--  <plugin name="org.apache.cordova.splashscreen"/> -->
   <!--  <plugin name="org.apache.cordova.vibration"/> -->
   
-  <!--  <plugin name="cordova-plugin-whitelist" /> -->
+   <plugin name="cordova-plugin-whitelist" /> 
 
 <!--  
   
