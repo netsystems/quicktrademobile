@@ -122,7 +122,7 @@
 		<splash src="www/res/screen/windows-phone/screen-portrait.jpg" platform="winphone"/>
 
 
-
+<!--
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -133,15 +133,14 @@
 
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
+-->
 
 
-<!--
   <access origin="*"/>  
   <access origin="*" launch-external="yes" />
   <allow-navigation href="*" />
   <allow-intent href="*" />
-<<<<<<< HEAD
--->
+
   <!-- <access uri="*" subdomains="true" /> -->
 =======
 
