@@ -84,11 +84,15 @@
   <!--<gap:splash src="www/res/screen/blackberry/screen-225.png" gap:platform="blackberry"/>-->
 
 
+<<<<<<< HEAD
 
   <icon src="www/icon.png" role="default"/>
   
   <!--  
   
+=======
+  <icon src="icon.png" role="default"/>
+>>>>>>> parent of 46c212e... Update config.xml
   <icon src="www/res/icon/android/icon-36-ldpi.png"  platform="android" qualifier="ldpi"/>
   <icon src="www/res/icon/android/icon-48-mdpi.png"  platform="android" qualifier="mdpi"/>
   <icon src="www/res/icon/android/icon-72-hdpi.png"  platform="android" qualifier="hdpi"/>
@@ -136,10 +140,15 @@
   <access origin="*" launch-external="yes" />
   <allow-navigation href="*" />
   <allow-intent href="*" />
+<<<<<<< HEAD
 -->
   <!-- <access uri="*" subdomains="true" /> -->
+=======
+
+  <!-- <access uri="*" subdomains="true" /> 
+>>>>>>> parent of 46c212e... Update config.xml
   
-  <!--<access origin="*" />   -->
+  <access origin="*" />   -->
 
 
 
