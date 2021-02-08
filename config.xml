@@ -5,7 +5,7 @@
   <content src="index.html"/>
   <!-- MultiPlatform-->
 
-  <preference name="phonegap-version" value="cli-9.0.0"/>
+  <preference name="phonegap-version" value="cli-6.5.0"/>
 
   <preference name="orientation" value="default"/>
   <preference name="fullscreen" value="false"/>
@@ -32,7 +32,7 @@
   <preference name="ShowSplashScreenSpinner" value="false"/>
   
   
-  
+  <!--
     <plugin name="cordova-plugin-battery-status" source="npm" spec="~1.1.1" />
     <plugin name="cordova-plugin-camera" source="npm" spec="~2.1.1" />
     <plugin name="cordova-plugin-media-capture" source="npm" spec="~1.2.0" />
@@ -55,7 +55,7 @@
     <plugin name="cordova-plugin-whitelist" source="npm" spec="~1.2.1" />
   
   
-  
+  -->
   
   
   
@@ -67,7 +67,7 @@
   <!--  <plugin name="org.apache.cordova.media-capture"/> -->
   <!--  <plugin name="org.apache.cordova.console"/> -->
   <!--   <plugin name="cordova-plugin-device" spec="~2.0.1" />    -->
-<!-- 
+
 
  <plugin name="cordova-plugin-statusbar"/>
  <plugin name="cordova-plugin-file"   />
@@ -76,7 +76,7 @@
   <plugin name="cordova-plugin-device" />
  
   <plugin name="cordova-plugin-dialogs"/>
-   <plugin name="cordova-plugin-vibration"/>   -->
+   <plugin name="cordova-plugin-vibration"/>  
   
   
   <!--  <plugin name="org.apache.cordova.device-motion"/> -->
