@@ -119,12 +119,11 @@
 
 
 
-  <access origin=""/>  
-
-  <access origin="" launch-external="yes" />
-  <allow-navigation href="" />
-  <allow-intent href="" />
-  <access origin="" /> 
+  <access origin="*"/>  
+  <access origin="*" launch-external="yes" />
+  <allow-navigation href="*" />
+  <allow-intent href="*" />
+  <access origin="*" /> 
 
 
 
