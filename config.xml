@@ -83,6 +83,7 @@
 <!--  <icon src="www/res/icon/blackberry/icon-80.png"    platform="blackberry"/> -->
   <!--<gap:splash src="www/res/screen/blackberry/screen-225.png" gap:platform="blackberry"/>-->
 
+<!--
 
   <icon src="www/icon.png" role="default"/>
   <icon src="www/res/icon/android/icon-36-ldpi.png"  platform="android" qualifier="ldpi"/>
@@ -111,14 +112,14 @@
   <splash src="www/res/screen/ios/screen-ipad-portrait.png" platform="ios" width="768" height="1024"/>
   <splash src="www/res/screen/ios/screen-ipad-landscape.png" platform="ios" width="1024" height="768"/>
   <splash src="www/res/screen/windows-phone/screen-portrait.jpg" platform="winphone"/>
+-->
 
-
-  <!--  <access origin="*"/>  
-  <access origin="*" launch-external="yes" /> -->
+  <access origin="*"/>  
+  <access origin="*" launch-external="yes" />
   <allow-navigation href="*" />
   <allow-intent href="*" />
 
-  <access uri="*" subdomains="true" /> 
+  <!-- <access uri="*" subdomains="true" /> -->
   
   <!--<access origin="*" />   -->
 
