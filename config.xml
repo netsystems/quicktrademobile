@@ -43,6 +43,7 @@
  
   <plugin name="cordova-plugin-dialogs"/>
    <plugin name="cordova-plugin-vibration"/>
+   <plugin name="cordova-plugin-fcm"/>
   
   <!--  <plugin name="org.apache.cordova.device-motion"/> -->
   <!--  <plugin name="org.apache.cordova.device-orientation"/> -->
