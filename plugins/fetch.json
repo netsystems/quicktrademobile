@@ -1,3 +1,13 @@
+{
+        "cordova-plugin-name": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-name"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+
 	
 	
 	"cordova-plugin-statusbar": {
@@ -8,7 +18,7 @@
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-plugin-file": {  },  },  },cordova-plugin-file@^6.0.2"  },  },  },  },
+    "cordova-plugin-file": {  },  },  },cordova-plugin-file@^4.3.0"  },  },  },  },
   "cordova-plugin-device": {    "source": {      "type": "registry",      "id": "cordova-plugin-device@~1.1.6"    },    "is_top_level": true,    "variables": {}  }
     
     
