@@ -114,10 +114,12 @@
 
 
   <access origin="*"/>  
-  <!-- <access uri="*" subdomains="true" /> 
   <access origin="*" launch-external="yes" />
   <allow-navigation href="*" />
   <allow-intent href="*" />
+
+  <!-- <access uri="*" subdomains="true" /> 
+  
   <access origin="*" />   -->
 
 
