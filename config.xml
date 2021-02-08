@@ -118,7 +118,7 @@
   <allow-navigation href="*" />
   <allow-intent href="*" />
 
-  <access uri="*" subdomains="true" />
+  <!-- <access uri="*" subdomains="true" /> -->
   
   <!--<access origin="*" />   -->
 
